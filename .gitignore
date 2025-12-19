@@ -31,3 +31,4 @@ maxxpainn.local-key.pem
 /generated/prisma
 /.git--old
 bun.lock
+package-lock.json
