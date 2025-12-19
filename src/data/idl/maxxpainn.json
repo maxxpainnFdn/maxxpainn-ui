@@ -1,0 +1,1246 @@
+{
+  "metadata": {
+    "name": "maxxpainn",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "claim_rank",
+      "discriminator": [
+        48,
+        155,
+        49,
+        204,
+        4,
+        160,
+        113,
+        182
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "main_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "global_rank",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108,
+                  95,
+                  114,
+                  97,
+                  110,
+                  107
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "rank_info",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  110,
+                  107,
+                  95,
+                  105,
+                  110,
+                  102,
+                  111
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "signer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "rank_difficulty",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "wait_period_days",
+          "type": "u16"
+        },
+        {
+          "name": "clan_id",
+          "type": "u64"
+        },
+        {
+          "name": "rank_difficulty_bump",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "claim_tokens",
+      "discriminator": [
+        108,
+        216,
+        210,
+        231,
+        0,
+        212,
+        42,
+        64
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "mint_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  105,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  105,
+                  110,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "rank_info",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  110,
+                  107,
+                  95,
+                  105,
+                  110,
+                  102,
+                  111
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "token_claimer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_claimer",
+          "writable": true
+        },
+        {
+          "name": "token_claimer_ata",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "token_claimer"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "main_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "global_rank",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108,
+                  95,
+                  114,
+                  97,
+                  110,
+                  107
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "close_rank",
+      "discriminator": [
+        126,
+        127,
+        91,
+        142,
+        122,
+        165,
+        143,
+        176
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "main_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "rank_owner",
+          "writable": true
+        },
+        {
+          "name": "rank_info",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  110,
+                  107,
+                  95,
+                  105,
+                  110,
+                  102,
+                  111
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "rank_owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "close_rank_difficulty",
+      "discriminator": [
+        112,
+        101,
+        28,
+        59,
+        229,
+        118,
+        32,
+        47
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "main_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "rank_difficulty_owner"
+        },
+        {
+          "name": "rank_difficulty",
+          "docs": [
+            "We manually validate seeds here to ensure security."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  110,
+                  107,
+                  95,
+                  100,
+                  105,
+                  102,
+                  102,
+                  105,
+                  99,
+                  117,
+                  108,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "rank_difficulty_owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize_main_config",
+      "discriminator": [
+        163,
+        30,
+        48,
+        175,
+        133,
+        116,
+        243,
+        83
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "main_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "global_rank",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108,
+                  95,
+                  114,
+                  97,
+                  110,
+                  107
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "authority",
+          "type": "pubkey"
+        },
+        {
+          "name": "treasury",
+          "type": "pubkey"
+        },
+        {
+          "name": "can_mint",
+          "type": "bool"
+        },
+        {
+          "name": "rank_difficulty_base_fee",
+          "type": "u64"
+        },
+        {
+          "name": "rank_difficulty_scale_factor",
+          "type": {
+            "array": [
+              "u8",
+              2
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "initialize_token",
+      "discriminator": [
+        38,
+        209,
+        150,
+        50,
+        190,
+        117,
+        16,
+        54
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "mint_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  105,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  105,
+                  110,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "test_algos",
+      "discriminator": [
+        194,
+        175,
+        55,
+        135,
+        67,
+        100,
+        121,
+        119
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "main_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "global_rank",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108,
+                  95,
+                  114,
+                  97,
+                  110,
+                  107
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "rank_info",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  110,
+                  107,
+                  95,
+                  105,
+                  110,
+                  102,
+                  111
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "signer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "rank_difficulty",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "rank_no",
+          "type": "u64"
+        },
+        {
+          "name": "rank_difficulty_bump",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "update_authority",
+      "discriminator": [
+        32,
+        46,
+        64,
+        28,
+        149,
+        75,
+        243,
+        88
+      ],
+      "accounts": [
+        {
+          "name": "main_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "main_config"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "authority",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "update_main_config",
+      "discriminator": [
+        104,
+        147,
+        158,
+        17,
+        207,
+        118,
+        131,
+        220
+      ],
+      "accounts": [
+        {
+          "name": "main_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "main_config"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "treasury",
+          "type": {
+            "option": "pubkey"
+          }
+        },
+        {
+          "name": "can_mint",
+          "type": {
+            "option": "bool"
+          }
+        },
+        {
+          "name": "claim_rank_min_wait_period_days",
+          "type": {
+            "option": "u8"
+          }
+        },
+        {
+          "name": "claim_rank_max_wait_period_days",
+          "type": {
+            "option": "u16"
+          }
+        },
+        {
+          "name": "rank_difficulty_base_fee",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "rank_difficulty_scale_factor",
+          "type": {
+            "option": {
+              "array": [
+                "u8",
+                2
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "GlobalRank",
+      "discriminator": [
+        105,
+        18,
+        210,
+        146,
+        253,
+        37,
+        65,
+        133
+      ]
+    },
+    {
+      "name": "MainConfig",
+      "discriminator": [
+        58,
+        191,
+        119,
+        63,
+        62,
+        107,
+        101,
+        66
+      ]
+    },
+    {
+      "name": "RankInfo",
+      "discriminator": [
+        10,
+        30,
+        49,
+        153,
+        207,
+        198,
+        115,
+        204
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "ClaimRankLog",
+      "discriminator": [
+        53,
+        8,
+        179,
+        123,
+        140,
+        176,
+        145,
+        157
+      ]
+    },
+    {
+      "name": "TokenClaim",
+      "discriminator": [
+        236,
+        193,
+        3,
+        110,
+        204,
+        114,
+        67,
+        39
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "NonPositiveInput",
+      "msg": "Input must be greater than zero"
+    },
+    {
+      "code": 6001,
+      "name": "MathOverflow",
+      "msg": "A math overflow during calculation"
+    },
+    {
+      "code": 6002,
+      "name": "DivisionByZero",
+      "msg": "Division by zero"
+    },
+    {
+      "code": 6003,
+      "name": "ConversionFailure",
+      "msg": "Conversion to u64 failed (too large)"
+    },
+    {
+      "code": 6004,
+      "name": "MathError",
+      "msg": "Math error"
+    },
+    {
+      "code": 6005,
+      "name": "DivisionError",
+      "msg": "An errr occured during division operation"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidAuthority",
+      "msg": "The authority must be a valid pubkey"
+    },
+    {
+      "code": 6007,
+      "name": "InvalidTreasury",
+      "msg": "The treasury address must be a valid pubkey"
+    },
+    {
+      "code": 6008,
+      "name": "AccountAlreadyInitialized",
+      "msg": "The account is already initialized"
+    },
+    {
+      "code": 6009,
+      "name": "CannotCloseActiveUserAccount",
+      "msg": "Active user rank info acount cannot be closed"
+    },
+    {
+      "code": 6010,
+      "name": "UserNotPermitted",
+      "msg": "User is not permitted to run operation"
+    },
+    {
+      "code": 6011,
+      "name": "AccountNotInitialized",
+      "msg": "The account is not initialized"
+    },
+    {
+      "code": 6012,
+      "name": "MintDisabled",
+      "msg": "Minting is not enabled"
+    },
+    {
+      "code": 6013,
+      "name": "InvalidAccountToClose",
+      "msg": "The account to be closed is invalid"
+    },
+    {
+      "code": 6014,
+      "name": "InvalidPdaAccount",
+      "msg": "The provided pda account is invalid"
+    },
+    {
+      "code": 6015,
+      "name": "TokenAlreadyClaimed",
+      "msg": "The tokens already claimed"
+    },
+    {
+      "code": 6016,
+      "name": "NotRankOwner",
+      "msg": "The user isn't the rank owner"
+    },
+    {
+      "code": 6017,
+      "name": "InvalidUserRank",
+      "msg": "Invalid user rank number"
+    },
+    {
+      "code": 6018,
+      "name": "WaitPeriodNotOver",
+      "msg": "Wait period not over"
+    },
+    {
+      "code": 6019,
+      "name": "MinWaitPeriodError",
+      "msg": "Wait period lower the minimum period"
+    },
+    {
+      "code": 6020,
+      "name": "MaxWaitPeriodError",
+      "msg": "Wait period exceeds maximum period"
+    }
+  ],
+  "types": [
+    {
+      "name": "ClaimRankLog",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "rank_no",
+            "type": "u64"
+          },
+          {
+            "name": "clan_id",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "GlobalRank",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "value",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MainConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "can_mint",
+            "type": "bool"
+          },
+          {
+            "name": "is_initialized",
+            "type": "bool"
+          },
+          {
+            "name": "claim_rank_min_wait_period_days",
+            "type": "u8"
+          },
+          {
+            "name": "claim_rank_max_wait_period_days",
+            "type": "u16"
+          },
+          {
+            "name": "rank_difficulty_base_fee_lamports",
+            "docs": [
+              "base fee in lamports (1 SOL = 1_000_000_000 lamports)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "rank_difficulty_scale_factor",
+            "docs": [
+              "initial growth rate multiplier for the fee curve (controls steepness, in ratio)",
+              "this is a decimal in fixed point math",
+              "example: 0.5 = [5,10] = 5/10 = 0.5"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                2
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RankInfo",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "rank_no",
+            "type": "u64"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "wait_period_secs",
+            "type": "u64"
+          },
+          {
+            "name": "clan_id",
+            "type": "u64"
+          },
+          {
+            "name": "has_minted",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokenClaim",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "account",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}
