@@ -1,7 +1,0 @@
-name = "maxxpainn"
-pages_build_output_dir = "dist"
-compatibility_date = "2024-04-01"
-
-# Optional: Add environment variables here if needed
-[vars]
-# API_URL = "https://api.example.com"
