@@ -21,6 +21,7 @@ export default function ActivityContent({ accountId }) {
         uri="/account/activities"
         query={{ activityAccountId: accountId }}
         onSuccess={(result) => {
+          console.log("result===>", result)
           setActivities(result)
         }}
       >

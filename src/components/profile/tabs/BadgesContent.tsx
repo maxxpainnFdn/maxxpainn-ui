@@ -1,5 +1,6 @@
 import ApiQuery from "@/components/apiQuery/ApiQuery";
 import { Badge, BadgeProps } from "@/components/badge/Badge";
+import BadgeReveal from "@/components/badge/BadgeReveal";
 import EmptyContent from "@/components/emptyContent/EmptyContent";
 import { Medal, Trophy  } from "lucide-react";
 import { useState } from "react";
@@ -37,13 +38,14 @@ export default function BadgesContent({ accountId }) {
         ) : (
           <div className="flex flex-wrap  justify-center gap-2">
             {badges.map((badge: BadgeProps) => (
-              <div className="w-[300px]" key={badge.id}>
+              <div className="w-[280px]" key={badge.id}>
               <Badge
                 key={badge.id}
                 badge={{ ...badge, }}
               />
               </div>
             ))}
+
           </div>
         )}
       </ApiQuery>

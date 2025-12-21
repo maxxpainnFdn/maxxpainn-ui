@@ -202,7 +202,7 @@ export const Badge = ({ badge }: { badge: BadgeProps }) => {
       onMouseLeave={handleMouseLeave}
       onClick={handleClick}
       // UPDATE: Changed from 'fixed' to 'relative w-full h-full' to stay inside parent div
-      className="relative w-full h-full flex items-center justify-center  cursor-pointer"
+      className={`relative w-full h-full flex items-center justify-center cursor-pointer ${isHovered ? 'z-50' : 'z-0'}`}
       style={{
         perspective: '1500px',
       }}
@@ -248,7 +248,7 @@ export const Badge = ({ badge }: { badge: BadgeProps }) => {
           viewBox="35 20 270 330"
           preserveAspectRatio="xMidYMid meet"
           xmlns="http://www.w3.org/2000/svg"
-          className="relative z-[1] max-w-full max-h-full"
+          className="relative z-0 max-w-full max-h-full"
         >
           <defs>
             <linearGradient id={`mainGradient-${normalizedMaterial}`} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -465,7 +465,7 @@ export const Badge = ({ badge }: { badge: BadgeProps }) => {
         {/* Description Panel */}
         <div
           className={`
-          absolute z-[9999] transition-all
+          absolute z-20 transition-all
           duration-300 ease-out
           ${showInfo ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible translate-y-4 pointer-events-none'}
         `}

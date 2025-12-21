@@ -1,4 +1,4 @@
-import { Castle, Coins, Medal, UserPlus } from "lucide-react";
+import { Castle, Coins, Medal, UserPlus, UserCheck } from "lucide-react";
 
 export const activityTypes = {
   new_clan: {
@@ -22,7 +22,7 @@ export const activityTypes = {
   rank_claim: {
     title: "Rank Claimed",
     text: "{username} claimed a new rank!",
-    icon:  Medal,
+    icon: Medal,
     iconClass: "text-blue-400",
     iconBoxClass: "bg-blue-500/20",
     mainClass: "from-blue-500/10 to-transparent border-l-4 border-blue-500 hover:from-blue-500/20",
@@ -35,5 +35,14 @@ export const activityTypes = {
     iconClass: "text-yellow-400",
     iconBoxClass: "bg-yellow-500/20",
     mainClass: "from-yellow-500/10 to-transparent border-l-4 border-yellow-500 hover:from-yellow-500/20",
+  },
+
+  follow: {
+    title: "New Follow",
+    text: "{username} started following {followed_username}",
+    icon: UserCheck,
+    iconClass: "text-pink-400",
+    iconBoxClass: "bg-pink-500/20",
+    mainClass: "from-pink-500/10 to-transparent border-l-4 border-pink-500 hover:from-pink-500/20",
   },
 } as const;

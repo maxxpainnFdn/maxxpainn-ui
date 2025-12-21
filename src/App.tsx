@@ -2,22 +2,17 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-
-import WalletCore from "./components/wallet/Wallet"
 import Routes from "./routes/Routes";
-
-
+import { WalletProvider } from "./components/wallet/WalletProvider";
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <WalletCore>
+  <WalletProvider>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        
-        <Toaster 
-          position="top-center" 
+        <Toaster
+          position="top-center"
           richColors={true}
           closeButton={false}
           expand={true}
@@ -25,10 +20,10 @@ const App = () => (
         />
 
         <Routes />
-    
+
       </TooltipProvider>
     </QueryClientProvider>
-  </WalletCore>
+  </WalletProvider>
 );
 
 export default App;

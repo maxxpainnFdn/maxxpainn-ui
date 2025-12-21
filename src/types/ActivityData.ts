@@ -11,14 +11,14 @@ export interface ActivityData {
   referredAccountId?:   number;
   followedAccountId?:    number;
 
-  params?:               Record<string, any>;   
-  createdAt:             Date;   
+  params?:               Record<string, any>;
+  createdAt:             Date;
 
   // ✅ Relations (no explicit relation names)
  // Named relations
   account?:               AccountData;
   clan?:                  ClanData;
-  referredAccount?:       AccountData;  
+  referredAccount?:       AccountData;
   followedAccount?:       AccountData;
 
 }
