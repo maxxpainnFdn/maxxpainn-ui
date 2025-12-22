@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { Drawer } from "vaul";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 
@@ -21,7 +21,7 @@ export interface ModalProps {
   open?: boolean;
   title: string;
   description?: string;
-  icon?: ReactNode | any;
+  icon?: any;
   trigger?: ReactNode;
   onOpenChange?: (open: boolean) => void;
   className?: string;
@@ -63,15 +63,23 @@ export default function Modal({
     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 z-10" />
   );
 
+  ///console.log("icon===>", icon)
+
   // Shared Header Content (Removed the gradient from here)
   const HeaderContent = () => (
     <div className="p-5 sm:p-6 pb-4 border-b border-white/5 bg-black/20 flex-shrink-0">
       <div className="text-left space-y-0">
         <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-3">
           {icon && (
-            <div className="p-2 bg-purple-500/10 rounded-lg border border-purple-500/20 shrink-0">
-              <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
-            </div>
+            <>
+              { ("displayName" in icon && "render" in icon) ? (
+                <div className="p-2 bg-purple-500/10 rounded-lg border border-purple-500/20 shrink-0">
+                  <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
+                </div>
+              ) : (
+                  <>{ icon }</>
+              )}
+            </>
           )}
           <span>{title}</span>
         </h2>

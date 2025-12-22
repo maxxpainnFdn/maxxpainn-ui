@@ -11,13 +11,12 @@ import {
   Coin98WalletAdapter,
   MathWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
-import { clusterApiUrl } from '@solana/web3.js';
 import { initializeWhenDetected } from '@solflare-wallet/metamask-wallet-standard';
 import { defaultNetwork } from '@/config/networks';
 import EventBus from '@/core/EventBus';
 import { ConnectedWalletModal } from './ConnectedWalletModal';
 import WalletModal from './WalletModal';
-
+import walletConfig from "@/config/wallet"
 
 interface WalletProviderProps {
   children: ReactNode;
@@ -58,7 +57,7 @@ export const WalletProvider: FC<WalletProviderProps> = ({
       <SolanaWalletProvider
         wallets={wallets}
         autoConnect
-        localStorageKey="mp_wallet"
+        localStorageKey={walletConfig.localStorageKey}
       >
         <>
           <WalletModal />

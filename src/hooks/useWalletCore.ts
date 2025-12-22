@@ -1,31 +1,49 @@
 // @/hooks/useWalletCore.ts
 
 import EventBus from '@/core/EventBus';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { MessageSignerWalletAdapterProps, WalletName } from '@solana/wallet-adapter-base';
+import { useConnection, useWallet, Wallet } from '@solana/wallet-adapter-react';
+import { PublicKey } from '@solana/web3.js';
+import { useEffect, useState } from 'react';
 
+export interface UseWalletCoreResult {
+  address:        string | null;
+  publicKey:      PublicKey | null;
+  isConnected:    boolean;
+  isConnecting:   boolean;
+  openModal:      () => void;
+  closeModal:     () => void;
+  disconnect:     () => void;
+  wallets:        Wallet[];
+  selectWallet:   (walletName: WalletName | null) => void;
+  signMessage:    MessageSignerWalletAdapterProps['signMessage'] | undefined;
+  currentWallet:  Wallet
+}
 
-export const useWalletCore = () => {
-
+export const useWalletCore = (): UseWalletCoreResult => {
   const {
     publicKey,
     connected: isConnected,
     connecting: isConnecting,
     disconnect,
-    select,
+    select: selectWallet,
     wallets,
-    wallet,
+    wallet: currentWallet,
     signMessage
   } = useWallet();
 
+
   const openModal = () => {
-    let eventName = isConnected ? "openConnectedWalletModal" : "openWalletModal"
-    EventBus.emit(eventName)
-  }
+    EventBus.emit(
+      isConnected ? 'openConnectedWalletModal' : 'openWalletModal'
+    );
+  };
 
   const closeModal = () => {
-    let eventName = isConnected ? "closeConnectedWalletModal" : "closeWalletModal"
-    EventBus.emit(eventName)
-  }
+    EventBus.emit(
+      isConnected ? 'closeConnectedWalletModal' : 'closeWalletModal'
+    );
+  };
 
   return {
     address: publicKey?.toBase58() || null,
@@ -36,8 +54,8 @@ export const useWalletCore = () => {
     closeModal,
     disconnect,
     wallets,
-    selectWallet: select,
+    selectWallet,
     signMessage,
-    currentWallet: wallet
+    currentWallet
   };
 };

@@ -20,11 +20,10 @@ interface WalletModalProps {
 
 export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) => {
 
-  const { wallets, select, connect, connecting, connected, wallet: selectedWallet } = useWallet();
+  const { wallets, select, connect, connecting, wallet: selectedWallet } = useWallet();
   const [connectingWallet, setConnectingWallet] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(open)
-
 
   useEffect(()=>{
     EventBus.on("openWalletModal", ()=>{
@@ -51,6 +50,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
 
   const openMobileNativeDialog = () => {
       if (isMobile) {
+
         // 2. Find the Mobile Wallet Adapter in your wallets list
         // Note: The official name constant is usually 'Mobile Wallet Adapter'
         const mobileWallet = wallets.find(
@@ -67,7 +67,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
   }
 
   // Handle wallet selection and connection
-  const handleWalletSelect = useCallback(async (walletName: WalletName) => {
+  const handleWalletSelect =  (walletName: WalletName) => {
     setError(null);
     setConnectingWallet(walletName);
 
@@ -78,7 +78,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
       setError(err.message || 'Failed to select wallet');
       setConnectingWallet(null);
     }
-  }, [select]);
+  }
 
   // Connect after selection
   useEffect(() => {
