@@ -79,6 +79,7 @@ const loadedIdls: Record<string, any> = {};
 const loadedNetworks: Record<string, any> = {};
 
 export const useWeb3 = () => {
+
   const anchorProvider = useAnchorProvider();
 
   const getProgramId = async (network: string): Promise<PublicKey> => {

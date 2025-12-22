@@ -15,6 +15,8 @@ import { clusterApiUrl } from '@solana/web3.js';
 import { initializeWhenDetected } from '@solflare-wallet/metamask-wallet-standard';
 import { defaultNetwork } from '@/config/networks';
 import EventBus from '@/core/EventBus';
+import { ConnectedWalletModal } from './ConnectedWalletModal';
+import WalletModal from './WalletModal';
 
 
 interface WalletProviderProps {
@@ -58,7 +60,11 @@ export const WalletProvider: FC<WalletProviderProps> = ({
         autoConnect
         localStorageKey="mp_wallet"
       >
-        {children}
+        <>
+          <WalletModal />
+          <ConnectedWalletModal />
+        </>
+        <> {children} </>
       </SolanaWalletProvider>
     </ConnectionProvider>
   );

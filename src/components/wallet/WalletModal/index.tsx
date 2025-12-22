@@ -1,7 +1,7 @@
 // components/wallet/WalletModal.tsx
 import React, { useState, useCallback, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletName } from '@solana/wallet-adapter-base';
+import { WalletName, WalletReadyState } from '@solana/wallet-adapter-base';
 
 import toast from '@/hooks/toast';
 import Modal from '@/components/modal/Modal';
@@ -11,6 +11,7 @@ import NotInstalledWallets from './NotInstalledWallets';
 import WalletSecurityWarning from './WalletSecurityWarning';
 import WalletError from './WalletError';
 import EventBus from '@/core/EventBus';
+import { isMobile } from 'react-device-detect';
 
 interface WalletModalProps {
   open?: boolean;
@@ -43,6 +44,25 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
     if (!state) {
       setConnectingWallet(null);
       setError(null);
+    } else {
+      openMobileNativeDialog()
+    }
+  }
+
+  const openMobileNativeDialog = () => {
+      if (isMobile) {
+        // 2. Find the Mobile Wallet Adapter in your wallets list
+        // Note: The official name constant is usually 'Mobile Wallet Adapter'
+        const mobileWallet = wallets.find(
+            (w) => w.adapter.name === 'Mobile Wallet Adapter'
+        );
+
+        // 3. If it exists and is ready (Loadable), connect to it directly
+        if (mobileWallet && mobileWallet.readyState !== WalletReadyState.Unsupported) {
+          select(mobileWallet.adapter.name);
+          connect(); // This triggers the Android Native Sheet
+          return;
+        }
     }
   }
 

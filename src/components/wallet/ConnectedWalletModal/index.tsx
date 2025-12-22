@@ -36,9 +36,7 @@ export function ConnectedWalletModal() {
       className="max-h-[85vh]"
     >
 
-      <WalletContent
-        fullAddress={address}
-      />
+      <WalletContent />
 
     </Modal>
   )
