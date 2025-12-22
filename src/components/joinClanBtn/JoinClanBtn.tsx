@@ -5,7 +5,7 @@ import toast from "@/hooks/toast";
 import { confirmToast } from "@/hooks/confirmToast";
 import { useApi } from "@/hooks/useApi";
 import { ClanData } from "@/types/ClanData";
-import { useWalletAccount } from "@/hooks/useWalletAccount";
+import { useWalletCore } from "@/hooks/useWalletCore";
 
 export  interface JoinClanBtnProps  extends ButtonProps {
     clanId: number;
@@ -19,26 +19,26 @@ export default function JoinClanBtn({ clanId, clanName, isMember, onSuccess, ...
     const [loading, setLoading] = useState(false);
 
     const api = useApi()
-    const walletAccount = useWalletAccount()
+    const { isConnected } = useWalletCore()
 
     const handleJoinClan =  async () => {
 
         let uri = ""
 
-        if(!walletAccount.isConnected){
+        if(!isConnected){
             toast.error("Connect wallet to continue")
             return
         }
 
         let successMsg = ""
-        
+
         if(isMember){
 
             uri = `/clans/${clanId}/leave`
             let confirm = await confirmToast({ title: "Leave Clan ?", description: `You will be removed from ${clanName}`})
 
             if(!confirm) return;
-            
+
             successMsg = `You’ve successfully left ${clanName}.`
         } else {
             uri = `/clans/${clanId}/join`

@@ -9,6 +9,7 @@ export const SolanaTestnet: NetworkConfig = {
   endpoint:        clusterApiUrl('testnet'),
   chainId:        'solana_testnet',
   caipNetworkId:  'solana:testnet',
+  genesisHash:    '4uhcVJyU9pJkvQyS88uRDiswHXSCkY3',
   explorer:       'https://solscan.io/?cluster=testnet',
   isTestnet:       true,
 }

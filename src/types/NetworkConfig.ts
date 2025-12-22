@@ -6,6 +6,7 @@ export interface NetworkConfig {
   chainId: string;
   caipNetworkId: string;
   explorer: string;
+  genesisHash: string;
   icon?: string;
   isTestnet: boolean;
 }

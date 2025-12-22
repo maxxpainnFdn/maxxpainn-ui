@@ -1,49 +1,67 @@
-import { FC, ReactNode, useMemo } from "react"
-import { ConnectionProvider, WalletProvider as SolanaWalletProvider } from "@solana/wallet-adapter-react"
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base"
+// components/wallet/WalletProvider.tsx
+import React, { FC, ReactNode, useMemo, useState, useEffect } from 'react';
+import { ConnectionProvider, WalletProvider as SolanaWalletProvider } from '@solana/wallet-adapter-react';
 import {
   PhantomWalletAdapter,
   SolflareWalletAdapter,
-  TrustWalletAdapter,
-  CoinbaseWalletAdapter,
   LedgerWalletAdapter,
-  TorusWalletAdapter,
+  CoinbaseWalletAdapter,
+  TrustWalletAdapter,
   SafePalWalletAdapter,
-  MathWalletAdapter,
   Coin98WalletAdapter,
-} from "@solana/wallet-adapter-wallets"
-import { WalletModalProvider } from "@solana/wallet-adapter-react-ui"
-import { clusterApiUrl } from "@solana/web3.js"
-import "@solana/wallet-adapter-react-ui/styles.css"
+  MathWalletAdapter,
+} from '@solana/wallet-adapter-wallets';
+import { clusterApiUrl } from '@solana/web3.js';
+import { initializeWhenDetected } from '@solflare-wallet/metamask-wallet-standard';
+import { defaultNetwork } from '@/config/networks';
+import EventBus from '@/core/EventBus';
 
 
-export const WalletProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const network = WalletAdapterNetwork.Mainnet
-  const endpoint = useMemo(() => clusterApiUrl(network), [network])
+interface WalletProviderProps {
+  children: ReactNode;
+}
 
-   const wallets = useMemo(() => [
-      new PhantomWalletAdapter(),
-      new SolflareWalletAdapter({ network }),
+export const WalletProvider: FC<WalletProviderProps> = ({
+  children,
+}) => {
 
-      new TrustWalletAdapter(),
-      new CoinbaseWalletAdapter(),
-      new LedgerWalletAdapter(),
-      new TorusWalletAdapter(),
+  const [network, setNetwork] = useState(defaultNetwork)
 
-      new SafePalWalletAdapter(),
-      new MathWalletAdapter(),
-      new Coin98WalletAdapter(),
-    ],
-    [network]
-  )
+  useEffect(()=>{
+
+    EventBus.on("networkChange", (networkInfo)=>{
+      setNetwork(networkInfo)
+    })
+
+    return () => {
+      EventBus.off("networkChange")
+    }
+  },[])
+
+  const wallets = useMemo(() => [
+    new PhantomWalletAdapter(),
+    new SolflareWalletAdapter(),
+    new TrustWalletAdapter(),
+    new CoinbaseWalletAdapter(),
+    new LedgerWalletAdapter(),
+    new MathWalletAdapter(),
+    new Coin98WalletAdapter(),
+    new SafePalWalletAdapter(),
+  ], []);
+
+  initializeWhenDetected()
 
   return (
-    <ConnectionProvider endpoint={endpoint}>
-      <SolanaWalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>
-          {children}
-        </WalletModalProvider>
+    <ConnectionProvider endpoint={network.endpoint}>
+      <SolanaWalletProvider
+        wallets={wallets}
+        autoConnect
+        localStorageKey="mp_wallet"
+      >
+        {children}
       </SolanaWalletProvider>
     </ConnectionProvider>
-  )
-}
+  );
+};
+
+export default WalletProvider;

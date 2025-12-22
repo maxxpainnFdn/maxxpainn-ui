@@ -1,11 +1,10 @@
 import { useEffect } from "react"
 import { networks } from "@/config/wallet";
 import { useWalletCore } from "@/hooks/useWalletCore"
-import { useWalletNetwork } from "@/hooks/useWalletNetwork";
 import Button from "../button/Button";
 
 
-const EnsureConnected = ({ 
+const EnsureConnected = ({
     network=null,
     children = <></>,
     className = "",
@@ -13,16 +12,18 @@ const EnsureConnected = ({
 }) => {
 
     const { openModal, isConnected } = useWalletCore()
-    const  walletNetwork  = useWalletNetwork()
+    //const  walletNetwork  = useWalletNetwork()
 
     const switchChain = async (network) => {
-        walletNetwork.switchNetwork(network)
+      ///  walletNetwork.switchNetwork(network)
     }
     return (
         <>
+          { children }
+        {/*
             { isConnected ?
                 <>
-                    {(network == null || network == walletNetwork.caipNetwork == network) ? 
+                    {(network == null || network == walletNetwork.caipNetwork == network) ?
                         <>{children}</> :
                         <div className={`m-4 py-5 flex align-middle items-center justify-center ${className}`}>
                             <Button variant="secondary"  size="lg" onClick={switchChain}>
@@ -38,6 +39,7 @@ const EnsureConnected = ({
                     </Button>
                 </div>
             }
+            */}
         </>
     )
 }

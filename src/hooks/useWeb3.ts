@@ -1,6 +1,5 @@
 import utils from "@/lib/utils";
 import { EventParser, Idl, MethodsNamespace, Program } from "@coral-xyz/anchor";
-import { useAppKitNetwork, useAppKitProvider } from "@reown/appkit/react";
 import { useAnchorProvider } from "./useAnchorProvider";
 import {
   getAnchorErrorMessage,
@@ -11,12 +10,15 @@ import { Status } from "@/core/Status";
 import { SimulateResponse } from "@coral-xyz/anchor/dist/cjs/program/namespace/simulate";
 import {
   AccountInfo,
+  LAMPORTS_PER_SOL,
   ParsedTransactionWithMeta,
   PublicKey,
   Transaction,
 } from "@solana/web3.js";
 import { MintLayout } from "@solana/spl-token";
 import type { AnchorProvider, MethodsBuilderFactory } from "@coral-xyz/anchor";
+import { useConnection } from '@solana/wallet-adapter-react';
+
 
 type ProgramMethod = ReturnType<Program<Idl>["methods"][string]>;
 
@@ -325,13 +327,14 @@ export const useWeb3 = () => {
     params: FetchAccountsProps,
   ): Promise<Status<Record<string, DecodedAccountInfo> | null>> => {
     try {
+
       const { network, accounts: acctsParams } = params;
 
       const pubkeys = Object.values(acctsParams).map((item) => item.pubkey);
 
       //console.log("pubkeys==>", pubkeys);
 
-      const provider = anchorProvider.getProvider(network);
+      const provider = anchorProvider.getProvider();
 
       ///console.log("provider===>", provider)
 
@@ -399,6 +402,26 @@ export const useWeb3 = () => {
     }
   };
 
+  const getNativeBalance = async (address: PublicKey): Promise<Status<{balance: number, balanceLamport: number}>> => {
+    try{
+
+      const provider = anchorProvider.getProvider()
+
+      if (!provider) return Status.error("Connect Wallet")
+
+      const balanceLamports = await provider.connection.getBalance(address);
+
+      const balance = balanceLamports / LAMPORTS_PER_SOL;
+
+      return Status.successData({ balanceLamports, balance })
+
+    } catch(e: any){
+      utils.logError("Failed to fetch native balance", e)
+      return Status.error("Failed to fetch native balance")
+    }
+  };
+
+
   return {
     simulateTx,
     sendTx,
@@ -408,5 +431,6 @@ export const useWeb3 = () => {
     fetchAccountsInfo,
     findProgramAddress,
     getProgramPdas,
+    getNativeBalance
   };
 };

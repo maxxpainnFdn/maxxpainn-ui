@@ -1,15 +1,15 @@
 // @/hooks/useWalletCore.ts
 
+import EventBus from '@/core/EventBus';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { useWalletModal } from "@solana/wallet-adapter-react-ui"
 
 
 export const useWalletCore = () => {
 
-  const { setVisible } = useWalletModal()
   const {
     publicKey,
-    connected,
+    connected: isConnected,
+    connecting: isConnecting,
     disconnect,
     select,
     wallets,
@@ -17,13 +17,23 @@ export const useWalletCore = () => {
     signMessage
   } = useWallet();
 
+  const openModal = () => {
+    let eventName = isConnected ? "openConnectedWalletModal" : "openWalletModal"
+    EventBus.emit(eventName)
+  }
+
+  const closeModal = () => {
+    let eventName = isConnected ? "closeConnectedWalletModal" : "closeWalletModal"
+    EventBus.emit(eventName)
+  }
 
   return {
     address: publicKey?.toBase58() || null,
     publicKey,
-    isConnected: connected,
-    openModal: () => setVisible(true),
-    closeModal: () => setVisible(false),
+    isConnected,
+    isConnecting,
+    openModal,
+    closeModal,
     disconnect,
     wallets,
     selectWallet: select,

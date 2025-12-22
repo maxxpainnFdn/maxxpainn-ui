@@ -1,18 +1,22 @@
-import { ReactNode, useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { ReactNode, useEffect, useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 
 
 export interface ModalProps {
+  open?: boolean;
   title: string;
   description?: string;
   icon?: ReactNode | any;
-  trigger: ReactNode;
+  trigger?: ReactNode;
   onOpenChange?: (open: boolean) => void;
   className?: string;
-  children: ReactNode | any;
+  children?: ReactNode | any;
   size?: number | string;
+  modalFooter?: ReactNode | any
 }
+
 export default function Modal({
+  open = false,
   title,
   description = "",
   icon,
@@ -20,10 +24,15 @@ export default function Modal({
   onOpenChange,
   className = "",
   size,
-  children
+  children = <></>,
+  modalFooter
 }: ModalProps) {
 
-   const [isDialogOpen, setDialogOpen] = useState(false);
+   const [isDialogOpen, setDialogOpen] = useState(open);
+
+   useEffect(()=> {
+     setDialogOpen(open)
+   }, [open])
 
   const handleOpenChange = (open: boolean) => {
      setDialogOpen(open);
@@ -36,9 +45,11 @@ export default function Modal({
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={handleOpenChange} modal={true}>
-      <DialogTrigger asChild>
-        { trigger }
-      </DialogTrigger>
+      {trigger &&
+        <DialogTrigger asChild>
+          {trigger}
+        </DialogTrigger>
+      }
       <DialogContent
         className={`
           sm:max-w-[${size}]
@@ -79,6 +90,12 @@ export default function Modal({
         >
           { children }
         </div>
+
+        {modalFooter &&
+          <DialogFooter>
+            { modalFooter }
+          </DialogFooter>
+        }
       </DialogContent>
     </Dialog>
   )

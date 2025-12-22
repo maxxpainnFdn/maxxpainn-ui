@@ -1,31 +1,18 @@
-import { AnchorProvider } from '@coral-xyz/anchor'
-import { useAppKitConnection } from '@reown/appkit-adapter-solana/react'
-import { useAppKitProvider } from '@reown/appkit/react'
-import { AnchorWallet } from '@solana/wallet-adapter-react'
-
+import { AnchorProvider } from "@coral-xyz/anchor";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import type { AnchorWallet } from "@solana/wallet-adapter-react";
+import { Commitment } from "@solana/web3.js";
 
 export function useAnchorProvider() {
 
-  const { walletProvider } = useAppKitProvider<any>('solana')
-  const { connection } = useAppKitConnection();
+  const { connection } = useConnection();
+  const wallet = useWallet();
 
+  const getProvider = (commitment: Commitment = "confirmed") => {
+    if (!wallet.publicKey) return null;
 
-  const getProvider = (network?: string) => {
+    return new AnchorProvider(connection, wallet as AnchorWallet, { commitment });
+  };
 
-    //const networkInfo = networks[network] 
-
-   // const connection = new Connection(networkInfo.rpcUrls.default.http[0], 'confirmed')
-    
-    let anchorWallet = null;
-    
-    if(walletProvider) {
-      anchorWallet = (walletProvider as AnchorWallet)
-    }                      
-                        
-    const provider = new AnchorProvider(connection, anchorWallet, { commitment: 'confirmed' })
-
-    return provider
-  }
-  
-  return { getProvider }
+  return { getProvider };
 }
