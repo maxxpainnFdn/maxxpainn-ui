@@ -2,9 +2,8 @@
 
 import EventBus from '@/core/EventBus';
 import { MessageSignerWalletAdapterProps, WalletName } from '@solana/wallet-adapter-base';
-import { useConnection, useWallet, Wallet } from '@solana/wallet-adapter-react';
+import { useWallet, Wallet } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
-import { useEffect, useState } from 'react';
 
 export interface UseWalletCoreResult {
   address:        string | null;
@@ -12,23 +11,24 @@ export interface UseWalletCoreResult {
   isConnected:    boolean;
   isConnecting:   boolean;
   openModal:      () => void;
-  closeModal:     () => void;
+  closeModal:     () => void ;
   disconnect:     () => void;
   wallets:        Wallet[];
-  selectWallet:   (walletName: WalletName | null) => void;
+  wallet:         Wallet | null;
+  select:         (walletName: WalletName | null) => void;
   signMessage:    MessageSignerWalletAdapterProps['signMessage'] | undefined;
-  currentWallet:  Wallet
 }
 
 export const useWalletCore = (): UseWalletCoreResult => {
+
   const {
     publicKey,
     connected: isConnected,
     connecting: isConnecting,
     disconnect,
-    select: selectWallet,
+    select,
     wallets,
-    wallet: currentWallet,
+    wallet,
     signMessage
   } = useWallet();
 
@@ -50,12 +50,13 @@ export const useWalletCore = (): UseWalletCoreResult => {
     publicKey,
     isConnected,
     isConnecting,
-    openModal,
-    closeModal,
     disconnect,
+    select,
     wallets,
-    selectWallet,
+    wallet,
     signMessage,
-    currentWallet
-  };
+    openModal,
+    closeModal
+  }
+
 };

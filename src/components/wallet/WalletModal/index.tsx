@@ -80,26 +80,38 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
     }
   }
 
-  // Connect after selection
-  useEffect(() => {
-    const connectWallet = async () => {
-      if (selectedWallet && connectingWallet === selectedWallet.adapter.name) {
-        try {
+  const connectWallet = async () => {
+
+    if (selectedWallet && connectingWallet === selectedWallet?.adapter?.name) {
+      try {
+
+        setTimeout(async ()=> {
+
           await connect();
           toast.success(`Connected to ${selectedWallet.adapter.name}`);
           handleOnOpenChange(false);
-        } catch (err: any) {
-          console.error('Connection error:', err);
-          if (err.name !== 'WalletConnectionError' || !err.message.includes('User rejected')) {
-            setError(err.message || 'Failed to connect wallet');
-            toast.error('Connection failed. Please try again.');
-          }
-        } finally {
-          setConnectingWallet(null);
-        }
-      }
-    };
 
+          setConnectingWallet(null);
+
+        }, 1500)
+
+      } catch (err: any) {
+
+        console.error('Connection error:', err);
+
+        if (err.name !== 'WalletConnectionError' || !err.message.includes('User rejected')) {
+          setError(err.message || 'Failed to connect wallet');
+          toast.error('Connection failed. Please try again.');
+        }
+
+        setConnectingWallet(null);
+      }
+
+    }
+  };
+
+  // Connect after selection
+  useEffect(() => {
     connectWallet();
   }, [selectedWallet, connectingWallet, connect, onOpenChange]);
 
