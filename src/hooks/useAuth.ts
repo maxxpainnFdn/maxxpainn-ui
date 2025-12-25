@@ -3,64 +3,90 @@ import { useState, useEffect, useCallback } from 'react';
 import { useWalletCore } from '@/hooks/useWalletCore';
 import { useNetwork } from '@/hooks/useNetwork';
 import  { authService } from '@/core/AuthService';
-import { AuthNonce, SessionStatus } from '@/types/Auth';
+import { AuthNonce, SessionData, SessionWithAccountData } from '@/types/Auth';
 import EventBus from '@/core/EventBus';
 import bs58 from 'bs58';
 import toast from './toast';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { authSessionInfoAtom, isAuthenticatedAtom, userAccountInfoAtom } from '@/store';
+import authConfig from '@/config/auth';
+import { useApi } from './useApi';
+import { Status } from '@/core/Status';
 
 interface UseAuthReturn {
   isAuthenticated: boolean;
   isLoading: boolean;
   isSigningIn: boolean;
-  session: SessionStatus | null;
-  signIn: () => Promise<boolean>;
+  session: SessionData | null;
+  signIn: () => Promise<Status>;
   signOut: () => Promise<void>;
   checkSession: () => Promise<void>;
 }
 
 export function useAuth(): UseAuthReturn {
-  const { isConnected, address, signMessage } = useWalletCore();
+
+  const api = useApi()
+  const { isConnected, address, signMessage, wallet } = useWalletCore();
   const { currentNetwork } = useNetwork();
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSigningIn, setIsSigningIn] = useState(false);
-  const [session, setSession] = useState<SessionStatus | null>(null);
+  const [authSession, setAuthSession] = useAtom(authSessionInfoAtom)
+  const setUserAccountInfo = useSetAtom(userAccountInfoAtom)
+  const isAuthenticated = useAtomValue(isAuthenticatedAtom)
+
+  const getSessions = () => {
+    try{
+      return JSON.parse(localStorage.getItem(authConfig.sessionStorageKey) || "{}")
+    } catch(e){
+      return {}
+    }
+  }
+
+  const updateSessions = (address: string, sessionData: SessionData ) => {
+    let sessions = getSessions()
+    sessions[address] = sessionData
+    localStorage.setItem(authConfig.sessionStorageKey, JSON.stringify(sessions))
+  }
+
+  const getSession = (address): SessionData | null  => {
+    const _sess = getSessions()
+    return _sess[address] || null
+  }
+
+
+  const initialise = () => {
+    if (!isConnected || address == null) return;
+
+    let sessions = getSessions()
+
+    if (Object.keys(sessions).length == 0 || !(address in sessions)) return;
+
+    setAuthSession(sessions[address])
+  }
+
+  useEffect(() => { initialise() }, []);
+
+  useEffect(()=> {
+    initialise()
+  }, [isConnected, address])
+
 
   // Check session on mount and when wallet changes
   const checkSession = useCallback(async () => {
 
     if (!isConnected || !address) {
-      setIsAuthenticated(false);
-      setSession(null);
+      setAuthSession(null);
       setIsLoading(false);
       return;
     }
 
     setIsLoading(true);
 
-    try {
+    setAuthSession(getSession(address))
 
-      const status = await authService.getSession(address);
+    setIsLoading(false);
 
-      if(status.isError()){
-        setIsAuthenticated(true);
-        setSession(null);
-        return;
-      }
-
-      const data = status.getData() as SessionStatus;
-
-      setIsAuthenticated(data.isAuthenticated);
-      setSession(data)
-
-    } catch (error) {
-      console.error('Failed to check session:', error);
-      setIsAuthenticated(false);
-      setSession(null);
-    } finally {
-      setIsLoading(false);
-    }
   }, [isConnected, address]);
 
   useEffect(() => {
@@ -70,43 +96,73 @@ export function useAuth(): UseAuthReturn {
   // Listen for wallet disconnect
   useEffect(() => {
 
-    const handleDisconnect = () => {
-      setIsAuthenticated(false);
-      setSession(null);
-    };
+    wallet?.adapter?.on("disconnect", ()=>{
+      setAuthSession(null);
+    })
 
-    EventBus.on('walletDisconnected', handleDisconnect);
-    return () => EventBus.off('walletDisconnected', handleDisconnect);
+    return () => {
+      wallet?.adapter?.off("disconnect");
+    }
   }, []);
 
+  const   buildSignMessage =(
+    address:   string,
+    nonce:     string,
+    chainId:   string,
+    issuedAt:  number,
+    expiresAt: number
+  ): string => {
+    const message = [
+      `${authConfig.appDomain} wants you to sign in with your Solana account:`,
+      address,
+      '',
+      authConfig.statement,
+      '',
+      `URI: ${authConfig.appUri}`,
+      `Version: 1`,
+      `Chain ID: ${chainId}`,
+      `Nonce: ${nonce}`,
+      `Issued At: ${new Date(issuedAt)}`,
+      `Expiration Time: ${new Date(expiresAt)}`,
+    ].join('\n');
+
+    return message;
+  }
+
   // Sign in with wallet
-  const signIn = useCallback(async (): Promise<boolean> => {
+  const signIn = useCallback(async (): Promise<Status> => {
 
     if (!isConnected || !address || !signMessage) {
-      return false;
+      return Status.error("Reconnect wallet to continue");
     }
 
     setIsSigningIn(true);
 
     try {
 
-      // 1. Get nonce from server
-      const nonceStatus = await authService.getNonce(address);
+      const chainId = currentNetwork.chainId;
+      const accountAddress = address;
 
-      if(nonceStatus.isError){
-        toast.error(`Fetch Nonce Failed: ${nonceStatus.getMessage()}`)
-        return;
+      const nonceStatus = await api.post("/auth/nonce", { accountAddress, chainId })
+
+      //console.log("nonceStatus===>", nonceStatus)
+
+      if(nonceStatus.isError()){
+        return Status.error(`Nonce Error: ${nonceStatus.getMessage()}`)
       }
 
-      const nonceData = nonceStatus.getData() as AuthNonce;
+      const nonce = nonceStatus.getData() as string;
+
+      const issuedAt = Date.now()
+      const expiresAt = issuedAt + (60 * 60 * 24 * 30) // 30days +
 
       // 2. Build the message
-      const message = authService.buildSignMessage(
+      const message = buildSignMessage(
         address,
-        nonceData.nonce,
-        currentNetwork.chainId,
-        nonceData.issuedAt,
-        nonceData.expiresAt
+        nonce,
+        chainId,
+        issuedAt,
+        expiresAt
       );
 
       // 3. Sign the message
@@ -114,39 +170,50 @@ export function useAuth(): UseAuthReturn {
       const signatureBytes = await signMessage(encodedMessage);
       const signature = bs58.encode(signatureBytes);
 
-      // 4. Verify with server
-      const resultStatus = await authService.verifySignature({
-                              address,
-                              signature,
-                              message,
-                              nonce: nonceData.nonce,
-                            });
+      const formData = {
+        accountAddress,
+        signature,
+        message,
+        nonce,
+        chainId
+      }
+
+      const resultStatus = await api.post("/auth/verify", formData)
 
       if(resultStatus.isError()){
-        toast.error(`Failed to veriy signature: ${resultStatus.getMessage()}`)
-        return false;
+        return Status.error(resultStatus.getMessage())
       }
 
-      const sessionData = resultStatus.getData() as SessionStatus;
+      const sessionAndAcctData = resultStatus.getData() as SessionWithAccountData;
 
-      if (sessionData.isAuthenticated) {
-        setIsAuthenticated(true);
-        setSession(sessionData);
-        EventBus.emit('sessionAuthenticated', sessionData);
-        return true;
+      if (sessionAndAcctData.isAuthenticated) {
+
+        const { accountInfo, ...sessData } = sessionAndAcctData;
+
+        // set account info
+        setUserAccountInfo(accountInfo)
+
+        // set active session globally
+        setAuthSession(sessData);
+
+        // update the session pool
+        updateSessions(accountAddress, sessData)
+        return Status.success();
       }
 
-      return false;
+      return Status.error("Failed to verify signature, please try again");
 
     } catch (error: any) {
+
       console.error('Sign in failed:', error);
 
       // User rejected the signature
       if (error?.message?.includes('User rejected') || error?.code === 4001) {
-        EventBus.emit('signatureRejected');
+        return Status.error("User rejected request")
       }
 
-      return false;
+      return Status.error("Failed to verify signature, please try again");
+
     } finally {
       setIsSigningIn(false);
     }
@@ -159,9 +226,7 @@ export function useAuth(): UseAuthReturn {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      setIsAuthenticated(false);
-      setSession(null);
-      EventBus.emit('sessionLoggedOut');
+      setAuthSession(null);
     }
   }, []);
 
@@ -169,7 +234,7 @@ export function useAuth(): UseAuthReturn {
     isAuthenticated,
     isLoading,
     isSigningIn,
-    session,
+    session: authSession,
     signIn,
     signOut,
     checkSession,

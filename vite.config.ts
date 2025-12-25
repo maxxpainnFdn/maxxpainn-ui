@@ -39,6 +39,9 @@ export default defineConfig(({ mode }) => {
         'process.version': JSON.stringify('v0.0.0'),
         'process.browser': JSON.stringify(true)
       },
+      optimizeDeps: {
+        include: ['jotai', 'jotai/utils'],
+      },
       resolve: {
         alias: {
           "@": path.resolve(__dirname, "./src")

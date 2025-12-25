@@ -18,7 +18,7 @@ export class Status<T = unknown> {
   }
 
   // ✅ Factory methods
-  static success<T>(message: string | null = null, data: T): Status<T> {
+  static success<T>(message: string = "", data: T | null = null): Status<T> {
     return new Status("success", message, data);
   }
 

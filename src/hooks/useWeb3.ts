@@ -81,6 +81,7 @@ const loadedNetworks: Record<string, any> = {};
 export const useWeb3 = () => {
 
   const anchorProvider = useAnchorProvider();
+  const { connection } = useConnection()
 
   const getProgramId = async (network: string): Promise<PublicKey> => {
     let config;
@@ -410,11 +411,11 @@ export const useWeb3 = () => {
 
       if (!provider) return Status.error("Connect Wallet")
 
-      const balanceLamports = await provider.connection.getBalance(address);
+      const balanceLamport = await provider.connection.getBalance(address);
 
-      const balance = balanceLamports / LAMPORTS_PER_SOL;
+      const balance = balanceLamport / LAMPORTS_PER_SOL;
 
-      return Status.successData({ balanceLamports, balance })
+      return Status.successData({ balanceLamport, balance })
 
     } catch(e: any){
       utils.logError("Failed to fetch native balance", e)
@@ -422,6 +423,18 @@ export const useWeb3 = () => {
     }
   };
 
+  const getConnectionHash = async()  => {
+    try {
+
+      const hash = await connection.getGenesisHash();
+
+      return Status.successData(hash)
+
+    } catch(e){
+      utils.logError("Failed to fetch native balance", e)
+      return Status.error("Failed to fetch hash", null)
+    }
+  }
 
   return {
     simulateTx,
@@ -432,6 +445,7 @@ export const useWeb3 = () => {
     fetchAccountsInfo,
     findProgramAddress,
     getProgramPdas,
-    getNativeBalance
+    getNativeBalance,
+    getConnectionHash
   };
 };

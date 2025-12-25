@@ -12,7 +12,7 @@ export interface UseWalletCoreResult {
   isConnecting:   boolean;
   openModal:      () => void;
   closeModal:     () => void ;
-  disconnect:     () => void;
+  disconnect:     () => Promise<void>;
   wallets:        Wallet[];
   wallet:         Wallet | null;
   select:         (walletName: WalletName | null) => void;
@@ -33,16 +33,12 @@ export const useWalletCore = (): UseWalletCoreResult => {
   } = useWallet();
 
 
-  const openModal = () => {
-    EventBus.emit(
-      isConnected ? 'openConnectedWalletModal' : 'openWalletModal'
-    );
+  const openModal = (view = "wallet") => {
+    EventBus.emit("walletModal:open");
   };
 
   const closeModal = () => {
-    EventBus.emit(
-      isConnected ? 'closeConnectedWalletModal' : 'closeWalletModal'
-    );
+    EventBus.emit("walletModal:close");
   };
 
   return {

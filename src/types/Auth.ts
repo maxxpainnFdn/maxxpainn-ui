@@ -1,3 +1,5 @@
+import { AccountData } from "./AccountData";
+
 // types/auth.ts
 export interface AuthNonce {
   nonce: string;
@@ -12,10 +14,12 @@ export interface SignedSession {
   nonce: string;
 }
 
-export interface SessionStatus {
-  isAuthenticated: boolean;
-  id?:        number;
-  address?:   string;
-  username?:  string;
-  photo?:     string;
+export interface SessionData {
+  isAuthenticated:  boolean;
+  accessToken?:     string;
+  accessTokenExpiryMs?: number;
+}
+
+export interface SessionWithAccountData extends SessionData {
+  accountInfo?: AccountData
 }

@@ -1,5 +1,5 @@
 // services/authService.ts
-import { AuthNonce, SignedSession, SessionStatus } from '@/types/Auth';
+import {  SignedSession } from '@/types/Auth';
 import authConfig from '@/config/auth';
 import { Status } from '@/core/Status';
 import HttpClient from './HttpClient';
@@ -23,12 +23,15 @@ class AuthService {
     return HttpClient.post(uri, signedSession)
   }
 
+  getSessions() {
+    let sessions = localStorage.getItem()
+  }
+
   /**
    * Get current session status
    */
   async getSession(address: string): Promise<Status> {
-    const uri = authConfig.endpoints.getSession
-    return await HttpClient.get(uri, { address })
+
   }
 
   /**
@@ -42,29 +45,7 @@ class AuthService {
   /**
    * Build the SIWS message
    */
-  buildSignMessage(
-    address:   string,
-    nonce:     string,
-    chainId:   string,
-    issuedAt:  string,
-    expiresAt: string
-  ): string {
-    const message = [
-      `${authConfig.appDomain} wants you to sign in with your Solana account:`,
-      address,
-      '',
-      authConfig.statement,
-      '',
-      `URI: ${authConfig.appUri}`,
-      `Version: 1`,
-      `Chain ID: ${chainId}`,
-      `Nonce: ${nonce}`,
-      `Issued At: ${issuedAt}`,
-      `Expiration Time: ${expiresAt}`,
-    ].join('\n');
 
-    return message;
-  }
 }
 
 export const authService = new AuthService();

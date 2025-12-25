@@ -13,40 +13,30 @@ import WalletError from './WalletError';
 import EventBus from '@/core/EventBus';
 import { isMobile } from 'react-device-detect';
 
-interface WalletModalProps {
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+interface NotConnectedWalletViewProps {
+  modalOpen?: boolean;
+  setModalOpen:  React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) => {
+export const NotConnectedWalletView = ({
+  modalOpen,
+  setModalOpen
+}: NotConnectedWalletViewProps) => {
 
   const { wallets, select, connect, connecting, wallet: selectedWallet } = useWallet();
   const [connectingWallet, setConnectingWallet] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [modalOpen, setModalOpen] = useState(open)
 
+  // handle the modal open or close
   useEffect(()=>{
-    EventBus.on("openWalletModal", ()=>{
-      setModalOpen(true)
-    })
-
-    return () => {
-      EventBus.off("openWalletModal");
-    }
-  }, [])
-
-  const handleOnOpenChange = (state) => {
-
-    setModalOpen(state)
-    onOpenChange?.(state)
-
-    if (!state) {
+    if (!modalOpen) {
       setConnectingWallet(null);
       setError(null);
     } else {
       openMobileNativeDialog()
     }
-  }
+  }, [modalOpen])
+
 
   const openMobileNativeDialog = () => {
       if (isMobile) {
@@ -86,13 +76,9 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
       try {
 
         setTimeout(async ()=> {
-
           await connect();
           toast.success(`Connected to ${selectedWallet.adapter.name}`);
-          handleOnOpenChange(false);
-
           setConnectingWallet(null);
-
         }, 1500)
 
       } catch (err: any) {
@@ -113,44 +99,32 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
   // Connect after selection
   useEffect(() => {
     connectWallet();
-  }, [selectedWallet, connectingWallet, connect, onOpenChange]);
+  }, [selectedWallet, connectingWallet, connect, modalOpen]);
 
 
   return (
-      <Modal
-        open={modalOpen}
-        onOpenChange={handleOnOpenChange}
-        title="Connect Wallet"
-        description="Select your preferred Solana wallet to continue"
-        size="480"
-        className="max-h-[85vh]"
-        modalFooter={<WalletModalFooter />}
-      >
+    <div> {/** Content */}
+      {/* Error Message */}
 
-        <div> {/** Content */}
-          {/* Error Message */}
+      <WalletError error={error} setError={setError} />
 
-          <WalletError error={error} setError={setError} />
+      <div className="space-y-2">
+        <InstalledWallets
+          connecting={connecting}
+          connectingWallet={connectingWallet}
+          wallets={wallets}
+          onWalletSelect={handleWalletSelect}
+        />
 
-          <div className="space-y-2">
-            <InstalledWallets
-              connecting={connecting}
-              connectingWallet={connectingWallet}
-              wallets={wallets}
-              onWalletSelect={handleWalletSelect}
-            />
+        <NotInstalledWallets
+          wallets={wallets}
+        />
 
-            <NotInstalledWallets
-              wallets={wallets}
-            />
-
-            <WalletSecurityWarning />
-          </div>
-
-        </div> {/** End Content */}
-    </Modal>
+        <WalletSecurityWarning />
+      </div>
+    </div>
   );
 };
 
 
-export default WalletModal;
+export default NotConnectedWalletView;

@@ -7,12 +7,15 @@ import { SolanaDevnet } from './SolanaDevnet';
 import { SolanaTestnet } from './SolanaTestnet';
 
 export const networks: Record<string, NetworkConfig> = {
-  solana_mainnet: SolanaMainnet,
-  solana_devnet:  SolanaDevnet,
-  solana_testnet: SolanaTestnet
+  "solana:mainnet": SolanaMainnet,
+  "solana:devnet":  SolanaDevnet,
+  "solana:testnet": SolanaTestnet
 };
 
-export const defaultNetwork = networks['solana_devnet'];
+
+export const networksArr = Object.values(networks)
+
+export const defaultNetwork = networks['solana:devnet'];
 
 export const getNetworkById = (id: string): NetworkConfig | null => {
   return networks[id] || null;

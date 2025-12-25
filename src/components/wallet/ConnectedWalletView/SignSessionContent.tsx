@@ -7,39 +7,27 @@ import SigningProgress from './signer/SigningProcess';
 import SigningError from './signer/SigningError';
 import SigningSuccess from './signer/SigningSuccess';
 import SigningMain from './signer/SigningMain';
-import UnsupportedNetworkCard from './signer/UnsupportedNetworkCard';
+import utils from '@/lib/utils';
 
 export interface SignSessionContentProps {
-  currentNetwork: NetworkConfig;
   onSuccess?: () => void;
   onCancel?: () => void;
-  onNetworkSwitch?: () => void;
-  supportedNetworks?: string[];
 }
 
 type SigningState = 'idle' | 'fetching-nonce' | 'awaiting-signature' | 'verifying' | 'success' | 'error';
 
 export default function SignSessionContent({
-  currentNetwork,
   onSuccess,
   onCancel,
-  onNetworkSwitch,
-  supportedNetworks
+
 }: SignSessionContentProps) {
 
   const { signIn, isSigningIn } = useAuth();
-  const { isSupported } = useNetwork(supportedNetworks);
+  const {  currentNetwork } = useNetwork();
 
   const [signingState, setSigningState] = useState<SigningState>('idle');
   const [error, setError] = useState<string | null>(null);
 
-  const isNetworkSupported = !supportedNetworks || isSupported(currentNetwork.name);
-
-  // Format address for display
-  const formatAddress = (addr: string) => {
-    if (!addr) return '';
-    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-  };
 
   // Handle sign in
   const handleSignIn = async () => {
@@ -52,15 +40,15 @@ export default function SignSessionContent({
       await new Promise(resolve => setTimeout(resolve, 500));
       setSigningState('awaiting-signature');
 
-      const success = await signIn();
+      const status = await signIn();
 
-      if (success) {
+      if (status.isSuccess()) {
         setSigningState('success');
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await utils.sleep(1000)
         onSuccess?.();
       } else {
         setSigningState('error');
-        setError('Failed to verify signature. Please try again.');
+        setError(status.getMessage());
       }
     } catch (err: any) {
       setSigningState('error');
@@ -80,18 +68,6 @@ export default function SignSessionContent({
   };
 
   const inputBgClass = "bg-gray-900/50 border-white/10";
-
-  // Show network warning if unsupported
-  if (!isNetworkSupported) {
-    return (
-      <UnsupportedNetworkCard
-        currentNetwork={currentNetwork}
-        inputBgClass={inputBgClass}
-        onCancel={onCancel}
-        onNetworkSwitch={onNetworkSwitch}
-      />
-    )
-  }
 
   // Success State
   if (signingState === 'success') {

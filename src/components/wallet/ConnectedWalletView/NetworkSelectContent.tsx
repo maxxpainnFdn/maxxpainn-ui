@@ -1,6 +1,5 @@
 // components/wallet/NetworkSelectContent.tsx
 import { useState } from 'react';
-import { networks } from '@/config/networks';
 import { NetworkConfig } from '@/types/NetworkConfig';
 import {
   Globe,
@@ -9,41 +8,40 @@ import {
   Loader2,
   ArrowLeft
 } from 'lucide-react';
+import utils from '@/lib/utils';
+import EventBus from '@/core/EventBus';
+import toast from '@/hooks/toast';
+import useNetwork from '@/hooks/useNetwork';
 
 export interface NetworkSelectContentProps {
-  currentNetwork: NetworkConfig;
-  isUnsupportedNetwork?: boolean;
   onBack: () => void;
-  onNetworkSelect: (network: NetworkConfig) => void;
+  onNetworkChange: () => void;
   setModalOpen?: (val: boolean) => void;
-  /** Optional: restrict to specific networks */
-  supportedNetworks?: string[];
 }
 
 export default function NetworkSelectContent({
-  currentNetwork,
-  isUnsupportedNetwork = false,
   onBack,
-  onNetworkSelect,
-  supportedNetworks
+  onNetworkChange,
 }: NetworkSelectContentProps) {
+
+  const { currentNetwork, networks, switchNetwork } = useNetwork()
+
   const [switching, setSwitching] = useState<string | null>(null);
 
-  // Filter networks if supportedNetworks is provided
-  const networkList = Object.values(networks).filter(network => {
-    if (!supportedNetworks) return true;
-    return supportedNetworks.includes(network.name);
-  });
-
   const handleNetworkSelect = async (network: NetworkConfig) => {
-    if (network.name === currentNetwork.name && !isUnsupportedNetwork) return;
+
+    if (network.name === currentNetwork.name) return;
 
     setSwitching(network.name);
 
-    // Small delay for UX feedback
-    await new Promise(resolve => setTimeout(resolve, 300));
+    switchNetwork(network.caipNetworkId)
 
-    onNetworkSelect(network);
+    // Small delay for UX feedback
+    await utils.sleep(500)
+
+    toast.success(`Switched to ${network.displayName}`);
+
+    onNetworkChange?.();
     setSwitching(null);
   };
 
@@ -52,31 +50,13 @@ export default function NetworkSelectContent({
   return (
     <div className="space-y-4 py-2">
 
-      {/* Back Button - only show if not forced (unsupported network) */}
-      {!isUnsupportedNetwork && (
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors -mt-1 mb-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span className="text-sm font-medium">Back to Wallet</span>
-        </button>
-      )}
-
-      {/* Warning Banner for Unsupported Network */}
-      {isUnsupportedNetwork && (
-        <div className="flex items-start gap-3 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
-          <AlertTriangle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-yellow-500 font-semibold text-sm">
-              Network Not Supported
-            </p>
-            <p className="text-yellow-500/70 text-xs mt-1">
-              Select a supported network below or your wallet will be disconnected.
-            </p>
-          </div>
-        </div>
-      )}
+      <button
+        onClick={onBack}
+        className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors -mt-1 mb-2"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span className="text-sm font-medium">Back to Wallet</span>
+      </button>
 
       {/* Current Network Display */}
       <div className={`${inputBgClass} rounded-xl p-4 border`}>
@@ -86,9 +66,7 @@ export default function NetworkSelectContent({
         <div className="flex items-center gap-3">
           <div className={`
             w-3 h-3 rounded-full
-            ${isUnsupportedNetwork
-              ? 'bg-red-500'
-              : currentNetwork.isTestnet
+            ${ currentNetwork.isTestnet
                 ? 'bg-yellow-500'
                 : 'bg-green-500'
             }
@@ -96,14 +74,9 @@ export default function NetworkSelectContent({
           <span className="text-white font-bold">
             {currentNetwork.displayName}
           </span>
-          {currentNetwork.isTestnet && !isUnsupportedNetwork && (
+          {currentNetwork.isTestnet  && (
             <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-500 text-xs font-bold rounded-full">
               Testnet
-            </span>
-          )}
-          {isUnsupportedNetwork && (
-            <span className="px-2 py-0.5 bg-red-500/20 text-red-500 text-xs font-bold rounded-full">
-              Unsupported
             </span>
           )}
         </div>
@@ -115,8 +88,9 @@ export default function NetworkSelectContent({
           Available Networks
         </p>
 
-        {networkList.map((network) => {
-          const isSelected = currentNetwork.name === network.name && !isUnsupportedNetwork;
+        { Object.values(networks).map((network) => {
+
+          const isSelected = currentNetwork.name === network.name;
           const isSwitching = switching === network.name;
 
           return (

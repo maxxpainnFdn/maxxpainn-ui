@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Routes from "./routes/Routes";
-import {  WalletProvider } from '@/components/wallet';
+import WalletProvider from "./components/wallet/WalletProvider";
 const queryClient = new QueryClient();
 
 const App = () => (

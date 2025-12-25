@@ -201,5 +201,8 @@ export default class utils {
     });
   }
 
+  static async sleep(timeMs: number){
+    return new Promise(resolve => setTimeout(resolve, timeMs));
+  }
 
 }

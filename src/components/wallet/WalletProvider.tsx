@@ -14,17 +14,17 @@ import {
 import { initializeWhenDetected } from '@solflare-wallet/metamask-wallet-standard';
 import { defaultNetwork } from '@/config/networks';
 import EventBus from '@/core/EventBus';
-import { ConnectedWalletModal } from './ConnectedWalletModal';
 import WalletModal from './WalletModal';
 import walletConfig from "@/config/wallet"
+
 
 interface WalletProviderProps {
   children: ReactNode;
 }
 
-export const WalletProvider: FC<WalletProviderProps> = ({
+export const WalletProvider = ({
   children,
-}) => {
+}: WalletProviderProps) => {
 
   const [network, setNetwork] = useState(defaultNetwork)
 
@@ -59,10 +59,7 @@ export const WalletProvider: FC<WalletProviderProps> = ({
         autoConnect
         localStorageKey={walletConfig.localStorageKey}
       >
-        <>
-          <WalletModal />
-          <ConnectedWalletModal />
-        </>
+        <WalletModal />
         <> {children} </>
       </SolanaWalletProvider>
     </ConnectionProvider>

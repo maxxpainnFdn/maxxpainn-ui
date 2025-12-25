@@ -144,9 +144,21 @@ export default function Modal({
     );
   }
 
+  let dialogContentExtraProps = {}
+
+  if(isDesktop){
+    dialogContentExtraProps = {
+      onEscapeKeyDown: ((e) => e.preventDefault()),
+      onPointerDownOutside: ((e) => e.preventDefault())
+    }
+  }
+
   // --- DESKTOP VIEW (Standard Modal) ---
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={handleOpenChange}
+    >
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent
         style={{ '--desktop-width': desktopWidth } as React.CSSProperties}
@@ -157,6 +169,7 @@ export default function Modal({
           data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-1/2
           ${className}
         `}
+        { ...dialogContentExtraProps }
       >
         {/* 1. Gradient Line at the absolute top */}
         <GradientLine />

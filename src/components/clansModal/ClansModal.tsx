@@ -16,7 +16,7 @@ export interface ClansModalProps {
 }
 
 export default function ClansModal ({ children, onChange }: ClansModalProps) {
-    
+
     const [isDialogOpen, setDialogOpen] = useState(false)
     const [selectedClan, setSelectedClan] = useState(null)
     const [clans, setClans] = useState([]);
@@ -30,15 +30,14 @@ export default function ClansModal ({ children, onChange }: ClansModalProps) {
     }, [sortBy, searchKeyword])
 
     const handleOnClanClick = (clan) => {
-        console.log(clan)
         setSelectedClan(clan)
         onChange(clan)
         setDialogOpen(false)
     }
-    
+
     return (
         <Dialog
-            open={isDialogOpen} 
+            open={isDialogOpen}
             onOpenChange={setDialogOpen}
             modal={true}
         >
@@ -63,8 +62,8 @@ export default function ClansModal ({ children, onChange }: ClansModalProps) {
                         <ClansSearch onChange={(v) => setSearchKeyword(v)} />
                         <ClansSorter onChange={(value) => setSortBy(value)} />
                     </div>
-        
-                    <div> 
+
+                    <div>
                         <ApiQuery
                             uri="/clans"
                             query={{ sortBy, search: searchKeyword }}
@@ -84,10 +83,10 @@ export default function ClansModal ({ children, onChange }: ClansModalProps) {
                                 ) : (
                                     <div className="relative flex flex-wrap justify-center gap-3">
                                         {clans.map((clan) => (
-                                            <ClanCard 
-                                                key={clan.id} 
+                                            <ClanCard
+                                                key={clan.id}
                                                 clan={clan}
-                                                onItemClick={handleOnClanClick} 
+                                                onItemClick={handleOnClanClick}
                                                 showJoinBtn={false}
                                                 showSelectBtn={true}
                                             />

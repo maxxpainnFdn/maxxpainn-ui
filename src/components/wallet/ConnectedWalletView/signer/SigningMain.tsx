@@ -1,4 +1,4 @@
-import { ArrowRight, Clock, FileText, Fingerprint, Globe, Shield, Sparkles } from "lucide-react";
+import { ArrowRight, Clock, FileText, Fingerprint, Globe, Shield, Sparkles, Zap } from "lucide-react";
 import authConfig from '@/config/auth';
 import { NetworkConfig } from "@/types/NetworkConfig";
 import { useWalletCore } from "@/hooks/useWalletCore";
@@ -39,7 +39,7 @@ export default function SigningMain({
       <div className="flex items-center justify-center gap-4">
         <div className="h-px flex-1 bg-gradient-to-r from-transparent to-gray-700" />
         <div className="p-2 rounded-full bg-gray-800 border border-gray-700">
-          <ArrowRight className="w-4 h-4 text-gray-500" />
+          <Zap className="w-4 h-4 text-gray-500" />
         </div>
         <div className="h-px flex-1 bg-gradient-to-l from-transparent to-gray-700" />
       </div>
@@ -102,18 +102,6 @@ export default function SigningMain({
         <p className="text-sm text-gray-300 leading-relaxed">
           {authConfig.statement}
         </p>
-        {/*
-          <div className="flex items-center gap-4 pt-2 border-t border-white/5">
-            <div className="flex items-center gap-1.5 text-xs text-gray-500">
-              <Clock className="w-3 h-3" />
-              <span>Valid for 5 minutes</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-xs text-gray-500">
-              <Shield className="w-3 h-3" />
-              <span>No gas fees</span>
-            </div>
-          </div>
-        */}
       </div>
 
       {/* Security Notice */}

@@ -4,12 +4,15 @@ import app from "./app";
 export const authConfig = {
 
   // Your app info for the SIWS message
+
+  enabled: true,
+
   appName: app.name,
   appDomain: typeof window !== 'undefined' ? window.location.host : 'localhost',
   appUri: typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000',
 
   // Session settings
-  sessionStorageKey: 'mp_session',
+  sessionStorageKey: '__session',
 
   // API endpoints (adjust to your backend)
   endpoints: {
