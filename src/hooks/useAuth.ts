@@ -20,7 +20,7 @@ interface UseAuthReturn {
   session: SessionData | null;
   signIn: () => Promise<Status>;
   signOut: () => Promise<void>;
-  checkSession: () => Promise<void>;
+  getAccessToken: () => Promise<Status>;
 }
 
 export function useAuth(): UseAuthReturn {
@@ -54,8 +54,8 @@ export function useAuth(): UseAuthReturn {
     return _sess[address] || null
   }
 
+  const initialize = () => {
 
-  const initialise = () => {
     if (!isConnected || address == null) return;
 
     let sessions = getSessions()
@@ -65,33 +65,12 @@ export function useAuth(): UseAuthReturn {
     setAuthSession(sessions[address])
   }
 
-  useEffect(() => { initialise() }, []);
+  useEffect(() => { initialize() }, []);
 
   useEffect(()=> {
-    initialise()
+    initialize()
   }, [isConnected, address])
 
-
-  // Check session on mount and when wallet changes
-  const checkSession = useCallback(async () => {
-
-    if (!isConnected || !address) {
-      setAuthSession(null);
-      setIsLoading(false);
-      return;
-    }
-
-    setIsLoading(true);
-
-    setAuthSession(getSession(address))
-
-    setIsLoading(false);
-
-  }, [isConnected, address]);
-
-  useEffect(() => {
-    checkSession();
-  }, [checkSession]);
 
   // Listen for wallet disconnect
   useEffect(() => {
@@ -219,6 +198,24 @@ export function useAuth(): UseAuthReturn {
     }
   }, [isConnected, address, signMessage]);
 
+
+  // get access token
+  const getAccessToken = (): Promise<Status> => {
+
+    if(!isAuthenticated || authSession == null){
+      return Status.error("login required")
+    }
+
+    //lets check if the the auth session has expired, if it has, lets refresh it first
+    const now = Date.now() - 5_000
+
+    if(authSession.accessTokenExpiryMs > now){
+      return Status.successData(authSession.accessToken)
+    }
+
+    let refreshStatus = api.post("/auth/refresh")
+  }
+
   // Sign out
   const signOut = useCallback(async () => {
     try {
@@ -237,7 +234,7 @@ export function useAuth(): UseAuthReturn {
     session: authSession,
     signIn,
     signOut,
-    checkSession,
+    getAccessToken
   };
 }
 

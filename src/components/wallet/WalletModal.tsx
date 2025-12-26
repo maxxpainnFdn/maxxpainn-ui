@@ -33,7 +33,7 @@ export default function WalletModal({ open, onOpenChange }: WalletViewProps) {
     })
 
     return () => {
-      EventBus.off("openWalletModal");
+      EventBus.off("walletModal:open");
     }
   }, [])
 

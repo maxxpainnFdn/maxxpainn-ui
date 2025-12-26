@@ -1,11 +1,13 @@
+import authConfig from "./auth";
+
 export interface WalletConfig {
   networkStorageKey: string;
-  localStorageKey: string;
+  walletStorageKey: string;
 }
 
-const config: WalletConfig = {
+export const walletConfig: WalletConfig = {
   networkStorageKey: "__network",
-  localStorageKey: "__wallet"
+  walletStorageKey: "__wallet"
 }
 
-export default config;
+export default walletConfig;

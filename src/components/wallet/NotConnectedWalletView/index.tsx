@@ -12,6 +12,8 @@ import WalletSecurityWarning from './WalletSecurityWarning';
 import WalletError from './WalletError';
 import EventBus from '@/core/EventBus';
 import { isMobile } from 'react-device-detect';
+import { useWalletCore } from '@/hooks/useWalletCore';
+import utils from '@/lib/utils';
 
 interface NotConnectedWalletViewProps {
   modalOpen?: boolean;
@@ -23,7 +25,7 @@ export const NotConnectedWalletView = ({
   setModalOpen
 }: NotConnectedWalletViewProps) => {
 
-  const { wallets, select, connect, connecting, wallet: selectedWallet } = useWallet();
+  const { wallets, select, connect, isConnecting, wallet: selectedWallet } = useWalletCore();
   const [connectingWallet, setConnectingWallet] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,14 +74,21 @@ export const NotConnectedWalletView = ({
 
   const connectWallet = async () => {
 
-    if (selectedWallet && connectingWallet === selectedWallet?.adapter?.name) {
+    const walletName = selectedWallet?.adapter?.name
+
+    if (selectedWallet && connectingWallet === walletName) {
       try {
 
-        setTimeout(async ()=> {
-          await connect();
-          toast.success(`Connected to ${selectedWallet.adapter.name}`);
-          setConnectingWallet(null);
-        }, 1500)
+        setConnectingWallet(walletName);
+
+        //await utils.sleep(1000)
+
+        await connect();
+
+        //utils.sleep(500)
+
+        toast.success(`Connected to ${walletName}`);
+        setConnectingWallet(null);
 
       } catch (err: any) {
 
@@ -99,7 +108,7 @@ export const NotConnectedWalletView = ({
   // Connect after selection
   useEffect(() => {
     connectWallet();
-  }, [selectedWallet, connectingWallet, connect, modalOpen]);
+  }, [selectedWallet, connectingWallet, modalOpen]);
 
 
   return (
@@ -110,7 +119,7 @@ export const NotConnectedWalletView = ({
 
       <div className="space-y-2">
         <InstalledWallets
-          connecting={connecting}
+          connecting={isConnecting}
           connectingWallet={connectingWallet}
           wallets={wallets}
           onWalletSelect={handleWalletSelect}

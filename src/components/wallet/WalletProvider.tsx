@@ -57,7 +57,7 @@ export const WalletProvider = ({
       <SolanaWalletProvider
         wallets={wallets}
         autoConnect
-        localStorageKey={walletConfig.localStorageKey}
+        localStorageKey={walletConfig.walletStorageKey}
       >
         <WalletModal />
         <> {children} </>

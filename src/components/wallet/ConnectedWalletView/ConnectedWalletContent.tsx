@@ -11,33 +11,44 @@ import {
   Loader2,
   Power,
   RefreshCw,
-  User,
   Globe,
-  ChevronRight
+  ChevronRight,
+  Wallet
 } from "lucide-react";
 import { useCallback, useState, useEffect } from "react";
 import { NetworkConfig } from "@/types/NetworkConfig";
 import EventBus from "@/core/EventBus";
 
+export interface UserInfo {
+  username?: string;
+  displayName?: string;
+  avatar?: string;
+  isVerified?: boolean;
+  email?: string;
+}
+
 export interface ConnectedWalletContentProps {
   setModalOpen?: (val: boolean) => void;
   currentNetwork: NetworkConfig;
   onNetworkClick: () => void;
+  onAccountSettings?: () => void;
 }
 
 export default function ConnectedWalletContent({
   setModalOpen,
   currentNetwork,
-  onNetworkClick
+  onNetworkClick,
+  onAccountSettings
 }: ConnectedWalletContentProps) {
 
   const web3Core = useWeb3();
-  const { disconnect, address: fullAddress, publicKey: addressPubKey } = useWalletCore();
+  const { disconnect, address: fullAddress, publicKey: addressPubKey, wallet } = useWalletCore();
   const connection = useConnection();
 
   const [loadingBalance, setLoadingBalance] = useState(false);
   const [nativeBalance, setNativeBalance] = useState<number | null>(null);
   const [disconnecting, setDisconnecting] = useState(false);
+
 
   // Fetch balance
   const fetchBalanceCore = async () => {
@@ -78,7 +89,7 @@ export default function ConnectedWalletContent({
   const fetchBalance = useCallback(fetchBalanceCore, [fullAddress, connection]);
 
   // Handle disconnect
-  const handleDisconnect = useCallback(async () => {
+  const handleDisconnect = async () => {
     try {
       setDisconnecting(true);
       await disconnect();
@@ -91,40 +102,104 @@ export default function ConnectedWalletContent({
     } finally {
       setDisconnecting(false);
     }
-  }, [disconnect, setModalOpen]);
+  }
 
   // View on explorer
   const viewOnExplorer = useCallback(() => {
     if (!fullAddress) return;
     const explorerBase = currentNetwork.explorer || 'https://solscan.io';
-    // Handle explorer URL format
     const url = explorerBase.includes('?')
       ? `${explorerBase.split('?')[0]}/account/${fullAddress}?${explorerBase.split('?')[1]}`
       : `${explorerBase}/account/${fullAddress}`;
     window.open(url, '_blank');
   }, [fullAddress, currentNetwork]);
 
+  // Handle account settings
+  const handleAccountSettings = () => {
+    setModalOpen?.(false);
+    onAccountSettings?.();
+  };
+
   const inputBgClass = "bg-gray-900/50 border-white/10";
 
   return (
     <div className="space-y-4 py-2">
 
-      {/* Address Card */}
+      {/* User Profile Card
+      <div className={`${inputBgClass} rounded-xl p-4 border`}>
+        <div className="flex items-center gap-4">
+
+          <div className="relative flex-shrink-0">
+            <img
+              src={user.avatar}
+              alt={user.displayName || user.username || 'User'}
+              className="w-14 h-14 rounded-full object-cover border-2 border-purple-500/30"
+            />
+          </div>
+
+          {/* User Info
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <h3 className="text-white font-bold text-lg truncate">
+                { user?.username || 'Anonymous' }
+              </h3>
+            </div>
+            {user?.username && user?.displayName && (
+              <p className="text-gray-500 text-sm truncate">@{user.username}</p>
+            )}
+            {!user?.username && !user?.displayName && (
+              <p className="text-gray-500 text-sm">No profile set</p>
+            )}
+          </div>
+
+          {/* Settings Button
+          {onAccountSettings && (
+            <button
+              onClick={handleAccountSettings}
+              className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/30 transition-all"
+              title="Account Settings"
+            >
+              <Settings className="w-5 h-5 text-gray-400 hover:text-purple-400 transition-colors" />
+            </button>
+          )}
+        </div>
+      </div>
+      */}
+      {/* Wallet & Address Card */}
       <div className={`${inputBgClass} rounded-xl p-4 border hover:border-purple-500/30 transition-all duration-300`}>
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-3">
           <p className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-            <User className="w-3 h-3" />
-            Address
+            <Wallet className="w-3 h-3" />
+            Wallet
           </p>
         </div>
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-white font-mono text-sm truncate flex-1 select-all">
-            {fullAddress}
-          </p>
+        <div className="flex items-center gap-3">
+          {/* Wallet Icon */}
+          {wallet?.adapter?.icon ? (
+            <img
+              src={wallet.adapter.icon}
+              alt={wallet.adapter.name}
+              className="w-8 h-8 rounded-lg"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500" />
+          )}
+
+          {/* Wallet Name & Address */}
+          <div className="flex-1 min-w-0">
+            <p className="text-white font-bold text-sm">
+              {wallet?.adapter?.name || 'Wallet'}
+            </p>
+            <p className="text-gray-500 font-mono text-xs truncate">
+              {fullAddress}
+            </p>
+          </div>
+
+          {/* Copy Button */}
           <CopyBtn
             textToCopy={fullAddress}
-            className="p-2 bg-none text-white"
-            copiedClassName="p-2 bg-none text-green-600"
+            className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400"
+            copiedClassName="p-2 bg-green-500/20 rounded-lg text-green-500"
           />
         </div>
       </div>

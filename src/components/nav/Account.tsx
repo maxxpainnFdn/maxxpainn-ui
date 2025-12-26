@@ -13,7 +13,7 @@ export default function Account({
       isConnected,
       isConnecting,
       openModal,
-      address
+      address = ""
     } = useWalletCore()
 
     return (
@@ -45,9 +45,9 @@ export default function Account({
           >
             <div className="flex items-center gap-2 sm:gap-3 justify-center">
               <div className="w-6 h-6 rounded-md bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shrink-0">
-                <ImageAvatar seed={address} radius={0} className="w-6 h-6 rounded-md" avatarType={botttsNeutral} />
+                <ImageAvatar seed={address || ""} radius={0} className="w-6 h-6 rounded-md" avatarType={botttsNeutral} />
               </div>
-              <span className="">{utils.maskAddress(address)}</span>
+              <span className="">{utils.maskAddress(address || "")}</span>
             </div>
           </Button>
         )}
