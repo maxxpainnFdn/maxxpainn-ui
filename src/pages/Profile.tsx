@@ -63,6 +63,7 @@ export default function UserProfilePage() {
   const [profilePhotoUrl, setProfilePhotoUrl] = useState("")
   const [profileCoverUrl, setProfileCoverUrl] = useState("")
   const [isAccountOwner, setIsAccountOwner] = useState(false)
+  const [settingsPopoverOpen, setSettingsPopoverOpen] = useState(false)
   const [pageKey, setPageKey] = useState(0)
 
 
@@ -128,9 +129,10 @@ export default function UserProfilePage() {
         query["username"] = usernameOrAddress;
       }
 
-      const uri = (usernameOrAddress == null) ? "/account" : "/profile"
-
-      const resultStatus = await api.get(uri, query)
+      const resultStatus = await ((usernameOrAddress == null) ?
+                              api.getWithAuth("/account", query) :
+                              api.get("/profile", query)
+                            )
 
       if(resultStatus.isError()){
         setPageError(resultStatus.getMessage())
@@ -138,6 +140,8 @@ export default function UserProfilePage() {
       }
 
       const acctInfo: AccountData | null = resultStatus.getData() as AccountData;
+
+      //console.log("acctInfo===>", acctInfo)
 
       if(acctInfo == null){
         setPageError("Account not found")
@@ -318,90 +322,91 @@ export default function UserProfilePage() {
                                 </button>
                               }
                             />
+                            {isAccountOwner && (
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <button
+                                    className="
+                                      p-3 bg-gray-800/60 hover:bg-gray-700 text-gray-400 hover:text-white
+                                      rounded-xl transition-all duration-300
+                                      border-2 border-gray-700/50 hover:border-purple-500/50
+                                      hover:shadow-lg hover:shadow-purple-500/20
+                                    "
+                                  >
+                                    <Settings className="w-5 h-5" />
+                                  </button>
+                                </PopoverTrigger>
 
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <button
-                                  className="
-                                    p-3 bg-gray-800/60 hover:bg-gray-700 text-gray-400 hover:text-white
-                                    rounded-xl transition-all duration-300
-                                    border-2 border-gray-700/50 hover:border-purple-500/50
-                                    hover:shadow-lg hover:shadow-purple-500/20
-                                  "
+                                <PopoverContent
+                                  className="w-56 p-0 bg-gray-900/95 backdrop-blur-2xl border border-white/10 rounded-xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] overflow-hidden"
+                                  align="end"
+                                  sideOffset={8}
                                 >
-                                  <Settings className="w-5 h-5" />
-                                </button>
-                              </PopoverTrigger>
+                                  {/* Header */}
+                                  <div className="px-4 py-3 border-b border-white/5 bg-black/20">
+                                    <p className="text-sm font-bold text-white">Settings</p>
+                                    <p className="text-xs text-gray-500">Manage your account</p>
+                                  </div>
 
-                              <PopoverContent
-                                className="w-56 p-0 bg-gray-900/95 backdrop-blur-2xl border border-white/10 rounded-xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] overflow-hidden"
-                                align="end"
-                                sideOffset={8}
-                              >
-                                {/* Header */}
-                                <div className="px-4 py-3 border-b border-white/5 bg-black/20">
-                                  <p className="text-sm font-bold text-white">Settings</p>
-                                  <p className="text-xs text-gray-500">Manage your account</p>
-                                </div>
+                                  {/* Gradient Separator */}
+                                  <div className="h-px w-full bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
 
-                                {/* Gradient Separator */}
-                                <div className="h-px w-full bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
-
-                                {/* Menu Items */}
-                                <div className="p-2 space-y-1">
-                                  {/* Change Username */}
-                                  <ChangeUsernameDialog
-                                    currentUsername={accountInfo.username}
-                                    trigger={
-                                      <button
-                                        className="
-                                          w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
-                                          text-sm text-gray-400 hover:text-white
-                                          hover:bg-white/5 transition-all duration-200
-                                          group
-                                        "
-                                      >
-                                        <div className="p-1.5 rounded-md bg-gray-800 group-hover:bg-purple-500/20 transition-colors">
-                                          <AtSign className="w-4 h-4 group-hover:text-purple-400 transition-colors" />
-                                        </div>
-                                        <span className="flex-1 text-left">Change Username</span>
-                                      </button>
-                                    }
-                                    onSuccess={(newUsername) => {
-                                      if(window.location.pathname.startsWith(`/profile/${accountInfo.username}`)){
-                                        navigate(`/profile/${newUsername}`)
-                                      } else {
-                                        setAccountInfo((oldData) => ({...oldData, username: newUsername }))
+                                  {/* Menu Items */}
+                                  <div className="p-2 space-y-1">
+                                    {/* Change Username */}
+                                    <ChangeUsernameDialog
+                                      currentUsername={accountInfo.username}
+                                      trigger={
+                                        <button
+                                          className="
+                                            w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
+                                            text-sm text-gray-400 hover:text-white
+                                            hover:bg-white/5 transition-all duration-200
+                                            group
+                                          "
+                                        >
+                                          <div className="p-1.5 rounded-md bg-gray-800 group-hover:bg-purple-500/20 transition-colors">
+                                            <AtSign className="w-4 h-4 group-hover:text-purple-400 transition-colors" />
+                                          </div>
+                                          <span className="flex-1 text-left">Change Username</span>
+                                        </button>
                                       }
-                                    }}
-                                  />
+                                      onSuccess={(newUsername) => {
+                                        if (window.location.pathname.startsWith(`/profile/${accountInfo.username}`)) {
+                                          navigate(`/profile/${newUsername}`)
+                                        } else {
+                                          setAccountInfo((oldData) => ({ ...oldData, username: newUsername }))
+                                        }
+                                      }}
+                                    />
 
-                                  {/* Profile Settings */}
-                                  <ProfileInfoEditor
-                                    currentData={accountInfo}
-                                    onSuccess={(newData) => {
-                                      setAccountInfo((oldData) => ({...oldData, ...newData }))
-                                    }}
-                                    trigger={
-                                      <button
-                                        className="
-                                          w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
-                                          text-sm text-gray-400 hover:text-white
-                                          hover:bg-white/5 transition-all duration-200
-                                          group
-                                        "
-                                      >
-                                        <div className="p-1.5 rounded-md bg-gray-800 group-hover:bg-purple-500/20 transition-colors">
-                                          <User className="w-4 h-4 group-hover:text-purple-400 transition-colors" />
-                                        </div>
-                                        <span className="flex-1 text-left">Profile Settings</span>
-                                      </button>
-                                    }
-                                  />
-                                </div>
+                                    {/* Profile Settings */}
+                                    <ProfileInfoEditor
+                                      currentData={accountInfo}
+                                      onSuccess={(newData) => {
+                                        setAccountInfo((oldData) => ({ ...oldData, ...newData }))
+                                      }}
+                                      trigger={
+                                        <button
+                                          className="
+                                            w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
+                                            text-sm text-gray-400 hover:text-white
+                                            hover:bg-white/5 transition-all duration-200
+                                            group
+                                          "
+                                        >
+                                          <div className="p-1.5 rounded-md bg-gray-800 group-hover:bg-purple-500/20 transition-colors">
+                                            <User className="w-4 h-4 group-hover:text-purple-400 transition-colors" />
+                                          </div>
+                                          <span className="flex-1 text-left">Profile Settings</span>
+                                        </button>
+                                      }
+                                    />
+                                  </div>
 
-                              </PopoverContent>
-                            </Popover>
+                                </PopoverContent>
+                              </Popover>
+                            )}
                           </div>
                         </div>
 

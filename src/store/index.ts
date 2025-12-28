@@ -1,12 +1,17 @@
-import { defaultNetwork } from '@/config/networks'
+import { defaultNetwork, getNetworkById, networks } from '@/config/networks'
+import walletConfig from '@/config/wallet'
 import { AccountData } from '@/types/AccountData'
 import { SessionData } from '@/types/Auth'
 import { NetworkConfig } from '@/types/NetworkConfig'
 import { atom, PrimitiveAtom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils';
 
-export const currentNetworkAtom = atom<NetworkConfig>(defaultNetwork)
+export const currentNetworkIdAtom = atomWithStorage<string>( walletConfig.networkStorageKey, defaultNetwork.caipNetworkId)
 
+export const currentNetworkAtom = atom<NetworkConfig>((get)=>{
+  const networkName = get(currentNetworkIdAtom)
+  return getNetworkById(networkName);
+})
 
 // auth session info
 export const authSessionInfoAtom = atom<SessionData | null>(null) as  PrimitiveAtom<SessionData | null>

@@ -138,7 +138,7 @@ export const useWeb3 = () => {
     if (name in loadedIdls) {
       return loadedIdls[name];
     } else {
-      let idl = await import(`@/data/idl/${name}.json`);
+      let idl = (await import(`@/data/idl/${name}.json`)).default;
       loadedIdls[name] = idl;
       return idl;
     }
@@ -340,14 +340,14 @@ export const useWeb3 = () => {
 
       ///console.log("provider===>", provider)
 
-      const accountsInfoArr =
-        await provider.connection.getMultipleAccountsInfo(pubkeys);
+      const accountsInfoArr = await provider.connection.getMultipleAccountsInfo(pubkeys);
 
       let acctsKeys = Object.keys(acctsParams);
 
       let finalResults = {};
 
       for (let idx in accountsInfoArr) {
+
         const onChainAcctInfo = accountsInfoArr[idx];
         let acctParamKey = acctsKeys[idx];
 
@@ -365,6 +365,8 @@ export const useWeb3 = () => {
           typeof acctParam.idl === "string"
             ? await fetchIDL(acctParam.idl)
             : acctParam.idl;
+
+        //console.log(idl)
 
         idl.address = acctParam.programId;
 

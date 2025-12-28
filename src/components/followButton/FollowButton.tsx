@@ -48,7 +48,7 @@ const FollowButton = ({
     try {
 
 
-      const result = await api.post(endpoint, { followingAccountId });
+      const result = await api.postWithAuth(endpoint, { followingAccountId });
 
       if (result.isError()) {
         // Revert on error

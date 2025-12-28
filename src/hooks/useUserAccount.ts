@@ -1,9 +1,9 @@
 import { isAuthenticatedAtom, userAccountInfoAtom } from "@/store"
 import { useAtom, useAtomValue } from "jotai"
-import { useEffect } from "node_modules/react-resizable-panels/dist/declarations/src/vendor/react";
 import { useWalletCore } from "./useWalletCore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useApi } from "./useApi";
+import { AccountData } from "@/types/AccountData";
 
 export const useUserAccount = () => {
 
@@ -21,8 +21,23 @@ export const useUserAccount = () => {
   }, [address, isAuthenticated])
 
   const gettUserAccountInfo = async () => {
-    const resultStatus = await api.get("/account")
+
+    setIsFetchingAccount(true)
+
+    const resultStatus = await api.getWithAuth("/account")
+
+    setIsFetchingAccount(false)
+
+    const data = resultStatus.getData() as AccountData
+
+    if(!resultStatus.isError() && data != null){
+      setUserAccountInfo(data)
+    }
   }
 
-
+  return {
+    userAccountInfo,
+    isFetchingAccount,
+    gettUserAccountInfo
+  }
 }

@@ -3,29 +3,26 @@ import { useState, useEffect,  } from 'react';
 import { networks, getNetworkById } from '@/config/networks';
 import { NetworkConfig } from '@/types/NetworkConfig';
 import EventBus from '@/core/EventBus';
-import walletConfig from "@/config/wallet"
-import { useAtom } from 'jotai';
-import { currentNetworkAtom } from '@/store'
+import { useAtom, useAtomValue } from 'jotai';
+import { currentNetworkAtom, currentNetworkIdAtom } from '@/store'
 
 interface UseNetworkReturn {
-  currentNetwork: NetworkConfig;
-  switchNetwork: (networkId: string) => void;
-  networks: Record<string, NetworkConfig>;
-  openNetworkModal: () => void;
+  currentNetworkId:   string;
+  currentNetwork:     NetworkConfig;
+  switchNetwork:      (networkId: string) => void;
+  networks:           Record<string, NetworkConfig>;
+  openNetworkModal:   () => void;
 }
 
 export function useNetwork(): UseNetworkReturn {
 
-  const [currentNetwork, setCurrentNetwork] = useAtom(currentNetworkAtom);
+  const [currentNetworkId, setCurrentNetworkId] = useAtom(currentNetworkIdAtom);
+  const currentNetwork = useAtomValue<NetworkConfig>(currentNetworkAtom);
+
 
   const switchNetwork = (networkId: string) => {
-
-    const network = getNetworkById(networkId);
-
-    if (network) {
-      setCurrentNetwork(network);
-      localStorage.setItem(walletConfig.networkStorageKey, network.name);
-      EventBus.emit('networkChange', network);
+    if (networkId) {
+      setCurrentNetworkId(networkId);
     }
   }
 
@@ -34,6 +31,7 @@ export function useNetwork(): UseNetworkReturn {
   }
 
   return {
+    currentNetworkId,
     currentNetwork,
     switchNetwork,
     networks,

@@ -13,11 +13,14 @@ import {
   RefreshCw,
   Globe,
   ChevronRight,
-  Wallet
+  Wallet,
+  User,
+  EyeClosed
 } from "lucide-react";
 import { useCallback, useState, useEffect } from "react";
 import { NetworkConfig } from "@/types/NetworkConfig";
-import EventBus from "@/core/EventBus";
+import UserAccountCard from "./UserAccountCard";
+import BalanceCard from "./BalanceCard";
 
 export interface UserInfo {
   username?: string;
@@ -41,52 +44,10 @@ export default function ConnectedWalletContent({
   onAccountSettings
 }: ConnectedWalletContentProps) {
 
-  const web3Core = useWeb3();
   const { disconnect, address: fullAddress, publicKey: addressPubKey, wallet } = useWalletCore();
-  const connection = useConnection();
 
-  const [loadingBalance, setLoadingBalance] = useState(false);
-  const [nativeBalance, setNativeBalance] = useState<number | null>(null);
   const [disconnecting, setDisconnecting] = useState(false);
 
-
-  // Fetch balance
-  const fetchBalanceCore = async () => {
-    if (!fullAddress || !connection) {
-      setNativeBalance(null);
-      return;
-    }
-
-    setLoadingBalance(true);
-
-    const balanceStatus = await web3Core.getNativeBalance(addressPubKey);
-
-    setLoadingBalance(false);
-
-    if (balanceStatus.isError()) {
-      setNativeBalance(null);
-      return;
-    }
-
-    const balance = balanceStatus.getData().balance;
-    setNativeBalance(balance);
-  };
-
-  useEffect(() => {
-    fetchBalanceCore();
-  }, []);
-
-  // Refetch balance on network change
-  useEffect(() => {
-    const handleNetworkChange = () => {
-      fetchBalanceCore();
-    };
-
-    EventBus.on('networkChange', handleNetworkChange);
-    return () => EventBus.off('networkChange', handleNetworkChange);
-  }, []);
-
-  const fetchBalance = useCallback(fetchBalanceCore, [fullAddress, connection]);
 
   // Handle disconnect
   const handleDisconnect = async () => {
@@ -94,7 +55,6 @@ export default function ConnectedWalletContent({
       setDisconnecting(true);
       await disconnect();
       setModalOpen?.(false);
-      setNativeBalance(null);
       toast.success('Wallet disconnected');
     } catch (error) {
       utils.logError('Failed to disconnect:', error);
@@ -114,57 +74,17 @@ export default function ConnectedWalletContent({
     window.open(url, '_blank');
   }, [fullAddress, currentNetwork]);
 
-  // Handle account settings
-  const handleAccountSettings = () => {
-    setModalOpen?.(false);
-    onAccountSettings?.();
-  };
 
   const inputBgClass = "bg-gray-900/50 border-white/10";
 
   return (
     <div className="space-y-4 py-2">
 
-      {/* User Profile Card
-      <div className={`${inputBgClass} rounded-xl p-4 border`}>
-        <div className="flex items-center gap-4">
+      <UserAccountCard
+        inputBgClass={inputBgClass}
+        setModalOpen={setModalOpen}
+      />
 
-          <div className="relative flex-shrink-0">
-            <img
-              src={user.avatar}
-              alt={user.displayName || user.username || 'User'}
-              className="w-14 h-14 rounded-full object-cover border-2 border-purple-500/30"
-            />
-          </div>
-
-          {/* User Info
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h3 className="text-white font-bold text-lg truncate">
-                { user?.username || 'Anonymous' }
-              </h3>
-            </div>
-            {user?.username && user?.displayName && (
-              <p className="text-gray-500 text-sm truncate">@{user.username}</p>
-            )}
-            {!user?.username && !user?.displayName && (
-              <p className="text-gray-500 text-sm">No profile set</p>
-            )}
-          </div>
-
-          {/* Settings Button
-          {onAccountSettings && (
-            <button
-              onClick={handleAccountSettings}
-              className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/30 transition-all"
-              title="Account Settings"
-            >
-              <Settings className="w-5 h-5 text-gray-400 hover:text-purple-400 transition-colors" />
-            </button>
-          )}
-        </div>
-      </div>
-      */}
       {/* Wallet & Address Card */}
       <div className={`${inputBgClass} rounded-xl p-4 border hover:border-purple-500/30 transition-all duration-300`}>
         <div className="flex items-center justify-between mb-3">
@@ -195,12 +115,20 @@ export default function ConnectedWalletContent({
             </p>
           </div>
 
-          {/* Copy Button */}
-          <CopyBtn
-            textToCopy={fullAddress}
-            className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400"
-            copiedClassName="p-2 bg-green-500/20 rounded-lg text-green-500"
-          />
+          <div className="flex gap-x-2">
+            {/* Copy Button */}
+            <CopyBtn
+              textToCopy={fullAddress}
+              className="p-2 px-3 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400"
+              copiedClassName="p-2 px-3 bg-green-500/20 rounded-lg text-green-500"
+            />
+            <button
+              onClick={viewOnExplorer}
+              className={`p-2 px-3 bg-white/5 hover:bg-white/10 rounded-lg`}
+            >
+              <ArrowUpRight className="w-4 h-4 text-gray-400 group-hover:text-purple-400 transition-colors" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -235,45 +163,13 @@ export default function ConnectedWalletContent({
 
       {/* Balance Card */}
       <div className={`${inputBgClass} rounded-xl p-4 border hover:border-purple-500/30 transition-all duration-300`}>
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-            <Coins className="w-3 h-3" />
-            Balance
-          </p>
-          <button
-            onClick={fetchBalance}
-            disabled={loadingBalance}
-            className="p-1.5 hover:bg-white/10 rounded-lg transition-all duration-300 disabled:opacity-50"
-            title="Refresh balance"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 text-gray-400 hover:text-purple-400 transition-colors ${loadingBalance ? 'animate-spin' : ''}`} />
-          </button>
-        </div>
-        <div className="flex items-baseline gap-2">
-          {loadingBalance ? (
-            <div className="flex items-center gap-2">
-              <Loader2 className="w-5 h-5 text-purple-400 animate-spin" />
-              <span className="text-gray-400">Fetching...</span>
-            </div>
-          ) : nativeBalance !== null ? (
-            <>
-              <span className="text-4xl font-black text-white tracking-tight">
-                {nativeBalance.toFixed(4)}
-              </span>
-              <span className="text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                SOL
-              </span>
-            </>
-          ) : (
-            <span className="text-gray-400">Unable to fetch</span>
-          )}
-        </div>
+        <BalanceCard />
       </div>
 
       {/* Quick Actions */}
       <div className="grid grid-cols-2 gap-3">
         <button
-          onClick={viewOnExplorer}
+          onClick={()=> { setModalOpen(false) }}
           className={`
             flex items-center justify-center gap-2 px-4 py-3.5
             ${inputBgClass} border rounded-xl
@@ -281,9 +177,9 @@ export default function ConnectedWalletContent({
             transition-all duration-300 group
           `}
         >
-          <ArrowUpRight className="w-4 h-4 text-gray-400 group-hover:text-purple-400 transition-colors" />
+          <EyeClosed className="w-4 h-4 text-gray-400 group-hover:text-purple-400 transition-colors" />
           <span className="text-sm font-bold text-gray-300 group-hover:text-white transition-colors">
-            Explorer
+            Close
           </span>
         </button>
 

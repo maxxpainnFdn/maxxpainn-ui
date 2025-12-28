@@ -4,25 +4,38 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Routes from "./routes/Routes";
 import WalletProvider from "./components/wallet/WalletProvider";
+import { useEffect, useState } from "react";
+import { useAtomValue } from "jotai";
+import { isAuthenticatedAtom } from "./store";
 const queryClient = new QueryClient();
 
-const App = () => (
-  <WalletProvider>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster
-          position="top-center"
-          richColors={true}
-          closeButton={false}
-          expand={true}
-          visibleToasts={1}
-        />
+const App = () => {
 
-        <Routes />
+  const isAuthenticated = useAtomValue(isAuthenticatedAtom)
+  const [pageKey, setPageKey] = useState(0)
 
-      </TooltipProvider>
-    </QueryClientProvider>
-  </WalletProvider>
-);
+  useEffect(()=>{
+    setPageKey(prev=> (prev+1))
+  }, [isAuthenticated])
+
+  return (
+    <WalletProvider key={pageKey}>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster
+            position="top-center"
+            richColors={true}
+            closeButton={false}
+            expand={true}
+            visibleToasts={1}
+          />
+
+          <Routes />
+
+        </TooltipProvider>
+      </QueryClientProvider>
+    </WalletProvider>
+  );
+}
 
 export default App;

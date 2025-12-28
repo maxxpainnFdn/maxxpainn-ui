@@ -1,6 +1,7 @@
 import Spinner from "@/components/spinner/Spinner";
-import { lazy, Suspense } from "react";
-import { BrowserRouter, Routes as ReactRoutes, Route } from "react-router-dom";
+import EventBus from "@/core/EventBus";
+import { lazy, Suspense, useEffect, FC } from "react";
+import { BrowserRouter, Routes as ReactRoutes, Route, useNavigate } from "react-router-dom";
 
 
 export default function Routes() {
@@ -29,8 +30,11 @@ export default function Routes() {
         { uri: "*", component: "NotFound" },
     ];
 
+
+
     return (
         <BrowserRouter>
+             <NavigationComp />
             <ReactRoutes>
                 { routesArr.map((item, idx) => {
 
@@ -50,4 +54,22 @@ export default function Routes() {
             </ReactRoutes>
         </BrowserRouter>
     )
+}
+
+
+const NavigationComp: FC = () => {
+
+  const navigate = useNavigate()
+
+  useEffect(()=>{
+    EventBus.on("navigate", (uri) => {
+      navigate(uri)
+    })
+
+    return () => {
+      EventBus.off("navigate")
+    }
+  })
+
+  return <></>
 }

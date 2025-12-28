@@ -81,11 +81,7 @@ export const NotConnectedWalletView = ({
 
         setConnectingWallet(walletName);
 
-        //await utils.sleep(1000)
-
         await connect();
-
-        //utils.sleep(500)
 
         toast.success(`Connected to ${walletName}`);
         setConnectingWallet(null);

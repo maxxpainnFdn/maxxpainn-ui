@@ -30,6 +30,7 @@ const ChangeUsernameDialog = ({
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
+  const [modalOpen, setModalOpen] = useState(false)
 
   const {
     register,
@@ -89,7 +90,7 @@ const ChangeUsernameDialog = ({
       setChecking(true);
 
       try {
-        const result = await apiRef.current.get<{ exists: boolean }>(
+        const result = await apiRef.current.get(
           `/account/check-username/${encodeURIComponent(watchedUsername)}`
         );
 
@@ -135,6 +136,8 @@ const ChangeUsernameDialog = ({
   }, [watchedUsername, currentUsername, setError, clearErrors]);
 
   const handleOpenChange = (open: boolean) => {
+    setModalOpen(open);
+
     if (!open) {
       reset();
       setIsAvailable(null);
@@ -150,7 +153,7 @@ const ChangeUsernameDialog = ({
     }
 
     setLoading(true);
-    const result = await api.post('/account/change-username', { username: data.username });
+    const result = await api.postWithAuth('/account/change-username', { username: data.username });
     setLoading(false);
 
     if (result.isError()) {
@@ -160,7 +163,8 @@ const ChangeUsernameDialog = ({
 
     toast.success('Username updated successfully!');
     onSuccess?.(data.username);
-    handleOpenChange(false);
+
+    setModalOpen(false)
   };
 
   // Username validation pattern
@@ -198,6 +202,7 @@ const ChangeUsernameDialog = ({
     <Modal
       onOpenChange={handleOpenChange}
       trigger={trigger}
+      open={modalOpen}
       title="Change Username"
       description="Choose a unique username for your profile."
       icon={AtSign}

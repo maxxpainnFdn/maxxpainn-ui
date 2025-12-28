@@ -41,8 +41,8 @@ export const activityTypes = {
     title: "New Follow",
     text: "{username} started following {followed_username}",
     icon: UserCheck,
-    iconClass: "text-pink-400",
-    iconBoxClass: "bg-pink-500/20",
-    mainClass: "from-pink-500/10 to-transparent border-l-4 border-pink-500 hover:from-pink-500/20",
+    iconClass: "text-orange-400",
+    iconBoxClass: "bg-orange-500/20",
+    mainClass: "from-orange-500/10 to-transparent border-l-4 border-orange-500 hover:from-orange-500/20",
   },
 } as const;

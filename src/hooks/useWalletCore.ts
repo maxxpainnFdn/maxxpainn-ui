@@ -2,11 +2,11 @@
 
 import walletConfig from '@/config/wallet';
 import EventBus from '@/core/EventBus';
-import { Status } from '@/core/Status';
-import utils from '@/lib/utils';
+import { currentNetworkIdAtom } from '@/store';
 import { MessageSignerWalletAdapterProps, WalletName } from '@solana/wallet-adapter-base';
 import { useWallet, Wallet } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
+import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 
 export interface UseWalletCoreResult {
@@ -14,6 +14,7 @@ export interface UseWalletCoreResult {
   publicKey:      PublicKey | null;
   isConnected:    boolean;
   isConnecting:   boolean;
+  networkId:      string;
   openModal:      () => void;
   closeModal:     () => void;
   connect:        () => Promise<void>;
@@ -39,6 +40,8 @@ export const useWalletCore = (): UseWalletCoreResult => {
   } = useWallet();
 
   const [isConnected, setIsConnected] = useState(connected && publicKey != null)
+  const currentNetworkId = useAtomValue(currentNetworkIdAtom);
+
 
   useEffect(()=> {
     setIsConnected(connected && publicKey != null)
@@ -59,13 +62,12 @@ export const useWalletCore = (): UseWalletCoreResult => {
     setIsConnected(false)
   }
 
-
-
   return {
     address: publicKey?.toBase58() || null,
     publicKey,
     isConnected,
     isConnecting,
+    networkId: currentNetworkId,
     connect,
     disconnect,
     select,

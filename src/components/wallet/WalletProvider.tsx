@@ -1,5 +1,5 @@
 // components/wallet/WalletProvider.tsx
-import React, { FC, ReactNode, useMemo, useState, useEffect } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { ConnectionProvider, WalletProvider as SolanaWalletProvider } from '@solana/wallet-adapter-react';
 import {
   PhantomWalletAdapter,
@@ -12,10 +12,9 @@ import {
   MathWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
 import { initializeWhenDetected } from '@solflare-wallet/metamask-wallet-standard';
-import { defaultNetwork } from '@/config/networks';
-import EventBus from '@/core/EventBus';
 import WalletModal from './WalletModal';
 import walletConfig from "@/config/wallet"
+import useNetwork from '@/hooks/useNetwork';
 
 
 interface WalletProviderProps {
@@ -26,18 +25,9 @@ export const WalletProvider = ({
   children,
 }: WalletProviderProps) => {
 
-  const [network, setNetwork] = useState(defaultNetwork)
+  const { currentNetwork } = useNetwork()
 
-  useEffect(()=>{
-
-    EventBus.on("networkChange", (networkInfo)=>{
-      setNetwork(networkInfo)
-    })
-
-    return () => {
-      EventBus.off("networkChange")
-    }
-  },[])
+  console.log("currentNetwork===>", currentNetwork)
 
   const wallets = useMemo(() => [
     new PhantomWalletAdapter(),
@@ -53,7 +43,7 @@ export const WalletProvider = ({
   initializeWhenDetected()
 
   return (
-    <ConnectionProvider endpoint={network.endpoint}>
+    <ConnectionProvider endpoint={currentNetwork.endpoint}>
       <SolanaWalletProvider
         wallets={wallets}
         autoConnect

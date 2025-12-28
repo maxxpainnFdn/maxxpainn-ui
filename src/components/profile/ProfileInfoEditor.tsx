@@ -85,6 +85,7 @@ const ProfileInfoEditor = ({
 
   return (
     <Modal
+      open={isDialogOpen}
       onOpenChange={handleOpenChange}
       title="Edit Profile"
       description="Update your profile information visible to others."
@@ -186,27 +187,29 @@ const ProfileInfoEditor = ({
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 pt-4">
-          <Button
-            type="button"
-            variant="secondary"
-            size="md"
-            onClick={() => handleOpenChange(false)}
-            disabled={loading}
-            className="flex-1"
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            size="md"
-            disabled={loading || !isDirty}
-            loading={loading}
-            className="flex-1 shadow-lg shadow-purple-900/20"
-          >
-            {loading ? 'Saving...' : 'Save Changes'}
-          </Button>
+        <div>
+          <div className="flex gap-3 pt-2">
+            <Button
+              type="button"
+              variant="secondary"
+              size="md"
+              onClick={() => setDialogOpen(false)}
+              disabled={loading}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              disabled={loading || !isDirty}
+              loading={loading}
+              className="flex-1 shadow-lg shadow-purple-900/20"
+            >
+              {loading ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </div>
         </div>
       </form>
 

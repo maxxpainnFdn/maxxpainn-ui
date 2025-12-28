@@ -42,8 +42,16 @@ import CountDownTimer from "@/components/claimToken/CountDownTimer";
 import programConfig from "@/config/program_config"
 import { ASSOCIATED_TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from "@solana/spl-token";
 
+interface TimeType {
+  days:     number;
+  hours:    number;
+  minutes:  number;
+  seconds:  number;
+}
+
 export default function TokenClaim() {
-  const wallet = useWalletCore();
+
+  const { isConnected, publicKey: accountPublicKey, address: accountAddress, networkId } = useWalletCore();
   const web3 = useWeb3();
   const navigate = useNavigate();
 
@@ -56,12 +64,7 @@ export default function TokenClaim() {
   const [rankDifficultyInfo, setRankDifficultyInfo] = useState<any>(null)
   const [tokenInfo, setTokenInfo] = useState<any>(null);
   const [rewardInfo, setRewardInfo] = useState<MintRewardInfo | null>(null);
-  const [timeLeft, setTimeLeft] = useState<{
-    days: number;
-    hours: number;
-    minutes: number;
-    seconds: number;
-  } | null>(null);
+  const [timeLeft, setTimeLeft] = useState<TimeType | null>(null);
   const [isClaimable, setIsClaimable] = useState(false);
   const [maturityDate, setMaturityDate] = useState<Date | null>(null);
   const [progressPercent, setProgressPercent] = useState(0);
@@ -73,7 +76,7 @@ export default function TokenClaim() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [wallet.address, wallet.networkName]);
+  }, [isConnected, accountAddress, networkId]);
 
   // Timer Logic
   useEffect(() => {
@@ -118,25 +121,23 @@ export default function TokenClaim() {
   const fetchAccountData = async () => {
     try {
       setPageLoading(true);
-      if (!wallet.isConnected) return;
+      if (!isConnected) return;
 
-      // @ts-ignore
-      const network = wallet.networkName;
-      const programId = await web3.getProgramId(network);
-      const programPdas = await web3.getProgramPdas(network);
+      const programId = await web3.getProgramId(networkId);
+      const programPdas = await web3.getProgramPdas(networkId);
 
       const [userRankInfoPda] = await web3.findProgramAddress(
-        [Buffer.from("rank_info"), new PublicKey(wallet.address).toBuffer()],
+        [Buffer.from("rank_info"), accountPublicKey.toBuffer()],
         programId,
       );
 
       const [rankDifficultyPda, _] = PublicKey.findProgramAddressSync(
-        [Buffer.from("rank_difficulty"), wallet.publicKey.toBuffer()],
+        [Buffer.from("rank_difficulty"), accountPublicKey.toBuffer()],
         programId
       );
 
       const resultStatus = await web3.fetchAccountsInfo({
-        network,
+        network: networkId,
         accounts: {
           globalRank: {
             idl: "maxxpainn",
@@ -211,6 +212,7 @@ export default function TokenClaim() {
 
 
   const calculateRewardPreview = (rInfo: any, gRank: number) => {
+
     if (!rInfo) return;
 
     const rankNo = rInfo.rankNo.toNumber();
@@ -238,22 +240,21 @@ export default function TokenClaim() {
     setRewardInfo(reward);
   };
 
-  const handleClaim = async (stake: boolean = false) => {
+  const handleClaim = async () => {
     try {
 
       setClaiming(true);
 
-      const network = wallet.networkName;
-      const programId = await web3.getProgramId(network);
-      const programPdas = await web3.getProgramPdas(network);
+      const programId = await web3.getProgramId(networkId);
+      const programPdas = await web3.getProgramPdas(networkId);
 
       const [rankInfoPda] = PublicKey.findProgramAddressSync(
-        [Buffer.from("rank_info"), new PublicKey(wallet.address).toBuffer()],
+        [Buffer.from("rank_info"), accountPublicKey.toBuffer()],
         programId,
       );
 
       const mintPda = programPdas.mintPda
-      const tokenClaimer = wallet.publicKey;
+      const tokenClaimer = accountPublicKey;
 
       const tokenClaimerAta = await getAssociatedTokenAddress(
         mintPda,
@@ -265,9 +266,9 @@ export default function TokenClaim() {
 
 
       const claimTokensIx = {
-        method:       "claimTokens",
-        idl:        "maxxpainn",
-        programId:  programId.toBase58(),
+        method:         "claimTokens",
+        idl:            "maxxpainn",
+        programId:      programId.toBase58(),
         args: [],
         accounts: {
           signer:                 tokenClaimer,
@@ -290,9 +291,9 @@ export default function TokenClaim() {
         programId:  programId.toBase58(),
         args: [],
         accounts: {
-          signer:         wallet.publicKey,
+          signer:         accountPublicKey,
           mainConfig:     programPdas.mainConfigPda,
-          rankOwner:      wallet.publicKey,
+          rankOwner:      accountPublicKey,
           rankInfo:       rankInfoPda,
           treasury:       programConfig.treasuryWallet,
           systemProgram:  SystemProgram.programId,
@@ -307,7 +308,7 @@ export default function TokenClaim() {
       if(rankDifficultyInfo != null && rankDifficultyInfo.lamports > 0) {
 
         const [rankDifficultyPda, _] = PublicKey.findProgramAddressSync(
-          [Buffer.from("rank_difficulty"), wallet.publicKey.toBuffer()],
+          [Buffer.from("rank_difficulty"), accountPublicKey.toBuffer()],
           programId
         );
 
@@ -317,9 +318,9 @@ export default function TokenClaim() {
           programId:  programId.toBase58(),
           args: [],
           accounts: {
-            signer:               wallet.publicKey,
+            signer:               accountPublicKey,
             mainConfig:           programPdas.mainConfigPda,
-            rankDifficultyOwner:  wallet.publicKey,
+            rankDifficultyOwner:  accountPublicKey,
             rankDifficulty:       rankDifficultyPda,
             treasury:             programConfig.treasuryWallet,
             systemProgram:        SystemProgram.programId,
@@ -331,7 +332,7 @@ export default function TokenClaim() {
       }
 
       const txStatus = await web3.sendBatchTx({
-        network,
+        network: networkId,
         instructions
       });
 
@@ -343,6 +344,7 @@ export default function TokenClaim() {
       toast.success("Tokens Claimed Successfully!");
 
       navigate("/mint");
+
     } catch (e) {
       console.error(e);
       toast.error("Claim failed.");

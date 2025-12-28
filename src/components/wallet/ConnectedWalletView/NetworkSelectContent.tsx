@@ -4,12 +4,10 @@ import { NetworkConfig } from '@/types/NetworkConfig';
 import {
   Globe,
   Check,
-  AlertTriangle,
   Loader2,
   ArrowLeft
 } from 'lucide-react';
 import utils from '@/lib/utils';
-import EventBus from '@/core/EventBus';
 import toast from '@/hooks/toast';
 import useNetwork from '@/hooks/useNetwork';
 
@@ -28,9 +26,10 @@ export default function NetworkSelectContent({
 
   const [switching, setSwitching] = useState<string | null>(null);
 
+
   const handleNetworkSelect = async (network: NetworkConfig) => {
 
-    if (network.name === currentNetwork.name) return;
+    //if (network.name === currentNetwork.name) return;
 
     setSwitching(network.name);
 

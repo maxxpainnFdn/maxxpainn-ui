@@ -7,7 +7,6 @@ import SignSessionContent from "./SignSessionContent";
 import toast from "@/hooks/toast";
 import useNetwork from "@/hooks/useNetwork";
 import useAuth from "@/hooks/useAuth";
-import { useWallet } from "@solana/wallet-adapter-react";
 
 type ConnectedModalView = 'wallet' | 'network' | 'signSession';
 
@@ -26,14 +25,12 @@ export function ConnectedWalletView({
   setModalMeta
 }) {
 
-  const { disconnect, wallet } = useWalletCore();
+  const { disconnect, wallet, isConnected } = useWalletCore();
   const { currentNetwork } = useNetwork()
-  const { connected } = useWallet()
   const { isAuthenticated } = useAuth()
 
   const [view, setView] = useState<ConnectedModalView>('wallet');
 
-  console.log("connected=====>", connected)
 
   const initialize = () => {
      if(!isAuthenticated){

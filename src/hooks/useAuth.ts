@@ -4,14 +4,12 @@ import { useWalletCore } from '@/hooks/useWalletCore';
 import { useNetwork } from '@/hooks/useNetwork';
 import  { authService } from '@/core/AuthService';
 import { AuthNonce, SessionData, SessionWithAccountData } from '@/types/Auth';
-import EventBus from '@/core/EventBus';
 import bs58 from 'bs58';
-import toast from './toast';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { authSessionInfoAtom, isAuthenticatedAtom, userAccountInfoAtom } from '@/store';
 import authConfig from '@/config/auth';
-import { useApi } from './useApi';
 import { Status } from '@/core/Status';
+import http from "@/core/HttpClient"
 
 interface UseAuthReturn {
   isAuthenticated: boolean;
@@ -25,7 +23,6 @@ interface UseAuthReturn {
 
 export function useAuth(): UseAuthReturn {
 
-  const api = useApi()
   const { isConnected, address, signMessage, wallet } = useWalletCore();
   const { currentNetwork } = useNetwork();
 
@@ -49,10 +46,6 @@ export function useAuth(): UseAuthReturn {
     localStorage.setItem(authConfig.sessionStorageKey, JSON.stringify(sessions))
   }
 
-  const getSession = (address): SessionData | null  => {
-    const _sess = getSessions()
-    return _sess[address] || null
-  }
 
   const initialize = () => {
 
@@ -122,7 +115,7 @@ export function useAuth(): UseAuthReturn {
       const chainId = currentNetwork.chainId;
       const accountAddress = address;
 
-      const nonceStatus = await api.post("/auth/nonce", { accountAddress, chainId })
+      const nonceStatus = await http.post("/auth/nonce", { accountAddress, chainId })
 
       //console.log("nonceStatus===>", nonceStatus)
 
@@ -157,7 +150,7 @@ export function useAuth(): UseAuthReturn {
         chainId
       }
 
-      const resultStatus = await api.post("/auth/verify", formData)
+      const resultStatus = await http.post("/auth/verify", formData)
 
       if(resultStatus.isError()){
         return Status.error(resultStatus.getMessage())
@@ -184,7 +177,7 @@ export function useAuth(): UseAuthReturn {
 
     } catch (error: any) {
 
-      console.error('Sign in failed:', error);
+      //console.error('Sign in failed:', error);
 
       // User rejected the signature
       if (error?.message?.includes('User rejected') || error?.code === 4001) {
@@ -200,7 +193,7 @@ export function useAuth(): UseAuthReturn {
 
 
   // get access token
-  const getAccessToken = (): Promise<Status> => {
+  const getAccessToken = async (): Promise<Status> => {
 
     if(!isAuthenticated || authSession == null){
       return Status.error("login required")
@@ -213,7 +206,28 @@ export function useAuth(): UseAuthReturn {
       return Status.successData(authSession.accessToken)
     }
 
-    let refreshStatus = api.post("/auth/refresh")
+    const chainId = currentNetwork.chainId;
+    const accountAddress = address;
+
+    let refreshStatus = await http.post("/auth/refresh", { accountAddress, chainId })
+
+    if(refreshStatus.isError()){
+      return refreshStatus
+    }
+
+    //lets update the new accessToken
+    let authData = refreshStatus.getData() as SessionData;
+
+    if(authData.isAuthenticated){
+
+      // set active session globally
+      setAuthSession(authData);
+
+      // update the session pool
+      updateSessions(address, authData)
+    }
+
+    return Status.successData(authData.accessToken)
   }
 
   // Sign out

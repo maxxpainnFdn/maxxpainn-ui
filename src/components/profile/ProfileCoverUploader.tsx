@@ -27,6 +27,7 @@ const ProfileCoverUploader = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const { control, handleSubmit, formState: { errors }, reset, watch } = useForm<ProfileCoverUploaderForm>();
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   const api = useApi();
 
@@ -57,7 +58,7 @@ const ProfileCoverUploader = ({
     fd.append('coverPhoto', data.cover[0]);
 
     setLoading(true);
-    const result = await api.post('/account/update-cover-photo', fd);
+    const result = await api.postWithAuth('/account/update-cover-photo', fd);
     setLoading(false);
 
     if (result.isError()) {
@@ -70,11 +71,12 @@ const ProfileCoverUploader = ({
     const coverUrl = utils.getCoverPhotoUrl(result.getData() as string, "profile/cover");
 
     onSuccess?.(coverUrl);
-    handleOpenChange(false);
+    setDialogOpen(false);
   };
 
   return (
     <Modal
+      open={dialogOpen}
       onOpenChange={handleOpenChange}
       title="Update Cover Photo"
       description="Add a banner image to personalize your profile."
