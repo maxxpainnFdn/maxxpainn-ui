@@ -10,6 +10,7 @@ import { Status } from "@/core/Status";
 import { SimulateResponse } from "@coral-xyz/anchor/dist/cjs/program/namespace/simulate";
 import {
   AccountInfo,
+  ComputeBudgetProgram,
   LAMPORTS_PER_SOL,
   ParsedTransactionWithMeta,
   PublicKey,
@@ -103,8 +104,9 @@ export const useWeb3 = () => {
     return Promise.resolve(PublicKey.findProgramAddressSync(seeds, programId));
   };
 
-  const getProgramPdas = async (networkName: string): Promise<ProgramPdas> => {
-    let programId = await getProgramId(networkName);
+  const getProgramPdas = async (networkId: string): Promise<ProgramPdas> => {
+
+    let programId = await getProgramId(networkId);
 
     const [mainConfigPda] = await findProgramAddress(
       [Buffer.from("main_config")],
@@ -278,11 +280,13 @@ export const useWeb3 = () => {
       const tx = new Transaction();
       const provider = anchorProvider.getProvider();
 
+      tx.add(ComputeBudgetProgram.setComputeUnitLimit({ units: 800000 }));
+
       const programs = []
 
       for (let programParam of params.instructions){
 
-        console.log("programParam===>", programParam)
+        //console.log("programParam===>", programParam)
         const { programMethod, program } = await prepareTx({ network, ...programParam });
 
         let ix = await programMethod.instruction()
@@ -348,7 +352,8 @@ export const useWeb3 = () => {
 
       for (let idx in accountsInfoArr) {
 
-        const onChainAcctInfo = accountsInfoArr[idx];
+        const onChainAcctInfo: DecodedAccountInfo = accountsInfoArr[idx] as DecodedAccountInfo;
+
         let acctParamKey = acctsKeys[idx];
 
         // console.log("acctKey===>", acctKey)
@@ -375,19 +380,18 @@ export const useWeb3 = () => {
         let prog = new Program(idl, provider);
 
         if (acctParam.accountName == "splTokenInfo") {
-          /** @ts-ignore */
           onChainAcctInfo.decodedData = MintLayout.decode(onChainAcctInfo.data);
         }
         else if (acctParam.accountName === "rankDifficulty") {
          // ✅ RAW account — do NOT use Anchor decoder
-         // @ts-ignore
+
          onChainAcctInfo.decodedData = {
            raw: onChainAcctInfo.data,
            length: onChainAcctInfo.data.length,
          };
 
        } else {
-          /** @ts-ignore */
+
           onChainAcctInfo.decodedData = await prog.coder.accounts.decode(
             acctParam.accountName,
             onChainAcctInfo.data,

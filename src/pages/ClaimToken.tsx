@@ -68,6 +68,7 @@ export default function TokenClaim() {
   const [isClaimable, setIsClaimable] = useState(false);
   const [maturityDate, setMaturityDate] = useState<Date | null>(null);
   const [progressPercent, setProgressPercent] = useState(0);
+  const [pageKey, setPageKey] = useState(0)
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -120,8 +121,11 @@ export default function TokenClaim() {
 
   const fetchAccountData = async () => {
     try {
+
       setPageLoading(true);
       if (!isConnected) return;
+
+      setPageError("")
 
       const programId = await web3.getProgramId(networkId);
       const programPdas = await web3.getProgramPdas(networkId);
@@ -366,7 +370,7 @@ export default function TokenClaim() {
 
       <main className="relative z-10 pt-28 pb-20 min-h-screen flex flex-col items-center">
         <div className="w-full h-full max-w-8xl mx-auto px-4 md:px-6">
-          <EnsureConnected>
+          <EnsureConnected className="min-h-[75vh]">
             <LoadingView
               error={pageError}
               onReload={fetchAccountData}

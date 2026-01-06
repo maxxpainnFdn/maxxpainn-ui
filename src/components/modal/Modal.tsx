@@ -19,8 +19,8 @@ function useMediaQuery(query: string) {
 
 export interface ModalProps {
   open?: boolean;
-  title: string;
-  description?: string;
+  title: string | ReactNode;
+  description?: string  | ReactNode;
   icon?: any;
   trigger?: ReactNode;
   onOpenChange?: (open: boolean) => void;
@@ -159,7 +159,9 @@ export default function Modal({
       open={isOpen}
       onOpenChange={handleOpenChange}
     >
-      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+
+      {trigger && <DialogTrigger asChild className="z-10">{trigger}</DialogTrigger>}
+
       <DialogContent
         style={{ '--desktop-width': desktopWidth } as React.CSSProperties}
         className={`

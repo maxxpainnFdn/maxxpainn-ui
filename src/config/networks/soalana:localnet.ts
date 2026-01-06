@@ -1,13 +1,14 @@
 import { NetworkConfig } from "@/types/NetworkConfig";
 
+const network = "solana:localnet";
+
 // Define the custom network
 export const SolanaLocalnet: NetworkConfig = {
-  id:             'localnet',
-  name:           'solana_localnet',
-  displayName:    'Solana Localnet',
+  id:             network,
+  name:           'Solana Localnet',
   endpoint:       'http://127.0.0.1:8899',
-  chainId:        'solana_localnet',
-  caipNetworkId:  'solana:localnet',
+  chainId:        network,
+  caipNetworkId:  network,
   genesisHash:    '',
   explorer:       'https://solscan.io/?cluster=localnet',
   isTestnet:      true,

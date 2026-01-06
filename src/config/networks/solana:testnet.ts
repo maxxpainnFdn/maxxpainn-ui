@@ -6,8 +6,7 @@ const networkId = "solana:testnet"
 // Define the custom network
 export const SolanaTestnet: NetworkConfig = {
   id:             networkId,
-  name:           'solana_testnet',
-  displayName:    'Solana Testnet',
+  name:           'Solana Testnet',
   endpoint:        clusterApiUrl('testnet'),
   chainId:        networkId,
   caipNetworkId:  networkId,

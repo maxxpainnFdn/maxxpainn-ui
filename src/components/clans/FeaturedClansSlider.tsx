@@ -5,105 +5,104 @@ import 'blaze-slider/dist/blaze.css'
 import ApiQuery from "../apiQuery/ApiQuery";
 
 export default function FeaturedClansSlider() {
-   
-    // 1. Store the Blaze instance in a Ref so it persists across re-renders
-    const sliderInstRef = useRef<BlazeSlider | null>(null);
-    const sliderRef = useRef<HTMLDivElement>(null);
-    
-    const [currentIndex, setCurrentIndex] = useState(0)
-    const [totalDots, setTotalDots] = useState(0)
-    const [clansDataArr, setClansDataArr] = useState([])
 
-    const config: BlazeConfig = {
-        all: {
-            slidesToShow: 1,
-            loop: true,
-            draggable: true,
-            enableAutoplay: true,
-            autoplayInterval: 8_000,
-            slideGap: "15px", // Added for spacing
-            stopAutoplayOnInteraction: true,
-        },
-        "(min-width: 360px)": { slidesToShow: 1 },
-        "(min-width: 480px)": { slidesToShow: 2 },
-        "(min-width: 768px)": { slidesToShow: 3 },
-    };
+  // 1. Store the Blaze instance in a Ref so it persists across re-renders
+  const sliderInstRef = useRef<BlazeSlider | null>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        return () => {
-            // Cleanup
-            sliderInstRef.current?.destroy()
-        }
-    }, [])
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [totalDots, setTotalDots] = useState(0)
+  const [clansDataArr, setClansDataArr] = useState([])
+
+  const config: BlazeConfig = {
+    all: {
+      slidesToShow: 1,
+      loop: true,
+      draggable: true,
+      enableAutoplay: true,
+      autoplayInterval: 8_000,
+      slideGap: "15px", // Added for spacing
+      stopAutoplayOnInteraction: true,
+    },
+    "(min-width: 360px)": { slidesToShow: 1 },
+    "(min-width: 480px)": { slidesToShow: 2 },
+    "(min-width: 768px)": { slidesToShow: 3 },
+  };
+
+  useEffect(() => {
+    return () => {
+      // Cleanup
+      sliderInstRef.current?.destroy()
+    }
+  }, [])
 
 
     const initializeSlider = () => {
-        
-        if (!sliderRef.current) return;
 
-        // Initialize Blaze
-        const slider = new BlazeSlider(sliderRef.current, config)
-        sliderInstRef.current = slider;
+      if (!sliderRef.current) return;
 
-        //console.log("blaze===>", slider)
+      // Initialize Blaze
+      const slider = new BlazeSlider(sliderRef.current, config)
+      sliderInstRef.current = slider;
 
-        setTotalDots(slider.totalSlides)
+      //console.log("blaze===>", slider)
 
-        // 2. LOGIC FIX: Blaze passes (pageIndex, firstVisibleIndex, lastVisibleIndex)
-        // 'pageIndex' IS the dot index. No math needed here.
-        slider.onSlide((pageIndex) => {
-            setCurrentIndex(pageIndex)
-        })
+      setTotalDots(slider.totalSlides)
+
+      // 2. LOGIC FIX: Blaze passes (pageIndex, firstVisibleIndex, lastVisibleIndex)
+      // 'pageIndex' IS the dot index. No math needed here.
+      slider.onSlide((pageIndex) => {
+        setCurrentIndex(pageIndex)
+      })
     }
 
-
     const sponsoredClans = [
-        { id: 1, name: "Tech Innovators Hub", members: "12.5K", badge: "⭐" },
-        { id: 2, name: "Digital Marketing Pros", members: "8.2K", badge: "🚀" },
-        { id: 3, name: "Startup Founders Network", members: "15.3K", badge: "💼" },
-        { id: 4, name: "AI & Machine Learning", members: "20.1K", badge: "🤖" },
-        { id: 5, name: "Web3 Builders", members: "9.7K", badge: "🌐" },
+      { id: 1, name: "Tech Innovators Hub", members: "12.5K", badge: "⭐" },
+      { id: 2, name: "Digital Marketing Pros", members: "8.2K", badge: "🚀" },
+      { id: 3, name: "Startup Founders Network", members: "15.3K", badge: "💼" },
+      { id: 4, name: "AI & Machine Learning", members: "20.1K", badge: "🤖" },
+      { id: 5, name: "Web3 Builders", members: "9.7K", badge: "🌐" },
     ];
 
     // on click
     const onDotClicked = (index: number) => {
 
-        const slider = sliderInstRef.current;
+      const slider = sliderInstRef.current;
 
-        if(!slider) return;
+      if(!slider) return;
 
-        const stateIndex = slider.stateIndex
-        const loop = slider.config.loop
+      const stateIndex = slider.stateIndex
+      const loop = slider.config.loop
 
-        const diff = Math.abs(index - stateIndex)
-        const inverseDiff = slider.states.length - diff
+      const diff = Math.abs(index - stateIndex)
+      const inverseDiff = slider.states.length - diff
 
-        const isDiffLargerThanHalf = diff > slider.states.length / 2
-        const scrollOpposite = isDiffLargerThanHalf && loop
+      const isDiffLargerThanHalf = diff > slider.states.length / 2
+      const scrollOpposite = isDiffLargerThanHalf && loop
 
-        // if target state is ahead of current state
-        if (index > stateIndex) {
-            // but the diff is too large
-            if (scrollOpposite) {
-                // scroll in opposite direction to reduce scrolling
-                slider.prev(inverseDiff)
-            } else {
-                // scroll normally
-                slider.next(diff)
-            }
+      // if target state is ahead of current state
+      if (index > stateIndex) {
+        // but the diff is too large
+        if (scrollOpposite) {
+          // scroll in opposite direction to reduce scrolling
+          slider.prev(inverseDiff)
+        } else {
+          // scroll normally
+          slider.next(diff)
         }
+      }
 
-        // if target state is before current state
-        else {
-            // but the diff is too large
-            if (scrollOpposite) {
-                // scroll in opposite direction
-                slider.next(inverseDiff)
-            } else {
-                // scroll normally
-                slider.prev(diff)
-            }
+      // if target state is before current state
+      else {
+        // but the diff is too large
+        if (scrollOpposite) {
+          // scroll in opposite direction
+          slider.next(inverseDiff)
+        } else {
+          // scroll normally
+          slider.prev(diff)
         }
+      }
     }
 
     const goToSlider = (dir: string) => {
@@ -142,7 +141,7 @@ export default function FeaturedClansSlider() {
                                 <Zap className="w-4 h-4 text-purple-400 fill-purple-400" />
                             </div>
                             <span className="text-sm font-semibold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent uppercase tracking-wide">
-                            Featured 
+                            Featured
                             </span>
                         </div>
 
@@ -186,7 +185,7 @@ export default function FeaturedClansSlider() {
                                         ">
                                             {/* Hover glow effect */}
                                             <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-pink-500/10 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                            
+
                                             <div className="relative flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-400 via-pink-400 to-purple-500 rounded-xl flex items-center justify-center text-2xl shadow-lg shadow-purple-500/30 group-hover:shadow-purple-500/50 group-hover:scale-110 transition-all duration-300">
                                                 {clan.badge}
                                             </div>
@@ -207,7 +206,7 @@ export default function FeaturedClansSlider() {
                             </div>
                         </div>
                     </div>
-                    
+
 
                     {/* Dots Indicator */}
                     <div className="flex justify-center gap-2 mt-5">
@@ -216,8 +215,8 @@ export default function FeaturedClansSlider() {
                                 key={idx}
                                 onClick={() => onDotClicked(idx)}
                                 className={`h-2 rounded-full transition-all duration-300 ${
-                                    idx === currentIndex 
-                                    ? 'bg-gradient-to-r from-purple-400 to-pink-400 w-8 shadow-lg shadow-purple-500/50' 
+                                    idx === currentIndex
+                                    ? 'bg-gradient-to-r from-purple-400 to-pink-400 w-8 shadow-lg shadow-purple-500/50'
                                     : 'bg-purple-500/30 w-2 hover:bg-purple-400/50 hover:w-4'
                                 }`}
                                 aria-label={`Go to slide ${idx + 1}`}
@@ -225,7 +224,7 @@ export default function FeaturedClansSlider() {
                         ))}
                     </div>
                 </div>
-            </div>    
+            </div>
         </ApiQuery>
     )
 }

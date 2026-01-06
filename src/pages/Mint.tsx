@@ -35,7 +35,7 @@ interface ClaimRankForm {
 export default function Mint(){
 
   const {
-    networkName,
+    networkId,
     address: accountAddress,
     publicKey: accountPublickey,
     isConnected
@@ -55,7 +55,7 @@ export default function Mint(){
   const [pageInited, setPageInited] = useState(false)
   const [pageLoading, setPageLoading] = useState(false)
   const [pageError, setPageError] = useState("")
-  const [programConfig, setProgramConfig] = useState(null)
+  const [mainConfig, setMainConfig] = useState(null)
   const [globalRank, setGlobalRank] = useState(0)
   const [tokenInfo, setTokenInfo] = useState(null)
   const [maxLockTermDays, setMaxLockTermDays] = useState(0)
@@ -67,7 +67,7 @@ export default function Mint(){
 
   useEffect(()=> {
       fetchOnChainAccounts()
-  }, [isConnected, accountAddress, networkName])
+  }, [isConnected, accountAddress, networkId])
 
   useEffect(() => {
 
@@ -84,201 +84,199 @@ export default function Mint(){
   }, [selectedWaitTermDays, globalRank])
 
   const fetchOnChainAccounts = async () => {
-      try {
+    try {
 
-          setPageLoading(true)
-          setPageError("")
+      setPageLoading(true)
+      setPageError("")
 
-          if(!isConnected) return;
+      if(!isConnected) return;
 
-          //setPageLoading(true)
+      //setPageLoading(true)
 
-          const programPdas = await web3.getProgramPdas(networkName);
+      const programPdas = await web3.getProgramPdas(networkId);
 
-          const programId = await web3.getProgramId(networkName)
+      const programId = await web3.getProgramId(networkId)
 
-          const [userRankInfoPda] = await web3.findProgramAddress(
-              [Buffer.from("rank_info"), (accountPublickey).toBuffer()],
-              programId
-          );
+      const [userRankInfoPda] = await web3.findProgramAddress(
+        [Buffer.from("rank_info"), (accountPublickey).toBuffer()],
+        programId
+      );
 
-          const idl = maxxpainnIdl;
+      const idl = maxxpainnIdl;
 
-          const resultStatus = await web3.fetchAccountsInfo({
-            network: networkName,
-            accounts: {
-              mainConfig:            { idl, programId, pubkey: programPdas.mainConfigPda, accountName: "mainConfig" },
-              globalRank:            { idl, programId, pubkey: programPdas.globalRankPda, accountName: "globalRank" },
-              userRankInfo:          { idl, programId, pubkey: userRankInfoPda, accountName: "rankInfo" },
-              tokenInfo:             { idl, programId, pubkey: programPdas.mintPda, accountName: "splTokenInfo" }
-            }
-          })
+      const resultStatus = await web3.fetchAccountsInfo({
+        network: networkId,
+        accounts: {
+          mainConfig:            { idl, programId, pubkey: programPdas.mainConfigPda, accountName: "mainConfig" },
+          globalRank:            { idl, programId, pubkey: programPdas.globalRankPda, accountName: "globalRank" },
+          userRankInfo:          { idl, programId, pubkey: userRankInfoPda, accountName: "rankInfo" },
+          tokenInfo:             { idl, programId, pubkey: programPdas.mintPda, accountName: "splTokenInfo" }
+        }
+      })
 
-          //console.log("resultStatus====>", resultStatus)
+      //console.log("resultStatus====>", resultStatus)
 
-          if(resultStatus.isError()) {
-            setPageError(resultStatus.getMessage())
-            return;
-          }
-
-          const acctsInfoObj: Record<string, DecodedAccountInfo> = resultStatus.getData()
-
-          //console.log("acctsInfoObj===>", acctsInfoObj)
-          const userRankInfo = acctsInfoObj.userRankInfo || null;
-
-          if(userRankInfo != null){
-            navigate("/mint/claim")
-            return true;
-          }
-
-          const mainConfig = acctsInfoObj.mainConfig.decodedData;
-          const _globalRank = acctsInfoObj.globalRank.decodedData.value;
-
-          const rdScale = mainConfig.rankDifficultyScaleFactor;
-          mainConfig.rankDifficultyScaleFactorNo = rdScale[0] / rdScale[1]
-
-          const _tokenInfo = acctsInfoObj.tokenInfo.decodedData;
-
-          //console.log("_rankDiffcultyConfig===>", _rankDiffcultyConfig.growthRateNo )
-
-          _tokenInfo.supplyFormatted = utils.formatUnit(_tokenInfo.supply, _tokenInfo.decimals);
-
-          //console.log("_tokenInfo===>", _tokenInfo)
-
-          if(!mainConfig.isInitialized){
-            setPageError("Smart contract hasn’t been initialized yet. Please reach out to the dev team.")
-            return;
-          }
-
-          if(!mainConfig.canMint){
-            setPageError("Minting is temporarily unavailable. Please try again soon.")
-            return;
-          }
-
-          let maxLockPeriodSecs = MintCore.maxLockPeriodSecondsForRank(_globalRank.toNumber() + 1)
-
-          // sec to days
-          setMaxLockTermDays(Math.floor(maxLockPeriodSecs / 86400));
-
-          //console.log("mainConfig====>", mainConfig)
-          setProgramConfig(mainConfig)
-          setGlobalRank(_globalRank.toNumber())
-          setTokenInfo(_tokenInfo)
-          setPageInited(true)
-
-      } catch(e){
-          utils.logError("Mint#fetchOnChainAccounts:", e)
-          setPageError(utils.systemError)
-      } finally{
-          setPageLoading(false)
+      if(resultStatus.isError()) {
+        setPageError(resultStatus.getMessage())
+        return;
       }
+
+      const acctsInfoObj: Record<string, DecodedAccountInfo> = resultStatus.getData()
+
+      //console.log("acctsInfoObj===>", acctsInfoObj)
+      const userRankInfo = acctsInfoObj.userRankInfo || null;
+
+      if(userRankInfo != null){
+        navigate("/mint/claim")
+        return true;
+      }
+
+      const mainConfig = acctsInfoObj.mainConfig.decodedData;
+      const _globalRank = acctsInfoObj.globalRank.decodedData.value;
+
+      const rdScale = mainConfig.rankDifficultyScaleFactor;
+      mainConfig.rankDifficultyScaleFactorNo = rdScale[0] / rdScale[1]
+
+      const _tokenInfo = acctsInfoObj.tokenInfo.decodedData;
+
+      //console.log("_rankDiffcultyConfig===>", _rankDiffcultyConfig.growthRateNo )
+
+      _tokenInfo.supplyFormatted = utils.formatUnit(_tokenInfo.supply, _tokenInfo.decimals);
+
+      //console.log("_tokenInfo===>", _tokenInfo)
+
+      if(!mainConfig.isInitialized){
+        setPageError("Smart contract hasn’t been initialized yet. Please reach out to the dev team.")
+        return;
+      }
+
+      if(!mainConfig.canMint){
+        setPageError("Minting is temporarily unavailable. Please try again soon.")
+        return;
+      }
+
+      let maxLockPeriodSecs = MintCore.maxLockPeriodSecondsForRank(_globalRank.toNumber() + 1)
+
+      // sec to days
+      setMaxLockTermDays(Math.floor(maxLockPeriodSecs / 86400));
+
+      //console.log("mainConfig====>", mainConfig)
+      setMainConfig(mainConfig)
+      setGlobalRank(_globalRank.toNumber())
+      setTokenInfo(_tokenInfo)
+      setPageInited(true)
+
+    } catch(e){
+      utils.logError("Mint#fetchOnChainAccounts:", e)
+      setPageError(utils.systemError)
+    } finally{
+      setPageLoading(false)
+    }
 
   }
 
-
   const getTokenClaimDate = () => {
-      const today = new Date();
-      const unlockDate = new Date(today.getTime() + selectedWaitTermDays * 24 * 60 * 60 * 1000);
-      return unlockDate.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-      });
+    const today = new Date();
+    const unlockDate = new Date(today.getTime() + selectedWaitTermDays * 24 * 60 * 60 * 1000);
+    return unlockDate.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
 
   const processFormSubmit = async (data: ClaimRankForm) => {
       try{
 
-          if(!isConnected){
-              toast.error("Connect wallet to continue")
-              return;
-          }
+        if(!isConnected){
+          toast.error("Connect wallet to continue")
+          return;
+        }
 
-          if(!selectedClanId || selectedClanId == 0){
-              toast.error("Select clan to continue")
-              return;
-          }
+        if(!selectedClanId || selectedClanId == 0){
+          toast.error("Select clan to continue")
+          return;
+        }
 
-          // lets validate lock term
-          let waitPeriod = Number(data.term)
+        // lets validate lock term
+        let waitPeriod = Number(data.term)
 
-          if(waitPeriod < mintConfig.minLockDays){
-              toast.error(`Wait period cannot be lower than ${mintConfig.minLockDays}`)
-              return;
-          }
+        if(waitPeriod < mintConfig.minLockDays){
+          toast.error(`Wait period cannot be lower than ${mintConfig.minLockDays}`)
+          return;
+        }
 
-          if(waitPeriod > maxLockTermDays){
-              toast.error(`Wait period cannot exceed ${maxLockTermDays}`)
-              return;
-          }
+        if(waitPeriod > maxLockTermDays){
+          toast.error(`Wait period cannot exceed ${maxLockTermDays}`)
+          return;
+        }
 
-          setLoading(true)
+        setLoading(true)
 
-          const programId = await web3.getProgramId(networkName)
+        const programId = await web3.getProgramId(networkId)
 
-          const [rankInfoPda] = PublicKey.findProgramAddressSync(
-              [Buffer.from("rank_info"), accountPublickey.toBuffer()],
-              programId
-          );
+        const [rankInfoPda] = PublicKey.findProgramAddressSync(
+          [Buffer.from("rank_info"), accountPublickey.toBuffer()],
+          programId
+        );
 
-          const [rankDifficultyPda, rankDifficultyBump] = PublicKey.findProgramAddressSync(
-            [Buffer.from("rank_difficulty"), accountPublickey.toBuffer()],
-            programId
-          );
+        const [rankDifficultyPda, rankDifficultyBump] = PublicKey.findProgramAddressSync(
+          [Buffer.from("rank_difficulty"), accountPublickey.toBuffer()],
+          programId
+        );
 
-          const programPdas = await web3.getProgramPdas(networkName);
+        const programPdas = await web3.getProgramPdas(networkId);
 
-          const accounts = {
+
+        const clanId = new BN(selectedClanId);
+
+        const txStatus = await web3.sendTx({
+          network: networkId,
+          method:     "claimRank",
+          idl:        "maxxpainn",
+          programId:  programId.toBase58(),
+          args:       [new BN(waitPeriod), clanId, rankDifficultyBump],
+          accounts: {
             signer:                 accountPublickey,
             mainConfig:             programPdas.mainConfigPda,
             globalRank:             programPdas.globalRankPda,
             rankInfo:               rankInfoPda,
             rankDifficulty:         rankDifficultyPda,
+            treasury:               mainConfig.treasuryWallet,
             systemProgram:          SystemProgram.programId,
           }
+        });
 
-          const clanId = new BN(selectedClanId);
+        console.log("txStatus===>", txStatus)
 
-          const txStatus = await web3.sendTx({
-                            network: networkName,
-                            method: "claimRank",
-                            idl:    "maxxpainn",
-                            programId: programId.toBase58(),
-                            args:   [new BN(waitPeriod), clanId, rankDifficultyBump],
-                            accounts
-                          })
+        if(txStatus.isError()){
+          toast.error(txStatus.getMessage())
+          return;
+        }
 
-          //console.log("txStatus===>", txStatus)
+        const txData: SendTxResult = txStatus.getData() as SendTxResult;
 
-          if(txStatus.isError()){
-              toast.error(txStatus.getMessage())
-              return;
+        const txSig = txData.txSig;
+        const evts = txData.getEvent("claimRankLog")
+
+        const rankNo = evts.rankNo.toNumber();
+
+        // now lets save the story if there is one
+        if(painStory != ""){
+          const reqParams = {
+            clanId: selectedClanId,
+            content: painStory,
+            txSig,
+            rankNo,
+            type: "pain_story"
           }
+          const saveStory = await api.post("/post/new", reqParams)
+        }
 
-          const txData: SendTxResult = txStatus.getData() as SendTxResult;
+        toast.success("Mint initiated sucessfully")
 
-          const txSig = txData.txSig;
-          const evts = txData.getEvent("claimRankLog")
-
-          const rankNo = evts.rankNo.toNumber();
-
-          // now lets save the story if there is one
-          if(painStory != ""){
-              const reqParams = {
-                  clanId: selectedClanId,
-                  content: painStory,
-                  txSig,
-                  rankNo,
-                  type: "pain_story"
-              }
-              const saveStory = await api.post("/post/new", reqParams)
-              //console.log("saveStory==>", saveStory)
-          }
-
-          toast.success("Mint initiated sucessfully")
-
-          navigate("/mint/claim");
+        navigate("/mint/claim");
 
       } catch(e){
           utils.logError("ClaimRank#processFormSubmit:", e)
@@ -299,7 +297,7 @@ export default function Mint(){
           <main className="pt-20 pb-12">
               <div className="max-w-7xl mx-auto px-4 pt-12 pb-8">
 
-                  <EnsureConnected className="min-h-[50vh]">
+                  <EnsureConnected className="min-h-[75vh]">
                       <LoadingView error={pageError} onReload={fetchOnChainAccounts} loading={pageLoading} className="min-h-[50vh]">
                           <>
                               { pageInited && (
@@ -315,7 +313,7 @@ export default function Mint(){
                                                   stats={{
                                                       globalRank:     utils.toShortNumber(globalRank),
                                                       eam:            getEarlyAdopterMultiplier(),
-                                                      mintDifficulty: programConfig.rankDifficultyScaleFactorNo,
+                                                      mintDifficulty: mainConfig.rankDifficultyScaleFactorNo,
                                                       tokenSupply:    utils.toShortNumber(tokenInfo.supplyFormatted)
                                                   }}
                                               />
@@ -343,10 +341,10 @@ export default function Mint(){
                                                                       Select Your Clan
                                                                   </label>
                                                                   <ClansModal
-                                                                      onChange={ (clan: ClanData) => {
-                                                                          //sconsole.log("clan2===>", clan)
-                                                                          setSelectedClanId(clan.id)
-                                                                      }}
+                                                                    onChange={ (clan: ClanData) => {
+                                                                      //sconsole.log("clan2===>", clan)
+                                                                      setSelectedClanId(clan.id)
+                                                                    }}
                                                                   />
                                                               </div>
 

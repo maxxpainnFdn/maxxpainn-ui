@@ -2,14 +2,16 @@
 
 import { NetworkConfig } from '@/types/NetworkConfig';
 import {  Connection } from '@solana/web3.js';
-import { SolanaMainnet } from "./SolanaMainnet"
-import { SolanaDevnet } from './SolanaDevnet';
-import { SolanaTestnet } from './SolanaTestnet';
+import { SolanaMainnet } from "./solana:mainnet"
+import { SolanaDevnet } from './solana:devnet';
+import { SolanaTestnet } from './solana:testnet';
+import { SolanaLocalnet } from './soalana:localnet';
 
 export const networks: Record<string, NetworkConfig> = {
-  "solana:mainnet": SolanaMainnet,
-  "solana:devnet":  SolanaDevnet,
-  "solana:testnet": SolanaTestnet
+  "solana:mainnet":  SolanaMainnet,
+  "solana:devnet":   SolanaDevnet,
+  "solana:testnet":  SolanaTestnet,
+  "solana:localnet": SolanaLocalnet
 };
 
 
