@@ -17,21 +17,28 @@ import { Input } from "../ui/input";
 import { stakingConfig } from "@/config/staking";
 import StakingAmountInput from "./StakingAmountInput";
 import StakingSlider from "./StakingSlider";
+import { tokenConfig } from "@/config/token";
+import utils from "@/lib/utils";
 
-const { maxTermDays } = stakingConfig;
+const { maxTermDays, minTermDays } = stakingConfig;
 
 export interface StakingModalProps {
   open: boolean,
-  amount: { valueRaw: bigint, valueFormatted: string },
-  onChange:  (state: boolean) => void | undefined 
+  amount: { valueRaw: bigint, valueFormatted: string | number },
+  onChange: (state: boolean) => void | undefined,
+  executeStake: (stakeTermDays: number) => Promise<void>
 }
 
-const StakingModal = ({ open, onChange, amount }) => {
-  
-  
+const StakingModal = ({
+  open,
+  onChange,
+  amount,
+  executeStake
+}) => {
+    
   const [isOpen, setIsOpen] = useState(false);
   const [termDays, setTermDays] = useState(30); // Default 30 days
-  const [stakeAmount, setStakeAmount] = useState<number>(Number(amount.valueFormatted));
+  const [stakeAmount] = useState<number>(Number(amount.valueFormatted));
   const [isStaking, setStaking] = useState(false);
 
   useEffect(() => {
@@ -48,19 +55,12 @@ const StakingModal = ({ open, onChange, amount }) => {
     [termDays],
   );
 
-  
-
-  const getBadge = (days) => {
-    if (days < 90) return { icon: "🧻", label: "Paper Hands" };
-    if (days < 180) return { icon: "🪵", label: "Wood Hands" };
-    if (days < 365) return { icon: "🗿", label: "Stone Hands" };
-    if (days < 730) return { icon: "💎", label: "Diamond Hands" };
-    return { icon: "👑", label: "God Tier" };
+  const handleStake = async () => {
+    setStaking(true);
+    await executeStake(termDays)
+    setStaking(false)
   };
-
-  const badge = getBadge(termDays);
   
-
   return (
     <>
       {/* Modal */}
@@ -78,42 +78,20 @@ const StakingModal = ({ open, onChange, amount }) => {
         className="p-0 "
       >
         <div className="space-y-6 mb-[55px]">
-          {/* 0. Staker Rank Banner (New Location)
-          <div className={`relative overflow-hidden rounded-2xl border ${borderColor} p-4 transition-all duration-300`}>
-             <div className="flex items-center justify-between relative z-10">
-                <div className="flex items-center gap-4">
-                    <div className="text-4xl filter drop-shadow-md animate-bounce duration-[3000ms]">
-                        {badge.icon}
-                    </div>
-                    <div>
-                        <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Current Rank</div>
-                        <div className={`text-2xl font-black ${intensityColor} tracking-wide`}>
-                            {badge.label}
-                        </div>
-                    </div>
-                </div>
-                <div className="hidden sm:block text-right">
-                    <div className="text-xs font-bold text-gray-500 uppercase">Multiplier</div>
-                    <div className="text-xl font-bold text-white">{currentMultiplier}x</div>
-                </div>
-             </div>
-             {/* Background glow effect
-             <div className={`absolute -right-10 -top-10 w-32 h-32 bg-gradient-to-br ${intensityGradient} opacity-10 blur-3xl rounded-full pointer-events-none`}></div>
-          </div>
-          */}
 
-          {/* 1. Staking Amount Input */}
           <StakingAmountInput 
             isStaking={false}
-            tokenBalanceInfo={amount}
-            onChange={()=>{}}
+            tokenBalanceInfo={undefined}
+            onChange={() => { }}
+            defaultValue={stakeAmount}
+            disabled={true}
           />
 
           {/* 2. Duration Slider */}
           <StakingSlider
             badge={null}
             defaultTermDays={maxTermDays}
-            onChange={() => { }}
+            onChange={(_termDays) => setTermDays(_termDays) }
             disabled={isStaking}
           />
 
@@ -164,14 +142,22 @@ const StakingModal = ({ open, onChange, amount }) => {
                   Estimated Returns
                 </div>
                 <div className="text-3xl font-black bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-                  {0}
+                  {utils.toLocaleString(
+                    StakingMath.getReward(
+                      Number(stakeAmount),
+                      Number(termDays),
+                      utils.daysToSeconds(termDays),
+                    ),
+                  )}
                 </div>
               </div>
               <div className="text-right">
                 <div className="text-xs text-gray-500 uppercase mb-1">
                   Token
                 </div>
-                <div className="text-xl font-bold text-purple-400">$PAINN</div>
+                <div className="text-xl font-bold text-purple-400">
+                  ${ tokenConfig.symbol }
+                </div>
               </div>
             </div>
           </div>
@@ -182,11 +168,15 @@ const StakingModal = ({ open, onChange, amount }) => {
               onClick={() => setIsOpen(false)}
               variant="secondary"
               className="me-2"
+              disabled={isStaking}
             >
               Cancel
             </Button>
             <Button
               variant="primary"
+              disabled={isStaking || stakeAmount <= 0 || termDays < minTermDays}
+              onClick={handleStake}
+              loading={isStaking}
             >
               Stake {termDays} Days{" "}
               <ArrowRight className="inline w-4 h-4 ml-2" />

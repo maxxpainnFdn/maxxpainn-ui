@@ -118,10 +118,15 @@ export default class utils {
     return valueBN.toString();
   }
   
-  static toUnits(value: any, decimals: number): BN {
-    const base = new BN(10);
-    const multiplier = base.pow(new BN(decimals));
-    return new BN(value.toString()).mul(multiplier);
+  static toUnits(value: string, decimals: number): BN {
+    const [whole, fraction = ""] = value.toString().split(".");
+  
+    const safeFraction = fraction.slice(0, decimals);
+    const padded = safeFraction.padEnd(decimals, "0");
+  
+    return new BN(whole)
+      .mul(new BN(10).pow(new BN(decimals)))
+      .add(new BN(padded));
   }
 
   static isFloat(n: any): boolean {

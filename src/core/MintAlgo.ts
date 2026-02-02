@@ -6,8 +6,8 @@ export interface MintRewardInfo {
   networkMultiplier: number; // Display value (float)
   earlyAdopterMultiplier: number; // Display value (float)
   lockPeriodMultiplier: number; // Display value (float)
-  finalReward: number; // Display value (float)
-  rewardAmount: number; // Display value (float)
+  finalReward: number | string; // Display value (float)
+  rewardAmount: number | string; // Display value (float)
   globalRank: number;
   daysLate: number;
   penaltyPercent: number;
@@ -351,7 +351,7 @@ export default class MintAlgo {
     // ---------------------------------------------------------
     // H. Convert to floating point for UI Display
     // ---------------------------------------------------------
-    const toUiFloat = (val: bigint) => Number(val / PRECISION);
+    const toUiFloat = (val: bigint):number => Number(val) / Number(PRECISION);
 
     return {
       rank: userRankVal,

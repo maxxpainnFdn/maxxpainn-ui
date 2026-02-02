@@ -24,6 +24,8 @@ import {
 } from "@solana/spl-token";
 import StakingModal from "@/components/staking/StakingModal";
 import { tokenConfig } from "@/config/token";
+import { stakingConfig } from "@/config/staking";
+import { BN } from "@coral-xyz/anchor";
 
 interface TimeType {
   days: number;
@@ -32,13 +34,21 @@ interface TimeType {
   seconds: number;
 }
 
+const {
+  maxTermDays: maxStakeTermDays,
+  minTermDays: minStakeTermDays
+} = stakingConfig;
+
+
 export default function TokenClaim() {
+  
   const {
     isConnected,
     publicKey: accountPublicKey,
     address: accountAddress,
     networkId,
   } = useWalletCore();
+  
   const web3 = useWeb3();
   const navigate = useNavigate();
 
@@ -55,7 +65,6 @@ export default function TokenClaim() {
   const [isClaimable, setIsClaimable] = useState(false);
   const [maturityDate, setMaturityDate] = useState<Date | null>(null);
   const [progressPercent, setProgressPercent] = useState(0);
-  const [pageKey, setPageKey] = useState(0);
   const [stakingModalOpen, setStakingModalOpen] = useState(false);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -67,6 +76,15 @@ export default function TokenClaim() {
     };
   }, [isConnected, accountAddress, networkId]);
 
+  
+  useEffect(() => {
+    if (claiming) {
+      toast.loading("Processing..")
+    } else {
+      toast.dismiss()
+    }
+  },[claiming])
+  
   // Timer Logic
   useEffect(() => {
     if (!maturityDate || !rankInfo) return;
@@ -230,112 +248,194 @@ export default function TokenClaim() {
 
     setRewardInfo(reward);
   };
+  
+  const prepareClaimIx = async (
+    autoStake: boolean = false,
+    stakeTermDays?: number | undefined
+  ) => {
+    
+    const programId = await web3.getProgramId(networkId);
+    const programPdas = await web3.getProgramPdas(networkId);
 
-  const handleClaim = async () => {
-    try {
-      setClaiming(true);
+    const [rankInfoPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("rank_info"), accountPublicKey.toBuffer()],
+      programId,
+    );
 
-      const programId = await web3.getProgramId(networkId);
-      const programPdas = await web3.getProgramPdas(networkId);
+    const mintPda = programPdas.mintPda;
+    const tokenClaimer = accountPublicKey;
 
-      const [rankInfoPda] = PublicKey.findProgramAddressSync(
-        [Buffer.from("rank_info"), accountPublicKey.toBuffer()],
+    const tokenClaimerAta = await getAssociatedTokenAddress(
+      mintPda,
+      tokenClaimer,
+      false, // allowOwnerOffCurve
+      TOKEN_PROGRAM_ID, // <-- Pass the correct program ID here!
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+    );
+
+    const claimTokensIx = {
+      method: "claimTokens",
+      idl: "maxxpainn",
+      programId: programId.toBase58(),
+      args: [],
+      accounts: {
+        signer: tokenClaimer,
+        mintAuthority: programPdas.mintAuthorityPda,
+        mint: mintPda,
+        rankInfo: rankInfoPda,
+        tokenClaimer: tokenClaimer,
+        tokenClaimerAta,
+        mainConfig: programPdas.mainConfigPda,
+        protocolState: programPdas.protocolStatePda,
+        systemProgram: SystemProgram.programId,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+      },
+    };
+
+    const closeRankIx = {
+      method: "closeRank",
+      idl: "maxxpainn",
+      programId: programId.toBase58(),
+      args: [],
+      accounts: {
+        signer: accountPublicKey,
+        mainConfig: programPdas.mainConfigPda,
+        rankOwner: accountPublicKey,
+        rankInfo: rankInfoPda,
+        treasury: programConfig.treasuryWallet,
+        systemProgram: SystemProgram.programId,
+      },
+    };
+
+    const instructions: any[] = [claimTokensIx, closeRankIx];
+
+    if (rankDifficultyInfo != null && rankDifficultyInfo.lamports > 0) {
+      const [rankDifficultyPda, _] = PublicKey.findProgramAddressSync(
+        [Buffer.from("rank_difficulty"), accountPublicKey.toBuffer()],
         programId,
       );
 
-      const mintPda = programPdas.mintPda;
-      const tokenClaimer = accountPublicKey;
-
-      const tokenClaimerAta = await getAssociatedTokenAddress(
-        mintPda,
-        tokenClaimer,
-        false, // allowOwnerOffCurve
-        TOKEN_PROGRAM_ID, // <-- Pass the correct program ID here!
-        ASSOCIATED_TOKEN_PROGRAM_ID,
-      );
-
-      const claimTokensIx = {
-        method: "claimTokens",
-        idl: "maxxpainn",
-        programId: programId.toBase58(),
-        args: [],
-        accounts: {
-          signer: tokenClaimer,
-          mintAuthority: programPdas.mintAuthorityPda,
-          mint: mintPda,
-          rankInfo: rankInfoPda,
-          tokenClaimer: tokenClaimer,
-          tokenClaimerAta,
-          mainConfig: programPdas.mainConfigPda,
-          protocolState: programPdas.protocolStatePda,
-          systemProgram: SystemProgram.programId,
-          tokenProgram: TOKEN_PROGRAM_ID,
-          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-        },
-      };
-
-      const closeRankIx = {
-        method: "closeRank",
+      const closeRankDifficultyIx = {
+        method: "closeRankDifficulty",
         idl: "maxxpainn",
         programId: programId.toBase58(),
         args: [],
         accounts: {
           signer: accountPublicKey,
           mainConfig: programPdas.mainConfigPda,
-          rankOwner: accountPublicKey,
-          rankInfo: rankInfoPda,
+          rankDifficultyOwner: accountPublicKey,
+          rankDifficulty: rankDifficultyPda,
           treasury: programConfig.treasuryWallet,
           systemProgram: SystemProgram.programId,
         },
       };
 
-      const instructions = [claimTokensIx, closeRankIx];
-
-      if (rankDifficultyInfo != null && rankDifficultyInfo.lamports > 0) {
-        const [rankDifficultyPda, _] = PublicKey.findProgramAddressSync(
-          [Buffer.from("rank_difficulty"), accountPublicKey.toBuffer()],
-          programId,
-        );
-
-        const closeRankDifficultyIx = {
-          method: "closeRankDifficulty",
-          idl: "maxxpainn",
-          programId: programId.toBase58(),
-          args: [],
-          accounts: {
-            signer: accountPublicKey,
-            mainConfig: programPdas.mainConfigPda,
-            rankDifficultyOwner: accountPublicKey,
-            rankDifficulty: rankDifficultyPda,
-            treasury: programConfig.treasuryWallet,
-            systemProgram: SystemProgram.programId,
-          },
-        };
-
-        // @ts-ignore
-        instructions.push(closeRankDifficultyIx);
+      instructions.push(closeRankDifficultyIx);
+    }
+    
+    if (autoStake) {
+      
+      const amountToStakeBN = utils.toUnits(rewardInfo.finalReward, tokenConfig.decimals)
+      
+      const [stakeInfoPda] = PublicKey.findProgramAddressSync(
+        [Buffer.from("stake_info"), accountPublicKey.toBuffer()],
+        programId
+      );
+      
+      const [stakingVaultPda] = PublicKey.findProgramAddressSync(
+        [Buffer.from("staking_vault"), mintPda.toBuffer()],
+        programId
+      );
+      
+      const stakeIx = {
+        network: networkId,
+        method:             "stake",
+        idl:                "maxxpainn",
+        programId:          programId.toBase58(),
+        args:               [ amountToStakeBN, new BN(stakeTermDays) ],
+        accounts: {
+          signer:           accountPublicKey,
+          mainConfig:       programPdas.mainConfigPda,
+          mintAuthority:    programPdas.mintAuthorityPda,
+          stakeInfo:        stakeInfoPda,
+          stakingVault:     stakingVaultPda,
+          systemProgram:    SystemProgram.programId,
+        }
       }
+      
+      instructions.push(stakeIx)
+    }
+    
+    return instructions
+  }
 
+  const handleClaim = async () => {
+    try {
+      
+      setClaiming(true);
+      
+      const ixArr = await prepareClaimIx(false)
+  
       const txStatus = await web3.sendBatchTx({
         network: networkId,
-        instructions,
+        instructions: ixArr,
       });
-
+    
+      setClaiming(false);
+  
       if (txStatus.isError()) {
         toast.error(txStatus.getMessage());
         return;
       }
-
+  
       toast.success("Tokens Claimed Successfully!");
-
+  
       navigate("/mint");
-    } catch (e) {
-      console.error(e);
-      toast.error("Claim failed.");
+    } catch (e: any) {
+      utils.logError("", e)
+      toast.error(utils.systemError)
     } finally {
-      setClaiming(false);
+      setClaiming(false)
     }
   };
+  
+  const handleClaimAndStake = async (stakeTermDays: number) => {
+    try {
+      
+      if (stakeTermDays < minStakeTermDays || stakeTermDays > maxStakeTermDays) {
+        toast.error("Invalid staking term")
+        return;
+      }
+        
+      setClaiming(true);
+      
+      const ixArr = await prepareClaimIx(true, stakeTermDays)
+  
+      const txStatus = await web3.sendBatchTx({
+        network: networkId,
+        instructions: ixArr,
+      });
+      
+      setClaiming(false);
+  
+      if (txStatus.isError()) {
+        toast.error(txStatus.getMessage());
+        return;
+      }
+  
+      toast.success("Tokens Claimed & Staked Successfully!");
+  
+      navigate("/staking");
+      
+    } catch (e: any) {
+      utils.logError("", e)
+      toast.error(utils.systemError)
+    } finally {
+      setClaiming(false)
+    }
+  };
+
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-purple-500/30 font-sans overflow-x-hidden">
@@ -349,6 +449,7 @@ export default function TokenClaim() {
             valueRaw: rewardInfo.finalAmountRaw,
             valueFormatted: rewardInfo.finalReward
           }}
+          executeStake={handleClaimAndStake}
         />
       }
       
