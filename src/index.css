@@ -289,3 +289,15 @@ body, #app {overflow-x: hidden;}
     will-change: transform;
   }
 }
+
+/* Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield !important;
+}

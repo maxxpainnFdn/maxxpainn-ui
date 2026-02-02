@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Shield, Crown, Flame, Star, Zap } from 'lucide-react';
+import { Shield, Crown, Flame, Star, Zap, Anchor, Target } from 'lucide-react';
 
 interface PainBadgesProps {
   lockPeriod: number;
@@ -10,12 +10,64 @@ const PainBadges = ({ lockPeriod }: PainBadgesProps) => {
  
   const getBadges = () => {
     const allBadges = [
-      { name: 'Pain Initiate', icon: Shield, color: 'text-gray-400', bgColor: 'from-gray-600 to-gray-700', minDays: 1 },
-      { name: 'Weekly Warrior', icon: Zap, color: 'text-yellow-400', bgColor: 'from-yellow-600 to-yellow-700', minDays: 7 },
-      { name: 'Monthly Martyr', icon: Flame, color: 'text-orange-400', bgColor: 'from-orange-600 to-orange-700', minDays: 30 },
-      { name: 'Yearly Legend', icon: Crown, color: 'text-purple-400', bgColor: 'from-purple-600 to-purple-700', minDays: 365 },
-      { name: 'Ultimate Degen', icon: Star, color: 'text-red-400', bgColor: 'from-red-600 to-red-700', minDays: 500 },
+      {
+        name: 'Pain Initiate',
+        icon: Shield,
+        color: 'text-gray-400',
+        bgColor: 'from-gray-600 to-gray-700',
+        minDays: 1,
+        maxDays: 7,
+      },
+      {
+        name: 'Weekly Warrior',
+        icon: Zap,
+        color: 'text-yellow-400',
+        bgColor: 'from-yellow-600 to-yellow-700',
+        minDays: 8,
+        maxDays: 29,
+      },
+      {
+        name: 'Monthly Martyr',
+        icon: Flame,
+        color: 'text-orange-400',
+        bgColor: 'from-orange-600 to-orange-700',
+        minDays: 30,
+        maxDays: 89,
+      },
+      {
+        name: 'Quarterly Crusher',
+        icon: Target,
+        color: 'text-blue-400',
+        bgColor: 'from-blue-600 to-blue-700',
+        minDays: 90,
+        maxDays: 179,
+      },
+      {
+        name: 'Half-Year Hardliner',
+        icon: Anchor,
+        color: 'text-teal-400',
+        bgColor: 'from-teal-600 to-teal-700',
+        minDays: 180,
+        maxDays: 364,
+      },
+      {
+        name: 'Yearly Legend',
+        icon: Crown,
+        color: 'text-purple-400',
+        bgColor: 'from-purple-600 to-purple-700',
+        minDays: 365,
+        maxDays: 999,
+      },
+      {
+        name: 'Ultimate Degen',
+        icon: Star,
+        color: 'text-red-400',
+        bgColor: 'from-red-600 to-red-700',
+        minDays: 1000,
+        maxDays: Infinity,
+      },
     ];
+
 
     return allBadges.map(badge => ({
       ...badge,
@@ -39,7 +91,7 @@ const PainBadges = ({ lockPeriod }: PainBadgesProps) => {
                 flex items-center gap-4 p-4 rounded-xl transition-all duration-300
                 ${badge.unlocked 
                   ? `bg-gradient-to-r ${badge.bgColor} border-2 border-opacity-50 shadow-lg` 
-                  : 'bg-gray-800/40 border-2 border-gray-700/30 opacity-40 grayscale'
+                  : 'bg-gray-800/40 border-2 border-gray-700/30 opacity-40 grayscale '
                 }
               `}
             >

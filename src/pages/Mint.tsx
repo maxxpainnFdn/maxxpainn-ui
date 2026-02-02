@@ -102,13 +102,15 @@ export default function Mint(){
         programId
       );
 
-      const idl = maxxpainnIdl;
+      //console.log("network====>", networkId)
+
+      const idl = "maxxpainn";
 
       const resultStatus = await web3.fetchAccountsInfo({
         network: networkId,
         accounts: {
           mainConfig:            { idl, programId, pubkey: programPdas.mainConfigPda, accountName: "mainConfig" },
-          globalRank:            { idl, programId, pubkey: programPdas.globalRankPda, accountName: "globalRank" },
+          protocolState:         { idl, programId, pubkey: programPdas.protocolStatePda, accountName: "protocolState" },
           userRankInfo:          { idl, programId, pubkey: userRankInfoPda, accountName: "rankInfo" },
           tokenInfo:             { idl, programId, pubkey: programPdas.mintPda, accountName: "splTokenInfo" }
         }
@@ -132,7 +134,7 @@ export default function Mint(){
       }
 
       const mainConfig = acctsInfoObj.mainConfig.decodedData;
-      const _globalRank = acctsInfoObj.globalRank.decodedData.value;
+      const protocolState = acctsInfoObj?.protocolState?.decodedData;
 
       const rdScale = mainConfig.rankDifficultyScaleFactor;
       mainConfig.rankDifficultyScaleFactorNo = rdScale[0] / rdScale[1]
@@ -154,15 +156,16 @@ export default function Mint(){
         setPageError("Minting is temporarily unavailable. Please try again soon.")
         return;
       }
-
-      let maxLockPeriodSecs = MintCore.maxLockPeriodSecondsForRank(_globalRank.toNumber() + 1)
+      
+      let _globalRank = Number(protocolState?.globalRank?.toString() || "0")
+      let maxLockPeriodSecs = MintCore.maxLockPeriodSecondsForRank(_globalRank + 1)
 
       // sec to days
       setMaxLockTermDays(Math.floor(maxLockPeriodSecs / 86400));
 
       //console.log("mainConfig====>", mainConfig)
       setMainConfig(mainConfig)
-      setGlobalRank(_globalRank.toNumber())
+      setGlobalRank(_globalRank)
       setTokenInfo(_tokenInfo)
       setPageInited(true)
 
@@ -230,17 +233,18 @@ export default function Mint(){
 
 
         const clanId = new BN(selectedClanId);
+        const referrerIdBN = new BN(0);
 
         const txStatus = await web3.sendTx({
           network: networkId,
           method:     "claimRank",
           idl:        "maxxpainn",
           programId:  programId.toBase58(),
-          args:       [new BN(waitPeriod), clanId, rankDifficultyBump],
+          args:       [new BN(waitPeriod), clanId, referrerIdBN, rankDifficultyBump],
           accounts: {
             signer:                 accountPublickey,
             mainConfig:             programPdas.mainConfigPda,
-            globalRank:             programPdas.globalRankPda,
+            protocolState:          programPdas.protocolStatePda,
             rankInfo:               rankInfoPda,
             rankDifficulty:         rankDifficultyPda,
             treasury:               mainConfig.treasuryWallet,
@@ -449,7 +453,7 @@ export default function Mint(){
                                                   />
 
                                                   <PainBadges
-                                                      lockPeriod = { selectedWaitTermDays }
+                                                    lockPeriod = { selectedWaitTermDays }
                                                   />
                                               </div>
 

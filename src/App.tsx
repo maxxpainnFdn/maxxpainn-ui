@@ -7,6 +7,7 @@ import WalletProvider from "./components/wallet/WalletProvider";
 import { useEffect, useState } from "react";
 import { useAtomValue } from "jotai";
 import { isAuthenticatedAtom } from "./store";
+import { AlertDialogProvider } from "./services/AlertDialogProvider";
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -22,16 +23,17 @@ const App = () => {
     <WalletProvider key={pageKey}>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <Toaster
-            position="top-center"
-            richColors={true}
-            closeButton={false}
-            expand={true}
-            visibleToasts={1}
-          />
-
-          <Routes />
-
+          <AlertDialogProvider>
+            <Toaster
+              position="top-center"
+              richColors={true}
+              closeButton={false}
+              expand={true}
+              visibleToasts={1}
+            />
+  
+            <Routes />
+          </AlertDialogProvider>
         </TooltipProvider>
       </QueryClientProvider>
     </WalletProvider>

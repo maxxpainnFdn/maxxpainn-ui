@@ -7,51 +7,38 @@ import { useWeb3 } from "@/hooks/useWeb3";
 import { PublicKey, SystemProgram } from "@solana/web3.js";
 import Footer from "@/components/Footer";
 import utils from "@/lib/utils";
-import { useApi } from "@/hooks/useApi";
 import { useNavigate } from "react-router-dom";
 import Button from "@/components/button/Button";
 import MintAlgo, { MintRewardInfo } from "@/core/MintAlgo";
 import toast from "@/hooks/toast";
-import {
-  Clock,
-  AlertTriangle,
-  Coins,
-  Lock,
-  Zap,
-  Skull,
-  ChevronRight,
-  Activity,
-  Flame,
-  Globe,
-  TrendingUp,
-  Sparkle,
-  Trophy,
-  Calendar,
-  Users,
-  BarChart3,
-  CheckCircle2,
-} from "lucide-react";
-import {
-  ASSOCIATED_PROGRAM_ID,
-  TOKEN_PROGRAM_ID,
-} from "@coral-xyz/anchor/dist/cjs/utils/token";
+import { Coins, Flame, Sparkle } from "lucide-react";
+import { TOKEN_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/utils/token";
 import ClaimTokenStats from "@/components/claimToken/ClaimTokenStats";
 import LatePenaltyCard from "@/components/claimToken/LatePenaltyCard";
 import MultipliersCard from "@/components/claimToken/MultipliersCard";
 import CountDownTimer from "@/components/claimToken/CountDownTimer";
-import programConfig from "@/config/program_config"
-import { ASSOCIATED_TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from "@solana/spl-token";
+import programConfig from "@/config/program_config";
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  getAssociatedTokenAddress,
+} from "@solana/spl-token";
+import StakingModal from "@/components/staking/StakingModal";
+import { tokenConfig } from "@/config/token";
 
 interface TimeType {
-  days:     number;
-  hours:    number;
-  minutes:  number;
-  seconds:  number;
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
 }
 
 export default function TokenClaim() {
-
-  const { isConnected, publicKey: accountPublicKey, address: accountAddress, networkId } = useWalletCore();
+  const {
+    isConnected,
+    publicKey: accountPublicKey,
+    address: accountAddress,
+    networkId,
+  } = useWalletCore();
   const web3 = useWeb3();
   const navigate = useNavigate();
 
@@ -61,14 +48,15 @@ export default function TokenClaim() {
   const [pageError, setPageError] = useState("");
   const [rankInfo, setRankInfo] = useState<any>(null);
   const [globalRank, setGlobalRank] = useState(0);
-  const [rankDifficultyInfo, setRankDifficultyInfo] = useState<any>(null)
+  const [rankDifficultyInfo, setRankDifficultyInfo] = useState<any>(null);
   const [tokenInfo, setTokenInfo] = useState<any>(null);
   const [rewardInfo, setRewardInfo] = useState<MintRewardInfo | null>(null);
   const [timeLeft, setTimeLeft] = useState<TimeType | null>(null);
   const [isClaimable, setIsClaimable] = useState(false);
   const [maturityDate, setMaturityDate] = useState<Date | null>(null);
   const [progressPercent, setProgressPercent] = useState(0);
-  const [pageKey, setPageKey] = useState(0)
+  const [pageKey, setPageKey] = useState(0);
+  const [stakingModalOpen, setStakingModalOpen] = useState(false);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -121,11 +109,10 @@ export default function TokenClaim() {
 
   const fetchAccountData = async () => {
     try {
-
       setPageLoading(true);
       if (!isConnected) return;
 
-      setPageError("")
+      setPageError("");
 
       const programId = await web3.getProgramId(networkId);
       const programPdas = await web3.getProgramPdas(networkId);
@@ -137,17 +124,17 @@ export default function TokenClaim() {
 
       const [rankDifficultyPda, _] = PublicKey.findProgramAddressSync(
         [Buffer.from("rank_difficulty"), accountPublicKey.toBuffer()],
-        programId
+        programId,
       );
 
       const resultStatus = await web3.fetchAccountsInfo({
         network: networkId,
         accounts: {
-          globalRank: {
+          protocolState: {
             idl: "maxxpainn",
             programId,
-            pubkey: programPdas.globalRankPda,
-            accountName: "globalRank",
+            pubkey: programPdas.protocolStatePda,
+            accountName: "protocolState",
           },
           userRankInfo: {
             idl: "maxxpainn",
@@ -165,8 +152,8 @@ export default function TokenClaim() {
             idl: "maxxpainn",
             programId,
             pubkey: rankDifficultyPda,
-            accountName: "rankDifficulty"
-          }
+            accountName: "rankDifficulty",
+          },
         },
       });
 
@@ -179,12 +166,14 @@ export default function TokenClaim() {
 
       //console.log("data===>", data)
 
-      const _globalRank = data.globalRank.decodedData.value.toNumber();
+      const protocolState = data.protocolState?.decodedData;;
       const _tokenInfo = data.tokenInfo.decodedData;
+      
+      const _globalRank = Number(protocolState?.globalRank?.toString() || "0")
 
       if (!data.userRankInfo) {
         toast.info("No active rank found. Mint first.");
-        navigate("/mint")
+        navigate("/mint");
         return;
       }
 
@@ -205,7 +194,7 @@ export default function TokenClaim() {
       setTokenInfo(_tokenInfo);
       setMaturityDate(maturity);
       calculateRewardPreview(_rankInfo, _globalRank);
-
+      
     } catch (e) {
       utils.logError("TokenClaim#fetch:", e);
       setPageError("Failed to load data.");
@@ -214,9 +203,7 @@ export default function TokenClaim() {
     }
   };
 
-
   const calculateRewardPreview = (rInfo: any, gRank: number) => {
-
     if (!rInfo) return;
 
     const rankNo = rInfo.rankNo.toNumber();
@@ -246,7 +233,6 @@ export default function TokenClaim() {
 
   const handleClaim = async () => {
     try {
-
       setClaiming(true);
 
       const programId = await web3.getProgramId(networkId);
@@ -257,7 +243,7 @@ export default function TokenClaim() {
         programId,
       );
 
-      const mintPda = programPdas.mintPda
+      const mintPda = programPdas.mintPda;
       const tokenClaimer = accountPublicKey;
 
       const tokenClaimerAta = await getAssociatedTokenAddress(
@@ -265,79 +251,74 @@ export default function TokenClaim() {
         tokenClaimer,
         false, // allowOwnerOffCurve
         TOKEN_PROGRAM_ID, // <-- Pass the correct program ID here!
-        ASSOCIATED_TOKEN_PROGRAM_ID
+        ASSOCIATED_TOKEN_PROGRAM_ID,
       );
 
-
       const claimTokensIx = {
-        method:         "claimTokens",
-        idl:            "maxxpainn",
-        programId:      programId.toBase58(),
+        method: "claimTokens",
+        idl: "maxxpainn",
+        programId: programId.toBase58(),
         args: [],
         accounts: {
-          signer:                 tokenClaimer,
-          mintAuthority:          programPdas.mintAuthorityPda,
-          mint:                   mintPda,
-          rankInfo:               rankInfoPda,
-          tokenClaimer:           tokenClaimer,
+          signer: tokenClaimer,
+          mintAuthority: programPdas.mintAuthorityPda,
+          mint: mintPda,
+          rankInfo: rankInfoPda,
+          tokenClaimer: tokenClaimer,
           tokenClaimerAta,
-          mainConfig:             programPdas.mainConfigPda,
-          globalRank:             programPdas.globalRankPda,
-          systemProgram:          SystemProgram.programId,
-          tokenProgram:           TOKEN_PROGRAM_ID,
+          mainConfig: programPdas.mainConfigPda,
+          protocolState: programPdas.protocolStatePda,
+          systemProgram: SystemProgram.programId,
+          tokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-        }
-      }
+        },
+      };
 
       const closeRankIx = {
-        method:     "closeRank",
-        idl:        "maxxpainn",
-        programId:  programId.toBase58(),
+        method: "closeRank",
+        idl: "maxxpainn",
+        programId: programId.toBase58(),
         args: [],
         accounts: {
-          signer:         accountPublicKey,
-          mainConfig:     programPdas.mainConfigPda,
-          rankOwner:      accountPublicKey,
-          rankInfo:       rankInfoPda,
-          treasury:       programConfig.treasuryWallet,
-          systemProgram:  SystemProgram.programId,
-        }
-      }
+          signer: accountPublicKey,
+          mainConfig: programPdas.mainConfigPda,
+          rankOwner: accountPublicKey,
+          rankInfo: rankInfoPda,
+          treasury: programConfig.treasuryWallet,
+          systemProgram: SystemProgram.programId,
+        },
+      };
 
-      const instructions = [
-        claimTokensIx,
-        closeRankIx
-      ];
+      const instructions = [claimTokensIx, closeRankIx];
 
-      if(rankDifficultyInfo != null && rankDifficultyInfo.lamports > 0) {
-
+      if (rankDifficultyInfo != null && rankDifficultyInfo.lamports > 0) {
         const [rankDifficultyPda, _] = PublicKey.findProgramAddressSync(
           [Buffer.from("rank_difficulty"), accountPublicKey.toBuffer()],
-          programId
+          programId,
         );
 
         const closeRankDifficultyIx = {
-          method:     "closeRankDifficulty",
-          idl:        "maxxpainn",
-          programId:  programId.toBase58(),
+          method: "closeRankDifficulty",
+          idl: "maxxpainn",
+          programId: programId.toBase58(),
           args: [],
           accounts: {
-            signer:               accountPublicKey,
-            mainConfig:           programPdas.mainConfigPda,
-            rankDifficultyOwner:  accountPublicKey,
-            rankDifficulty:       rankDifficultyPda,
-            treasury:             programConfig.treasuryWallet,
-            systemProgram:        SystemProgram.programId,
-          }
-        }
+            signer: accountPublicKey,
+            mainConfig: programPdas.mainConfigPda,
+            rankDifficultyOwner: accountPublicKey,
+            rankDifficulty: rankDifficultyPda,
+            treasury: programConfig.treasuryWallet,
+            systemProgram: SystemProgram.programId,
+          },
+        };
 
         // @ts-ignore
-        instructions.push(closeRankDifficultyIx)
+        instructions.push(closeRankDifficultyIx);
       }
 
       const txStatus = await web3.sendBatchTx({
         network: networkId,
-        instructions
+        instructions,
       });
 
       if (txStatus.isError()) {
@@ -348,7 +329,6 @@ export default function TokenClaim() {
       toast.success("Tokens Claimed Successfully!");
 
       navigate("/mint");
-
     } catch (e) {
       console.error(e);
       toast.error("Claim failed.");
@@ -360,7 +340,18 @@ export default function TokenClaim() {
   return (
     <div className="min-h-screen bg-black text-white selection:bg-purple-500/30 font-sans overflow-x-hidden">
       <Navigation />
-
+      
+      { rewardInfo &&
+        <StakingModal
+          open={stakingModalOpen}
+          onChange={(state) => setStakingModalOpen(state)}
+          amount={{
+            valueRaw: rewardInfo.finalAmountRaw,
+            valueFormatted: rewardInfo.finalReward
+          }}
+        />
+      }
+      
       {/* --- IMMERSIVE BACKGROUND --- */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-black to-black" />
@@ -458,7 +449,7 @@ export default function TokenClaim() {
                       <Button
                         disabled={!isClaimable || claiming}
                         loading={claiming}
-                        onClick={() => handleClaim(false)}
+                        onClick={() => handleClaim()}
                         variant="secondary"
                         size="xl"
                         className="flex-1 py-8 rounded-2xl text-lg font-bold bg-gray-800 hover:bg-gray-700 border border-white/5"
@@ -470,7 +461,7 @@ export default function TokenClaim() {
                       </Button>
                       <Button
                         disabled={!isClaimable || claiming}
-                        onClick={() => handleClaim(true)}
+                        onClick={() => setStakingModalOpen(true)}
                         variant="primary"
                         size="xl"
                         className="flex-1 py-8 rounded-2xl text-lg font-bold shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:shadow-[0_0_50px_rgba(168,85,247,0.5)]"

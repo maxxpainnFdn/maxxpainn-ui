@@ -16,10 +16,13 @@ import {
   PublicKey,
   Transaction,
 } from "@solana/web3.js";
-import { MintLayout } from "@solana/spl-token";
+import {
+  AccountLayout,
+  getAssociatedTokenAddress,
+  MintLayout,
+} from "@solana/spl-token";
 import type { AnchorProvider, MethodsBuilderFactory } from "@coral-xyz/anchor";
-import { useConnection } from '@solana/wallet-adapter-react';
-
+import { useConnection } from "@solana/wallet-adapter-react";
 
 type ProgramMethod = ReturnType<Program<Idl>["methods"][string]>;
 
@@ -54,7 +57,7 @@ export interface SendBatchTxProps {
 
 export interface ProgramPdas {
   mainConfigPda: PublicKey;
-  globalRankPda: PublicKey;
+  protocolStatePda: PublicKey;
   mintPda: PublicKey;
   mintAuthorityPda: PublicKey;
 }
@@ -80,9 +83,8 @@ const loadedIdls: Record<string, any> = {};
 const loadedNetworks: Record<string, any> = {};
 
 export const useWeb3 = () => {
-
   const anchorProvider = useAnchorProvider();
-  const { connection } = useConnection()
+  const { connection } = useConnection();
 
   const getProgramId = async (network: string): Promise<PublicKey> => {
     let config;
@@ -105,7 +107,7 @@ export const useWeb3 = () => {
   };
 
   const getProgramPdas = async (networkId: string): Promise<ProgramPdas> => {
-
+    
     let programId = await getProgramId(networkId);
 
     const [mainConfigPda] = await findProgramAddress(
@@ -113,8 +115,8 @@ export const useWeb3 = () => {
       programId,
     );
 
-    const [globalRankPda] = await findProgramAddress(
-      [Buffer.from("global_rank")],
+    const [protocolStatePda] = await findProgramAddress(
+      [Buffer.from("protocol_state")],
       programId,
     );
 
@@ -130,10 +132,57 @@ export const useWeb3 = () => {
 
     return {
       mainConfigPda,
-      globalRankPda,
+      protocolStatePda,
       mintPda,
       mintAuthorityPda,
     };
+  };
+
+  const getStakingPdas = async (
+    networkId: string,
+  ): Promise<{
+    stakingVaultPda: PublicKey;
+    stakingStatsPda: PublicKey;
+    mintPda: PublicKey;
+  }> => {
+    let programId = await getProgramId(networkId);
+
+    const [mintPda] = await findProgramAddress(
+      [Buffer.from("mint")],
+      programId,
+    );
+
+    const [stakingVaultPda] = await findProgramAddress(
+      [Buffer.from("staking_vault"), mintPda.toBuffer()],
+      programId,
+    );
+
+    const [stakingStatsPda] = await findProgramAddress(
+      [Buffer.from("staking_stats")],
+      programId,
+    );
+
+    return { stakingVaultPda, stakingStatsPda, mintPda };
+  };
+
+  const getAccountTokenAddress = async (
+    ownerAddr: PublicKey,
+    networkId: string,
+    allowOwnerOffCurve: boolean | undefined = false,
+  ): Promise<PublicKey> => {
+    
+    let programId = await getProgramId(networkId);
+
+    const [mintPda] = await findProgramAddress(
+      [Buffer.from("mint")],
+      programId,
+    );
+
+    return getAssociatedTokenAddress(
+      mintPda,
+      ownerAddr,
+      allowOwnerOffCurve, // allowOwnerOffCurve (false for normal wallets)
+    );
   };
 
   const fetchIDL = async (name: string) => {
@@ -168,16 +217,17 @@ export const useWeb3 = () => {
     let programId = _programId ? _programId : await getProgramId(network);
 
     // lets replace the address in the idl
-    let _idl = typeof idlNameOrData == "object"
-          ? idlNameOrData
-          : await fetchIDL(idlNameOrData);
+    let _idl =
+      typeof idlNameOrData == "object"
+        ? idlNameOrData
+        : await fetchIDL(idlNameOrData);
 
     const idl = { address: programId, ..._idl };
 
     // lets replace the program id into the idl
     idl.address = programId;
 
-    const provider = anchorProvider.getProvider();
+    const provider = anchorProvider.getProvider(network);
 
     //lets now query
     const program = new Program(idl, provider);
@@ -221,11 +271,9 @@ export const useWeb3 = () => {
   const sendTx = async (
     params: ProgramTxProps,
   ): Promise<Status<SendTxResult | null>> => {
-
     let program: Program<Idl>;
 
     try {
-
       const { programMethod, provider, program } = await prepareTx(params);
 
       //program = txInfo.program;
@@ -255,9 +303,7 @@ export const useWeb3 = () => {
       const getEvent = (evtName: string): any => events[evtName];
 
       return Status.successData({ tx, txSig, events, getEvent });
-
     } catch (e) {
-
       // Now 'program' is accessible here
       //const parsedError = parseAnchorError(e, program);
       const userMessage = getAnchorErrorMessage(e, program);
@@ -272,31 +318,32 @@ export const useWeb3 = () => {
   };
 
   const sendBatchTx = async (
-    params: SendBatchTxProps
+    params: SendBatchTxProps,
   ): Promise<Status<SendTxResult | null>> => {
     try {
-
-      const { network, } = params;
+      const { network } = params;
       const tx = new Transaction();
       const provider = anchorProvider.getProvider();
 
       tx.add(ComputeBudgetProgram.setComputeUnitLimit({ units: 800000 }));
 
-      const programs = []
+      const programs = [];
 
-      for (let programParam of params.instructions){
-
+      for (let programParam of params.instructions) {
         //console.log("programParam===>", programParam)
-        const { programMethod, program } = await prepareTx({ network, ...programParam });
+        const { programMethod, program } = await prepareTx({
+          network,
+          ...programParam,
+        });
 
-        let ix = await programMethod.instruction()
+        let ix = await programMethod.instruction();
         tx.add(ix);
 
         //save program
-        programs.push(program)
+        programs.push(program);
       }
 
-      let txSig = await provider.sendAndConfirm(tx)
+      let txSig = await provider.sendAndConfirm(tx);
 
       const onTxSubmitted = params.onTxSubmitted;
 
@@ -312,7 +359,7 @@ export const useWeb3 = () => {
       const rawLogs = parsedTx?.meta?.logMessages || [];
       const events: Record<string, any> = {};
 
-      for(const program of programs) {
+      for (const program of programs) {
         const eventParser = new EventParser(program.programId, program.coder);
         for (const evt of eventParser.parseLogs(rawLogs)) {
           events[evt.name] = evt.data;
@@ -322,7 +369,6 @@ export const useWeb3 = () => {
       const getEvent = (evtName: string) => events[evtName];
 
       return Status.successData({ tx: parsedTx, txSig, events, getEvent });
-
     } catch (e) {
       console.log(e, e.stack);
       return Status.error(e.message || "Transaction failed");
@@ -333,26 +379,30 @@ export const useWeb3 = () => {
     params: FetchAccountsProps,
   ): Promise<Status<Record<string, DecodedAccountInfo> | null>> => {
     try {
-
       const { network, accounts: acctsParams } = params;
+
+       //console.log("acctsParams===>", acctsParams)
 
       const pubkeys = Object.values(acctsParams).map((item) => item.pubkey);
 
       //console.log("pubkeys==>", pubkeys);
 
-      const provider = anchorProvider.getProvider();
+      const provider = anchorProvider.getProvider(network);
 
       ///console.log("provider===>", provider)
 
       const accountsInfoArr = await provider.connection.getMultipleAccountsInfo(pubkeys);
+      
+      //console.log("accountsInfoArr===>", accountsInfoArr)
 
       let acctsKeys = Object.keys(acctsParams);
 
       let finalResults = {};
 
       for (let idx in accountsInfoArr) {
-
-        const onChainAcctInfo: DecodedAccountInfo = accountsInfoArr[idx] as DecodedAccountInfo;
+        const onChainAcctInfo: DecodedAccountInfo = accountsInfoArr[
+          idx
+        ] as DecodedAccountInfo;
 
         let acctParamKey = acctsKeys[idx];
 
@@ -364,10 +414,11 @@ export const useWeb3 = () => {
         }
 
         let acctParam = acctsParams[acctParamKey];
+        
+        //console.log("acctParam===>", acctParam)
 
         //lets decode the returned data
-        let idl =
-          typeof acctParam.idl === "string"
+        let idl = typeof acctParam.idl === "string"
             ? await fetchIDL(acctParam.idl)
             : acctParam.idl;
 
@@ -380,18 +431,32 @@ export const useWeb3 = () => {
         let prog = new Program(idl, provider);
 
         if (acctParam.accountName == "splTokenInfo") {
-          onChainAcctInfo.decodedData = MintLayout.decode(onChainAcctInfo.data);
-        }
-        else if (acctParam.accountName === "rankDifficulty") {
-         // ✅ RAW account — do NOT use Anchor decoder
+          let decodedData = { ...MintLayout.decode(onChainAcctInfo.data) };
 
-         onChainAcctInfo.decodedData = {
-           raw: onChainAcctInfo.data,
-           length: onChainAcctInfo.data.length,
-         };
+          if (decodedData != null && "supply" in decodedData) {
+            // @ts-ignore
+            decodedData.supplyFormatted = utils.formatUnit(
+              decodedData.supply,
+              decodedData.decimals,
+            );
+          }
 
-       } else {
+          onChainAcctInfo.decodedData = decodedData;
+          
+        } else if (acctParam.accountName == "splTokenAccountInfo") {
+          // decode token
 
+          onChainAcctInfo.decodedData = AccountLayout.decode(
+            onChainAcctInfo.data,
+          );
+        } else if (acctParam.accountName === "rankDifficulty") {
+          // ✅ RAW account — do NOT use Anchor decoder
+
+          onChainAcctInfo.decodedData = {
+            raw: onChainAcctInfo.data,
+            length: onChainAcctInfo.data.length,
+          };
+        } else {
           onChainAcctInfo.decodedData = await prog.coder.accounts.decode(
             acctParam.accountName,
             onChainAcctInfo.data,
@@ -410,37 +475,35 @@ export const useWeb3 = () => {
     }
   };
 
-  const getNativeBalance = async (address: PublicKey): Promise<Status<{balance: number, balanceLamport: number}>> => {
-    try{
+  const getNativeBalance = async (
+    address: PublicKey,
+  ): Promise<Status<{ balance: number; balanceLamport: number }>> => {
+    try {
+      const provider = anchorProvider.getProvider();
 
-      const provider = anchorProvider.getProvider()
-
-      if (!provider) return Status.error("Connect Wallet")
+      if (!provider) return Status.error("Connect Wallet");
 
       const balanceLamport = await provider.connection.getBalance(address);
 
       const balance = balanceLamport / LAMPORTS_PER_SOL;
 
-      return Status.successData({ balanceLamport, balance })
-
-    } catch(e: any){
-      utils.logError("Failed to fetch native balance", e)
-      return Status.error("Failed to fetch native balance")
+      return Status.successData({ balanceLamport, balance });
+    } catch (e: any) {
+      utils.logError("Failed to fetch native balance", e);
+      return Status.error("Failed to fetch native balance");
     }
   };
 
-  const getConnectionHash = async()  => {
+  const getConnectionHash = async () => {
     try {
-
       const hash = await connection.getGenesisHash();
 
-      return Status.successData(hash)
-
-    } catch(e){
-      utils.logError("Failed to fetch native balance", e)
-      return Status.error("Failed to fetch hash", null)
+      return Status.successData(hash);
+    } catch (e) {
+      utils.logError("Failed to fetch native balance", e);
+      return Status.error("Failed to fetch hash", null);
     }
-  }
+  };
 
   return {
     simulateTx,
@@ -452,6 +515,8 @@ export const useWeb3 = () => {
     findProgramAddress,
     getProgramPdas,
     getNativeBalance,
-    getConnectionHash
+    getConnectionHash,
+    getStakingPdas,
+    getAccountTokenAddress,
   };
 };

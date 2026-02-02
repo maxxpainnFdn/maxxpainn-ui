@@ -3,7 +3,7 @@
     "name": "maxxpainn",
     "version": "0.1.0",
     "spec": "0.1.0",
-    "description": "Created with Anchor"
+    "description": "MaxxPainn is a free-to-mint token protocol on Solana inspired by XEN Network, promoting fair launch, no presale, no VCs, pure community grind."
   },
   "instructions": [
     {
@@ -48,24 +48,27 @@
           }
         },
         {
-          "name": "global_rank",
+          "name": "protocol_state",
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
                 "value": [
-                  103,
-                  108,
+                  112,
+                  114,
                   111,
-                  98,
-                  97,
+                  116,
+                  111,
+                  99,
+                  111,
                   108,
                   95,
-                  114,
+                  115,
+                  116,
                   97,
-                  110,
-                  107
+                  116,
+                  101
                 ]
               }
             ]
@@ -113,6 +116,10 @@
         },
         {
           "name": "clan_id",
+          "type": "u64"
+        },
+        {
+          "name": "referrer",
           "type": "u64"
         },
         {
@@ -209,6 +216,33 @@
           }
         },
         {
+          "name": "close_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  108,
+                  111,
+                  115,
+                  101,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
           "name": "token_claimer",
           "writable": true
         },
@@ -293,23 +327,27 @@
           }
         },
         {
-          "name": "global_rank",
+          "name": "protocol_state",
+          "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
                 "value": [
-                  103,
-                  108,
+                  112,
+                  114,
                   111,
-                  98,
-                  97,
+                  116,
+                  111,
+                  99,
+                  111,
                   108,
                   95,
-                  114,
+                  115,
+                  116,
                   97,
-                  110,
-                  107
+                  116,
+                  101
                 ]
               }
             ]
@@ -503,6 +541,89 @@
       "args": []
     },
     {
+      "name": "close_stake_account",
+      "discriminator": [
+        246,
+        236,
+        59,
+        167,
+        115,
+        135,
+        122,
+        12
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "main_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "stake_owner",
+          "writable": true
+        },
+        {
+          "name": "stake_info",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  107,
+                  101,
+                  95,
+                  105,
+                  110,
+                  102,
+                  111
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "stake_owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "initialize_main_config",
       "discriminator": [
         163,
@@ -545,24 +666,27 @@
           }
         },
         {
-          "name": "global_rank",
+          "name": "protocol_state",
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
                 "value": [
-                  103,
-                  108,
+                  112,
+                  114,
                   111,
-                  98,
-                  97,
+                  116,
+                  111,
+                  99,
+                  111,
                   108,
                   95,
-                  114,
+                  115,
+                  116,
                   97,
-                  110,
-                  107
+                  116,
+                  101
                 ]
               }
             ]
@@ -587,6 +711,10 @@
           "type": "bool"
         },
         {
+          "name": "max_token_supply",
+          "type": "u64"
+        },
+        {
           "name": "rank_difficulty_base_fee",
           "type": "u64"
         },
@@ -598,6 +726,30 @@
               2
             ]
           }
+        },
+        {
+          "name": "staking_enabled",
+          "type": "bool"
+        },
+        {
+          "name": "staking_min_yield_bps",
+          "type": "u64"
+        },
+        {
+          "name": "staking_max_yield_bps",
+          "type": "u64"
+        },
+        {
+          "name": "staking_min_term_days",
+          "type": "u64"
+        },
+        {
+          "name": "staking_max_term_days",
+          "type": "u64"
+        },
+        {
+          "name": "early_unstake_penalty_bps",
+          "type": "u64"
         }
       ]
     },
@@ -663,15 +815,268 @@
           }
         },
         {
+          "name": "metadata",
+          "writable": true
+        },
+        {
+          "name": "token_metadata_program",
+          "address": "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+        },
+        {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
         },
         {
           "name": "token_program",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "symbol",
+          "type": "string"
+        },
+        {
+          "name": "uri",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "stake",
+      "discriminator": [
+        206,
+        176,
+        202,
+        18,
+        200,
+        209,
+        179,
+        108
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "main_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  105,
+                  110,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "staking_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  107,
+                  105,
+                  110,
+                  103,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "stake_info",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  107,
+                  101,
+                  95,
+                  105,
+                  110,
+                  102,
+                  111
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "signer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "signer"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "term_days",
+          "type": "u64"
+        }
+      ]
     },
     {
       "name": "test_algos",
@@ -715,24 +1120,27 @@
           }
         },
         {
-          "name": "global_rank",
+          "name": "protocol_state",
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
                 "value": [
-                  103,
-                  108,
+                  112,
+                  114,
                   111,
-                  98,
-                  97,
+                  116,
+                  111,
+                  99,
+                  111,
                   108,
                   95,
-                  114,
+                  115,
+                  116,
                   97,
-                  110,
-                  107
+                  116,
+                  101
                 ]
               }
             ]
@@ -781,6 +1189,284 @@
         {
           "name": "rank_difficulty_bump",
           "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "unstake",
+      "discriminator": [
+        90,
+        95,
+        107,
+        42,
+        205,
+        124,
+        50,
+        225
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "main_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  105,
+                  110,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  105,
+                  110,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  105,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "staking_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  107,
+                  105,
+                  110,
+                  103,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "stake_info",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  107,
+                  101,
+                  95,
+                  105,
+                  110,
+                  102,
+                  111
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "signer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "protocol_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "signer"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "is_emergency",
+          "type": "bool"
         }
       ]
     },
@@ -897,6 +1583,12 @@
           }
         },
         {
+          "name": "max_token_supply",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
           "name": "claim_rank_min_wait_period_days",
           "type": {
             "option": "u8"
@@ -924,24 +1616,47 @@
               ]
             }
           }
+        },
+        {
+          "name": "staking_enabled",
+          "type": {
+            "option": "bool"
+          }
+        },
+        {
+          "name": "staking_min_yield_bps",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "staking_max_yield_bps",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "staking_min_term_days",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "staking_max_term_days",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "early_unstake_penalty_bps",
+          "type": {
+            "option": "u64"
+          }
         }
       ]
     }
   ],
   "accounts": [
-    {
-      "name": "GlobalRank",
-      "discriminator": [
-        105,
-        18,
-        210,
-        146,
-        253,
-        37,
-        65,
-        133
-      ]
-    },
     {
       "name": "MainConfig",
       "discriminator": [
@@ -956,6 +1671,19 @@
       ]
     },
     {
+      "name": "ProtocolState",
+      "discriminator": [
+        33,
+        51,
+        173,
+        134,
+        35,
+        140,
+        195,
+        248
+      ]
+    },
+    {
       "name": "RankInfo",
       "discriminator": [
         10,
@@ -966,6 +1694,19 @@
         198,
         115,
         204
+      ]
+    },
+    {
+      "name": "StakeInfo",
+      "discriminator": [
+        66,
+        62,
+        68,
+        70,
+        108,
+        179,
+        183,
+        235
       ]
     }
   ],
@@ -984,6 +1725,19 @@
       ]
     },
     {
+      "name": "StakeEvent",
+      "discriminator": [
+        226,
+        134,
+        188,
+        173,
+        19,
+        33,
+        75,
+        175
+      ]
+    },
+    {
       "name": "TokenClaim",
       "discriminator": [
         236,
@@ -994,6 +1748,19 @@
         114,
         67,
         39
+      ]
+    },
+    {
+      "name": "UnstakeEvent",
+      "discriminator": [
+        162,
+        104,
+        137,
+        228,
+        81,
+        3,
+        79,
+        197
       ]
     }
   ],
@@ -1045,7 +1812,7 @@
     },
     {
       "code": 6009,
-      "name": "CannotCloseActiveUserAccount",
+      "name": "CannotCloseActiveAccount",
       "msg": "Active user rank info acount cannot be closed"
     },
     {
@@ -1102,6 +1869,26 @@
       "code": 6020,
       "name": "MaxWaitPeriodError",
       "msg": "Wait period exceeds maximum period"
+    },
+    {
+      "code": 6021,
+      "name": "InvalidStakingTerms",
+      "msg": "Invalid staking term rane"
+    },
+    {
+      "code": 6022,
+      "name": "InvalidStakingYieldBps",
+      "msg": "Invalid staking yield range"
+    },
+    {
+      "code": 6023,
+      "name": "InvalidEarlyUnstakePenalty",
+      "msg": "Early unstake penalty cannot be 0"
+    },
+    {
+      "code": 6024,
+      "name": "InvalidMaxTokenSupply",
+      "msg": "Max token supply cannot be 0"
     }
   ],
   "types": [
@@ -1121,17 +1908,25 @@
           {
             "name": "clan_id",
             "type": "u64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "GlobalRank",
-      "type": {
-        "kind": "struct",
-        "fields": [
+          },
           {
-            "name": "value",
+            "name": "referrer",
+            "type": "u64"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "wait_period_days",
+            "type": "u16"
+          },
+          {
+            "name": "rank_difficulty_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "global_rank",
             "type": "u64"
           }
         ]
@@ -1142,10 +1937,6 @@
       "type": {
         "kind": "struct",
         "fields": [
-          {
-            "name": "bump",
-            "type": "u8"
-          },
           {
             "name": "authority",
             "type": "pubkey"
@@ -1161,6 +1952,10 @@
           {
             "name": "is_initialized",
             "type": "bool"
+          },
+          {
+            "name": "max_token_supply",
+            "type": "u64"
           },
           {
             "name": "claim_rank_min_wait_period_days",
@@ -1190,6 +1985,46 @@
                 2
               ]
             }
+          },
+          {
+            "name": "staking_enabled",
+            "type": "bool"
+          },
+          {
+            "name": "staking_min_yield_bps",
+            "type": "u64"
+          },
+          {
+            "name": "staking_max_yield_bps",
+            "type": "u64"
+          },
+          {
+            "name": "staking_min_term_days",
+            "type": "u64"
+          },
+          {
+            "name": "staking_max_term_days",
+            "type": "u64"
+          },
+          {
+            "name": "early_unstake_penalty_bps",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProtocolState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "global_rank",
+            "type": "u64"
+          },
+          {
+            "name": "total_tokens_minted",
+            "type": "u64"
           }
         ]
       }
@@ -1212,6 +2047,10 @@
             "type": "i64"
           },
           {
+            "name": "minted_at",
+            "type": "i64"
+          },
+          {
             "name": "wait_period_secs",
             "type": "u64"
           },
@@ -1221,6 +2060,78 @@
           },
           {
             "name": "has_minted",
+            "type": "bool"
+          },
+          {
+            "name": "amount_minted",
+            "type": "u64"
+          },
+          {
+            "name": "referrer",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "StakeEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "term_days",
+            "type": "u64"
+          },
+          {
+            "name": "start_time",
+            "type": "i64"
+          },
+          {
+            "name": "end_time",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "StakeInfo",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "start_time",
+            "type": "i64"
+          },
+          {
+            "name": "end_time",
+            "type": "i64"
+          },
+          {
+            "name": "term_days",
+            "type": "u64"
+          },
+          {
+            "name": "pending_rewards",
+            "type": "u64"
+          },
+          {
+            "name": "is_active",
             "type": "bool"
           }
         ]
@@ -1232,15 +2143,52 @@
         "kind": "struct",
         "fields": [
           {
+            "name": "rank_no",
+            "type": "u64"
+          },
+          {
             "name": "account",
             "type": "pubkey"
           },
           {
             "name": "amount",
             "type": "u64"
+          },
+          {
+            "name": "minted_at",
+            "type": "i64"
+          },
+          {
+            "name": "global_rank",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UnstakeEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "reward",
+            "type": "u64"
+          },
+          {
+            "name": "is_emergency",
+            "type": "bool"
           }
         ]
       }
     }
-  ]
+  ],
+  "adddress": ""
 }

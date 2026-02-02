@@ -2,10 +2,10 @@ import { Activity, Award, ChevronRight, Crown, Medal, PiggyBank, Star, TrendingU
 import QuickStatCard from "../QuickStatCard";
 
 export interface OverviewContentProps {
-  totalMints: number;
-  amountMinted: number;
-  totalReferral: number;
-  totalFollowers: number;
+  totalMints: number | string;
+  amountMinted: number | string;
+  totalReferral: number | string;
+  totalFollowers: number | string;
 }
 
 export default function OverviewContent({

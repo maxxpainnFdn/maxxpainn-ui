@@ -18,7 +18,7 @@ export default function BottomNav() {
                     {/* flex-1 makes it take up 1 'unit' of space */}
                     <a
                         href={app.tokenBuyUrl}
-                        className="flex-1 screen-width-900:hidden"
+                        className="flex-1"
                         target="_blank"
                         rel="noopener noreferrer"
                     >

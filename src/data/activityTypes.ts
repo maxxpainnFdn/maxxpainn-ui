@@ -1,4 +1,12 @@
-import { Castle, Coins, Medal, UserPlus, UserCheck } from "lucide-react";
+import {
+  Castle,
+  Coins,
+  Medal,
+  UserPlus,
+  UserCheck,
+  Lock,
+  Unlock,
+} from "lucide-react";
 
 export const activityTypes = {
   new_clan: {
@@ -7,7 +15,8 @@ export const activityTypes = {
     icon: Castle,
     iconClass: "text-purple-400",
     iconBoxClass: "bg-purple-500/20",
-    mainClass: "from-purple-500/10 to-transparent border-l-4 border-purple-500 hover:from-purple-500/20",
+    mainClass:
+      "from-purple-500/10 to-transparent border-l-4 border-purple-500 hover:from-purple-500/20",
   },
 
   clan_new_member: {
@@ -16,7 +25,8 @@ export const activityTypes = {
     icon: UserPlus,
     iconClass: "text-green-400",
     iconBoxClass: "bg-green-500/20",
-    mainClass: "from-green-500/10 to-transparent border-l-4 border-green-500 hover:from-green-500/20",
+    mainClass:
+      "from-green-500/10 to-transparent border-l-4 border-green-500 hover:from-green-500/20",
   },
 
   rank_claim: {
@@ -25,7 +35,8 @@ export const activityTypes = {
     icon: Medal,
     iconClass: "text-blue-400",
     iconBoxClass: "bg-blue-500/20",
-    mainClass: "from-blue-500/10 to-transparent border-l-4 border-blue-500 hover:from-blue-500/20",
+    mainClass:
+      "from-blue-500/10 to-transparent border-l-4 border-blue-500 hover:from-blue-500/20",
   },
 
   token_mint: {
@@ -34,7 +45,28 @@ export const activityTypes = {
     icon: Coins,
     iconClass: "text-yellow-400",
     iconBoxClass: "bg-yellow-500/20",
-    mainClass: "from-yellow-500/10 to-transparent border-l-4 border-yellow-500 hover:from-yellow-500/20",
+    mainClass:
+      "from-yellow-500/10 to-transparent border-l-4 border-yellow-500 hover:from-yellow-500/20",
+  },
+
+  token_stake: {
+    title: "Token Stake",
+    text: "{username} staked {token_amount} ${token_symbol} tokens for {stake_term} day(s)",
+    icon: Lock,
+    iconClass: "text-emerald-400",
+    iconBoxClass: "bg-emerald-500/20",
+    mainClass:
+      "from-emerald-500/10 to-transparent border-l-4 border-emerald-500 hover:from-emerald-500/20",
+  },
+
+  token_unstake: {
+    title: "Token Unstake",
+    text: "{username} unstaked {token_amount} {token_symbol} tokens",
+    icon: Unlock,
+    iconClass: "text-rose-400",
+    iconBoxClass: "bg-rose-500/20",
+    mainClass:
+      "from-rose-500/10 to-transparent border-l-4 border-rose-500 hover:from-rose-500/20",
   },
 
   follow: {
@@ -43,6 +75,7 @@ export const activityTypes = {
     icon: UserCheck,
     iconClass: "text-orange-400",
     iconBoxClass: "bg-orange-500/20",
-    mainClass: "from-orange-500/10 to-transparent border-l-4 border-orange-500 hover:from-orange-500/20",
+    mainClass:
+      "from-orange-500/10 to-transparent border-l-4 border-orange-500 hover:from-orange-500/20",
   },
 } as const;

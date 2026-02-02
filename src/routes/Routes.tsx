@@ -12,6 +12,7 @@ export default function Routes() {
         { uri: "/manifesto", component: "Manifesto" },
         { uri: "/mint", component: "Mint" },
         { uri: "/mint/claim", component: "ClaimToken" },
+        { uri: "/staking", component: "Staking" },
         // for test
         //{ uri: "/mint2", component: "Mint2" },
 

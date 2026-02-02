@@ -1,3 +1,4 @@
+import { tokenConfig } from "@/config/token";
 import { activityTypes } from "@/data/activityTypes";
 import { useReplaceWithNode } from "@/hooks/useReplaceWithNode";
 import { useWalletCore } from "@/hooks/useWalletCore";
@@ -8,7 +9,9 @@ import { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 export default function ActivityCard({ activityInfo }: { activityInfo: ActivityData }) {
-
+  
+  //console.log("activityInfo===>", activityInfo)
+  
   const connectedAccountAddr = useWalletCore().address;
   const activityTypeInfo = activityTypes[activityInfo.type];
 
@@ -32,6 +35,13 @@ export default function ActivityCard({ activityInfo }: { activityInfo: ActivityD
 
   if (activityInfo.followedAccount) {
     replacements["followed_username"] = getUsernameReplacement(activityInfo.followedAccount, connectedAccountAddr);
+  }
+  
+  if (["token_stake"].includes(activityInfo.type)) {
+    const { amount, termDays } = activityInfo.params;
+    replacements["token_amount"] = utils.toShortNumber(amount)
+    replacements["token_symbol"] = tokenConfig.symbol.toUpperCase()
+    replacements["stake_term"] = termDays
   }
 
   // 2. Call the hook at the top level of the component

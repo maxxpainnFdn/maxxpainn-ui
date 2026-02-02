@@ -8,6 +8,7 @@ import BottomNav from './BottomNav';
 import app from '@/config/app';
 import EventBus from '@/core/EventBus';
 import Button from '../button/Button';
+import { tokenConfig } from '@/config/token';
 
 export default function Navigation (){
 
@@ -37,7 +38,7 @@ export default function Navigation (){
   const navItems = [
     { name: 'FAQ', href: '/faq' },
     { name: 'Clans', href: '/clans' },
-   // { name: 'Leaderboard', href: '/leaderboard' },
+    { name: 'Staking', href: '/staking' },
   ];
 
   const docsLinks = [
@@ -124,7 +125,9 @@ export default function Navigation (){
               >
                 <Button variant="secondary" size="md" className='gap-x-1'>
                   <span>BUY</span>
-                  <span className='hidden lg:inline-block'>$PAINN</span>
+                  <span className='hidden lg:inline-block'>
+                    ${tokenConfig.symbol}
+                  </span>
                 </Button>
               </a>
 

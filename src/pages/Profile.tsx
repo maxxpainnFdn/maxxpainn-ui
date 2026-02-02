@@ -512,7 +512,7 @@ export default function UserProfilePage() {
                     <OverviewContent
                       totalMints={utils.toShortNumber(accountInfo.mintCount)}
                       amountMinted={utils.toShortNumber(accountInfo.mintedAmount)}
-                      totalReferral={utils.toShortNumber(accountInfo.mintedAmount)}
+                      totalReferral={utils.toShortNumber(accountInfo.totalReferral)}
                       totalFollowers={utils.toShortNumber(accountInfo.followerCount)}
                     />
                   }

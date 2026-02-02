@@ -72,9 +72,8 @@ export default class utils {
   }
 
   static getCoverPhotoSize(): string {
-
     // Check if code is running in browser
-    if (typeof window === 'undefined') return 'large'; // Default for SSR
+    if (typeof window === "undefined") return "large"; // Default for SSR
 
     const width = window.innerWidth;
     const dpr = window.devicePixelRatio || 1;
@@ -83,15 +82,19 @@ export default class utils {
     // remove the (* dpr) part if you want to strictly save bandwidth over quality
     const targetWidth = width * (dpr > 1.5 ? 1.5 : 1);
 
-    if (targetWidth >= 1200) return 'large';
-    if (targetWidth >= 800) return 'medium';
-    if (targetWidth >= 600) return 'small';
+    if (targetWidth >= 1200) return "large";
+    if (targetWidth >= 800) return "medium";
+    if (targetWidth >= 600) return "small";
 
-    return 'xsmall';
-  };
+    return "xsmall";
+  }
 
-  static getCoverPhotoUrl(image: string, group: string, size: string = ""): string {
-    if(size == "") size = this.getCoverPhotoSize()
+  static getCoverPhotoUrl(
+    image: string,
+    group: string,
+    size: string = "",
+  ): string {
+    if (size == "") size = this.getCoverPhotoSize();
     let url = `${api.endpoint}/files/images/${group}/${size}/${image}`;
     return url;
   }
@@ -113,6 +116,12 @@ export default class utils {
   static formatUnit(value: any, decimals: number): string {
     let valueBN = new BN(value.toString()).div(new BN(Math.pow(10, decimals)));
     return valueBN.toString();
+  }
+  
+  static toUnits(value: any, decimals: number): BN {
+    const base = new BN(10);
+    const multiplier = base.pow(new BN(decimals));
+    return new BN(value.toString()).mul(multiplier);
   }
 
   static isFloat(n: any): boolean {
@@ -151,20 +160,19 @@ export default class utils {
     return formatDistanceToNow(date, { addSuffix: false, includeSeconds:false });
     }*/
 
-    static getRelativeDate(
-      date: Date | string | number,
-      addPrefix?: booelan = true
-    ): string {
-
+  static getRelativeDate(
+    date: Date | string | number,
+    addPrefix: boolean | undefined = true,
+  ): string {
     const now = new Date();
     const past = new Date(date);
     const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
 
-    const suffix = (addPrefix) ? ` ago` : '';
+    const suffix = addPrefix ? ` ago` : "";
 
     // Handle future dates or just now
     if (diffInSeconds < 5) {
-      return 'just now';
+      return "just now";
     }
 
     const minute = 60;
@@ -195,14 +203,18 @@ export default class utils {
     }
 
     // Month and above: show "MMM YYYY" format (no suffix needed)
-    return past.toLocaleDateString('en-US', {
-      month: 'short',
-      year: 'numeric'
+    return past.toLocaleDateString("en-US", {
+      month: "short",
+      year: "numeric",
     });
   }
 
-  static async sleep(timeMs: number){
-    return new Promise(resolve => setTimeout(resolve, timeMs));
+  static async sleep(timeMs: number) {
+    return new Promise((resolve) => setTimeout(resolve, timeMs));
   }
 
+  static daysToSeconds(days: number): number {
+    const SECONDS_PER_DAY = 60 * 60 * 24;
+    return SECONDS_PER_DAY * days;
+  }
 }

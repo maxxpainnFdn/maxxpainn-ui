@@ -1,3 +1,5 @@
+import { tokenConfig } from "@/config/token";
+
 export interface MintRewardInfo {
   rank: number;
   baseReward: number; // Display value (float)
@@ -9,44 +11,67 @@ export interface MintRewardInfo {
   globalRank: number;
   daysLate: number;
   penaltyPercent: number;
+  finalAmountRaw: bigint,
   // Added raw values for transaction use
   rawRewardAmount: string;
 }
 
-// --- CONSTANTS (Matching Rust Precision) ---
+// ============================================================================
+//                               CONSTANTS
+// ============================================================================
+// These MUST match the Rust contract exactly!
+// ============================================================================
+
 const PRECISION = 1_000_000n;
 
-// Base Reward Configuration
-const BASE_REWARD = 10_000_000n;
-const BASE_REWARD_MULTIPLIER = 100n;
-// Rust: BASE_REWARD * BASE_REWARD_MULTIPLIER * PRECISION
-const BASE_REWARD_NUMERATOR = BASE_REWARD * BASE_REWARD_MULTIPLIER * PRECISION;
+// ----------------------------------------------------------------------------
+// Base Reward Configuration (UPDATED)
+// ----------------------------------------------------------------------------
+// Formula: BaseReward = BASE_REWARD × K / (√rank + K)
+// This creates a dampened decay curve
+const BASE_REWARD = 1_000_000n;
+const BASE_REWARD_NUMERATOR = BASE_REWARD * PRECISION;
+const DAMPENER_K = 10_000n;
 
-// Early Adopter Configuration
+// ----------------------------------------------------------------------------
+// Early Adopter Configuration (Unchanged)
+// ----------------------------------------------------------------------------
+// Linear decay from 3.0x (Rank 1) to 1.0x (Rank 1M)
 const EA_MAX_RANK = 1_000_000n;
-const EAM_MAX_SCALED = 3n * PRECISION; // 3.0
-const EAM_MIN_SCALED = 1n * PRECISION; // 1.0
+const EAM_MAX_SCALED = 3n * PRECISION; // 3.0x
+const EAM_MIN_SCALED = 1n * PRECISION; // 1.0x
 
-// Network Effect Configuration
-// Rust: PRECISION / 10 = 0.1
-const NEM_CURVE_SCALED = PRECISION / 10n;
-const NEM_MAX_SCALED = 3n * PRECISION;
+// ----------------------------------------------------------------------------
+// Network Effect Configuration (UPDATED)
+// ----------------------------------------------------------------------------
+// Formula: NEM = min(1 + 0.002 × √delta, 2.0)
+// Reaches 2.0x cap when 250,000 users join after you
+const NEM_CURVE_SCALED = 2_000n; // 0.002 (was 0.1)
+const NEM_MAX_SCALED = 2n * PRECISION; // 2.0x cap (was 3.0x)
 
-// Lock Period Configuration
-// Rust code says: PRECISION / 2 = 0.5.
-const LPM_SCALE_SCALED = PRECISION / 2n;
+// ----------------------------------------------------------------------------
+// Lock Period Configuration (UPDATED)
+// ----------------------------------------------------------------------------
+// Formula: LPM = min(1 + 0.06 × √days, 3.0)
+// Reaches 3.0x cap at ~1,095 days (3 years)
+const LPM_SCALE_SCALED = 60_000n; // 0.06 (was 0.5)
+const LPM_MAX_SCALED = 3n * PRECISION; // 3.0x cap (NEW)
 
-// Penalty Array
+// ----------------------------------------------------------------------------
+// Penalty Array (Unchanged)
+// ----------------------------------------------------------------------------
 const LATE_MINT_PENALTY = [0n, 1n, 3n, 8n, 17n, 35n, 72n, 99n];
 
-const TOKEN_DECIMALS = 4; // Adjust this to match your mint's actual decimals
+// Default token decimals - adjust to match your mint
+const TOKEN_DECIMALS = tokenConfig.decimals;
 
-// --- HELPER FUNCTIONS ---
+// ============================================================================
+//                            HELPER FUNCTIONS
+// ============================================================================
 
 /**
  * Integer Square Root for BigInt (matches Rust .isqrt())
  * Uses Newton's method.
- * Essential for curve parity with Rust.
  */
 function isqrt(n: bigint): bigint {
   if (n < 0n) throw new Error("negative BigInt sqrt");
@@ -68,116 +93,151 @@ function mulScale(a: bigint, b: bigint): bigint {
   return (a * b) / PRECISION;
 }
 
+/**
+ * Returns the minimum of two BigInts
+ */
+function minBigInt(a: bigint, b: bigint): bigint {
+  return a < b ? a : b;
+}
+
+// ============================================================================
+//                            MAIN CLASS
+// ============================================================================
+
 export default class MintAlgo {
-
-  static toBigInt(value: bigint | number){
-
-    if(typeof value !== 'bigint'){
-      value = BigInt(value.toString())
+  /**
+   * Safely convert number or bigint to bigint
+   */
+  static toBigInt(value: bigint | number): bigint {
+    if (typeof value !== "bigint") {
+      value = BigInt(Math.floor(value));
     }
-
     return value;
   }
 
-  static format(value: bigint) {
-    return (Number(value) / Number(PRECISION));
+  /**
+   * Convert scaled BigInt to float for display
+   */
+  static format(value: bigint): number {
+    return Number(value) / Number(PRECISION);
   }
 
-  // Base Reward
-  static getBaseReward(rank: bigint | number){
-
+  // --------------------------------------------------------------------------
+  // Base Reward (UPDATED - Now uses dampened decay)
+  // --------------------------------------------------------------------------
+  /**
+   * Calculate base reward with dampened decay
+   * Formula: BASE_REWARD × K / (√rank + K)
+   *
+   * With K = 10,000:
+   *   - Rank 1:    ~99.99% of base
+   *   - Rank 1M:   ~91% of base
+   *   - Rank 100M: ~50% of base
+   */
+  static getBaseReward(rank: bigint | number): bigint {
     rank = this.toBigInt(rank);
 
-    // ---------------------------------------------------------
-    // A. Base Reward
-    // Rust: BASE_REWARD_NUMERATOR / (rank + 1).isqrt()
-    // ---------------------------------------------------------
+    // Add 1 to avoid sqrt(0) edge case
     const rankPlusOne = rank + 1n;
     const sqrtRank = isqrt(rankPlusOne);
 
-    // Handle div by zero safety check (though rank+1 >= 1)
-    let baseReward = 0n;
+    // Denominator = √rank + K
+    const decayDenominator = sqrtRank + DAMPENER_K;
 
-    if (sqrtRank > 0n) {
-      baseReward = BASE_REWARD_NUMERATOR / sqrtRank;
-    } else {
-      baseReward = PRECISION;
-    }
+    // base_reward = (BASE_REWARD × PRECISION × K) / (√rank + K)
+    const baseReward = (BASE_REWARD_NUMERATOR * DAMPENER_K) / decayDenominator;
 
     return baseReward;
   }
 
-  // Early Adopter Multiplier
-  static getEarlyAdopterMultiplier(rank: bigint | number) {
-
-    let eaMultiplier: bigint;
-
+  // --------------------------------------------------------------------------
+  // Early Adopter Multiplier (Unchanged)
+  // --------------------------------------------------------------------------
+  /**
+   * Calculate Early Adopter Multiplier
+   * Linear decay from 3.0x (Rank 1) to 1.0x (Rank 1M)
+   * Rank > 1M gets 1.0x (no bonus)
+   */
+  static getEarlyAdopterMultiplier(rank: bigint | number): bigint {
     rank = this.toBigInt(rank);
 
     if (rank > EA_MAX_RANK) {
-      eaMultiplier = EAM_MIN_SCALED;
-    } else {
-      const range = EAM_MAX_SCALED - EAM_MIN_SCALED;
-      const remainingRanks = EA_MAX_RANK - rank;
-      const denominator = EA_MAX_RANK - 1n;
-
-      // Rust: range * remaining / denominator
-      const bonus = (range * remainingRanks) / denominator;
-      eaMultiplier = EAM_MIN_SCALED + bonus;
+      return EAM_MIN_SCALED;
     }
 
-    return eaMultiplier
+    const range = EAM_MAX_SCALED - EAM_MIN_SCALED;
+    const remainingRanks = EA_MAX_RANK - rank;
+    const denominator = EA_MAX_RANK - 1n;
+
+    const bonus = (range * remainingRanks) / denominator;
+    return EAM_MIN_SCALED + bonus;
   }
 
-  // get locked period multiplier
-  static getLockPeriodMultiplier(waitDays: bigint | number) {
-
-    // ---------------------------------------------------------
-    // D. Lock Period Multiplier (LPM)
-    // Rust: 1.0 + isqrt(days) * 0.5
-    // ---------------------------------------------------------
-
-    waitDays = this.toBigInt(waitDays)
-
-    const lpmBonus = isqrt(waitDays) * LPM_SCALE_SCALED;
-    const lockMultiplier = PRECISION + lpmBonus;
-    return lockMultiplier;
-  }
-
-  // Network Effect Multiplier
-  static getNetworkEffectMultiplier(rank: bigint | number, globalRank: bigint | number){
-
-    // ---------------------------------------------------------
-    // C. Network Effect Multiplier (NEM)
-    // Rust: 1.0 + isqrt(global - rank) * 0.1
-    // ---------------------------------------------------------
-
+  // --------------------------------------------------------------------------
+  // Network Effect Multiplier (UPDATED)
+  // --------------------------------------------------------------------------
+  /**
+   * Calculate Network Effect Multiplier
+   * Formula: NEM = min(1 + 0.002 × √delta, 2.0)
+   *
+   * UPDATED: Now capped at 2.0x (was 3.0x)
+   * Reaches cap when 250,000 users join after you
+   */
+  static getNetworkEffectMultiplier(
+    rank: bigint | number,
+    globalRank: bigint | number
+  ): bigint {
     rank = this.toBigInt(rank);
+    globalRank = this.toBigInt(globalRank);
 
-    globalRank = this.toBigInt(globalRank)
+    // Calculate delta (saturating subtraction)
+    let delta = globalRank > rank ? globalRank - rank : 0n;
 
-    let delta = globalRank - rank;
-    if (delta < 0n) delta = 0n; // saturate_sub
-
-    const nemBonus = isqrt(delta) * NEM_CURVE_SCALED; // Integers multiply first
+    // NEM = 1 + 0.002 × √delta
+    const nemBonus = isqrt(delta) * NEM_CURVE_SCALED;
     const rawNem = PRECISION + nemBonus;
 
-    // min(raw, max)
-    const networkMultiplier = rawNem > NEM_MAX_SCALED ? NEM_MAX_SCALED : rawNem;
-
-    return networkMultiplier;
+    // Cap at maximum (2.0x)
+    return minBigInt(rawNem, NEM_MAX_SCALED);
   }
 
-  // Reward with Late Mint Penalty
-  static getRewardWithPenalty(totalReward: bigint | number, daysLate: bigint | number):
-    { penaltyPercent:bigint,
-      finalReward: bigint
-    }
-  {
+  // --------------------------------------------------------------------------
+  // Lock Period Multiplier (UPDATED)
+  // --------------------------------------------------------------------------
+  /**
+   * Calculate Lock Period Multiplier
+   * Formula: LPM = min(1 + 0.06 × √days, 3.0)
+   *
+   * UPDATED: Now capped at 3.0x
+   * Reaches cap at ~1,095 days (3 years)
+   */
+  static getLockPeriodMultiplier(waitDays: bigint | number): bigint {
+    waitDays = this.toBigInt(waitDays);
 
-    totalReward = this.toBigInt(totalReward)
+    // LPM = 1 + 0.06 × √days
+    const lpmBonus = isqrt(waitDays) * LPM_SCALE_SCALED;
+    const rawLpm = PRECISION + lpmBonus;
 
-    daysLate = this.toBigInt(daysLate)
+    // Cap at maximum (3.0x)
+    return minBigInt(rawLpm, LPM_MAX_SCALED);
+  }
+
+  // --------------------------------------------------------------------------
+  // Late Mint Penalty (Unchanged)
+  // --------------------------------------------------------------------------
+  /**
+   * Calculate reward after applying late penalty
+   * Penalty increases exponentially: 0%, 1%, 3%, 8%, 17%, 35%, 72%, 99%
+   */
+  static getRewardWithPenalty(
+    totalReward: bigint | number,
+    daysLate: bigint | number
+  ): {
+    penaltyPercent: bigint;
+    finalReward: bigint;
+  } {
+    totalReward = this.toBigInt(totalReward);
+    daysLate = this.toBigInt(daysLate);
 
     let penaltyPercent = 0n;
     let finalReward = totalReward;
@@ -188,64 +248,88 @@ export default class MintAlgo {
       penaltyPercent = LATE_MINT_PENALTY[idx];
 
       const retainedPercent = 100n - penaltyPercent;
-
-      // Apply penalty: total * retained / 100
       finalReward = (totalReward * retainedPercent) / 100n;
     }
 
     return {
       penaltyPercent,
-      finalReward
-    }
+      finalReward,
+    };
   }
 
+  // --------------------------------------------------------------------------
+  // Combined Multiplier (Helper for UI)
+  // --------------------------------------------------------------------------
+  /**
+   * Calculate the combined multiplier (EAM × NEM × LPM)
+   * Useful for displaying total bonus to user
+   */
+  static getCombinedMultiplier(
+    rank: bigint | number,
+    globalRank: bigint | number,
+    waitDays: bigint | number
+  ): bigint {
+    const eam = this.getEarlyAdopterMultiplier(rank);
+    const nem = this.getNetworkEffectMultiplier(rank, globalRank);
+    const lpm = this.getLockPeriodMultiplier(waitDays);
+
+    return mulScale(mulScale(eam, nem), lpm);
+  }
+
+  // --------------------------------------------------------------------------
+  // Main Calculation Function
+  // --------------------------------------------------------------------------
   /**
    * Calculates the Final Reward by combining all components using BigInt math
    * to ensure exact parity with the Rust Smart Contract.
+   *
+   * @param userRankVal - User's rank number (1-indexed)
+   * @param globalRankVal - Current total users in the system
+   * @param lockPeriodDaysVal - Lock period in days
+   * @param daysLateVal - Days late claiming (0 = on time)
+   * @param tokenDecimals - Token decimals (default: 9)
    */
   static calculateFinalReward(
     userRankVal: number,
     globalRankVal: number,
     lockPeriodDaysVal: number,
     daysLateVal: number,
-    tokenDecimals: number = TOKEN_DECIMALS, // Default to const if not provided
+    tokenDecimals: number = TOKEN_DECIMALS
   ): MintRewardInfo {
-
     // 1. Convert inputs to BigInt for integer math
     const rank = BigInt(Math.floor(userRankVal));
     const globalRank = BigInt(Math.floor(globalRankVal));
     const waitDays = BigInt(Math.floor(lockPeriodDaysVal));
     const daysLate = BigInt(Math.floor(daysLateVal));
 
-    // A. get the baseReward
+    // ---------------------------------------------------------
+    // A. Base Reward (Dampened Decay)
+    // ---------------------------------------------------------
     const baseReward = this.getBaseReward(rank);
 
     // ---------------------------------------------------------
     // B. Early Adopter Multiplier (EAM)
+    // Linear: 3.0x (Rank 1) → 1.0x (Rank 1M+)
     // ---------------------------------------------------------
-
     const eaMultiplier = this.getEarlyAdopterMultiplier(rank);
 
     // ---------------------------------------------------------
     // C. Network Effect Multiplier (NEM)
-    // Rust: 1.0 + isqrt(global - rank) * 0.1
+    // Sqrt curve: 1.0x → 2.0x (at 250K growth)
     // ---------------------------------------------------------
-
-    const networkMultiplier = this.getNetworkEffectMultiplier(rank, globalRank)
+    const networkMultiplier = this.getNetworkEffectMultiplier(rank, globalRank);
 
     // ---------------------------------------------------------
     // D. Lock Period Multiplier (LPM)
-    // Rust: 1.0 + isqrt(days) * 0.5
+    // Sqrt curve: 1.0x → 3.0x (at 3 years)
     // ---------------------------------------------------------
-
-    const lockMultiplier = this.getLockPeriodMultiplier(waitDays)
+    const lockMultiplier = this.getLockPeriodMultiplier(waitDays);
 
     // ---------------------------------------------------------
     // E. Aggregation
+    // Total = Base × EAM × NEM × LPM
     // ---------------------------------------------------------
     let totalReward = baseReward;
-
-    // Apply multipliers sequentially with precision scaling correction
     totalReward = mulScale(totalReward, eaMultiplier);
     totalReward = mulScale(totalReward, networkMultiplier);
     totalReward = mulScale(totalReward, lockMultiplier);
@@ -253,22 +337,21 @@ export default class MintAlgo {
     // ---------------------------------------------------------
     // F. Late Penalty
     // ---------------------------------------------------------
-
-    const { penaltyPercent, finalReward } = this.getRewardWithPenalty(totalReward, daysLate)
-
+    const { penaltyPercent, finalReward } = this.getRewardWithPenalty(
+      totalReward,
+      daysLate
+    );
 
     // ---------------------------------------------------------
-    // G. Final Token Scaling (Transactions)
+    // G. Final Token Scaling (for blockchain transaction)
     // ---------------------------------------------------------
-    // This calculates the raw integer to send to the blockchain (e.g. 900000)
     const tokenScale = 10n ** BigInt(tokenDecimals);
     const finalAmountRaw = (finalReward * tokenScale) / PRECISION;
 
     // ---------------------------------------------------------
-    // H. Convert back to floating point for UI Display
+    // H. Convert to floating point for UI Display
     // ---------------------------------------------------------
-    // helper: Converts internal BigInt (1,000,000 precision) to a human readable Number
-    const toUiFloat = (val: bigint) => Number(val) / Number(PRECISION);
+    const toUiFloat = (val: bigint) => Number(val / PRECISION);
 
     return {
       rank: userRankVal,
@@ -277,16 +360,65 @@ export default class MintAlgo {
       earlyAdopterMultiplier: toUiFloat(eaMultiplier),
       lockPeriodMultiplier: toUiFloat(lockMultiplier),
 
-      // Both now use toUiFloat so they are comparable in the UI
       finalReward: toUiFloat(finalReward), // Post-Penalty
       rewardAmount: toUiFloat(totalReward), // Pre-Penalty
 
       globalRank: globalRankVal,
       daysLate: Number(daysLate),
       penaltyPercent: Number(penaltyPercent),
-
+      finalAmountRaw,
       // Use this string for Solana Transaction arguments (u64)
       rawRewardAmount: finalAmountRaw.toString(),
     };
   }
+
+  // --------------------------------------------------------------------------
+  // Utility: Maximum Reward Calculator
+  // --------------------------------------------------------------------------
+  /**
+   * Calculate the theoretical maximum reward for a given rank
+   * Assumes: max growth (250K+), max lock (3 years), on-time claim
+   */
+  static calculateMaxReward(
+    userRankVal: number,
+    tokenDecimals: number = TOKEN_DECIMALS
+  ): MintRewardInfo {
+    
+    // Max growth to hit NEM cap (250K users)
+    const maxGrowth = 250_000;
+    
+    // Max lock to hit LPM cap (3 years)
+    const maxLockDays = 1095;
+
+    return this.calculateFinalReward(
+      userRankVal,
+      userRankVal + maxGrowth,
+      maxLockDays,
+      0,
+      tokenDecimals
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // Utility: Format multiplier for display
+  // --------------------------------------------------------------------------
+  /**
+   * Format a multiplier value for UI display
+   * e.g., 2500000n → "2.50x"
+   */
+  static formatMultiplier(scaled: bigint): string {
+    const value = Number(scaled) / Number(PRECISION);
+    return `${value.toFixed(2)}x`;
+  }
+
+  // --------------------------------------------------------------------------
+  // Utility: Check if user is early adopter
+  // --------------------------------------------------------------------------
+  /**
+   * Returns true if rank qualifies for early adopter bonus
+   */
+  static isEarlyAdopter(rank: number): boolean {
+    return rank <= Number(EA_MAX_RANK);
+  }
+
 }

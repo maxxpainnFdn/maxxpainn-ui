@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => {
       server: serverConfig,
       plugins: [
         react(),
-        mode === 'development' && componentTagger(),
+       //mode === 'development' && componentTagger(),
         nodePolyfills()
       ].filter(Boolean),
 
