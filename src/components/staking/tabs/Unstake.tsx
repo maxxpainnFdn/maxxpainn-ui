@@ -28,6 +28,7 @@ export default function Unstake({
   const [unstaking, setUstaking] = useState(false)
   
   const canUnstake = useMemo(() => (userStakeInfo && (new Date) >= userStakeInfo.unlockDate), [userStakeInfo]);
+  const totalValue = useMemo(() => ((!userStakeInfo) ? 0 : Number(userStakeInfo.amountFormatted) + rewards), [userStakeInfo]);
   
   const unstakeToken = async (isEmergency: boolean) => {
     
@@ -61,11 +62,7 @@ export default function Unstake({
     onUnstakingSuccess?.();
   }
   
-  let totalValue = 0
-  
-  if (userStakeInfo != null) {
-    totalValue =  Number(userStakeInfo.amountFormatted) + Number(userStakeInfo.rewards)
-  }
+ 
   
   return (
     <div className=" mx-auto animate-in fade-in slide-in-from-right-4 duration-500">

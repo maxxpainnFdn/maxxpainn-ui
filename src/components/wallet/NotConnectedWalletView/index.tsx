@@ -14,6 +14,7 @@ import EventBus from '@/core/EventBus';
 import { isMobile } from 'react-device-detect';
 import { useWalletCore } from '@/hooks/useWalletCore';
 import utils from '@/lib/utils';
+import walletConfig from '@/config/wallet';
 
 interface NotConnectedWalletViewProps {
   modalOpen?: boolean;
@@ -35,6 +36,7 @@ export const NotConnectedWalletView = ({
       setConnectingWallet(null);
       setError(null);
     } else {
+      localStorage.removeItem(walletConfig.walletStorageKey)
       openMobileNativeDialog()
     }
   }, [modalOpen])

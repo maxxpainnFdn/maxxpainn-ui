@@ -94,7 +94,7 @@ export default function ApiQuery({
     return (
         <LoadingView loading={loading} {...loaderProps}>
             { error != "" ?
-                <>{ showError && <ErrorView title={error} onReload={onReload} {...errorProps} /> }</>:
+                <>{ showError && <ErrorView text={error} onReload={onReload} {...errorProps} /> }</>:
                 <>
                     { children }
                     { pagingInfo != null && pagingType && pagingInfo.pageCount > 1 &&

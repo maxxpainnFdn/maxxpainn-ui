@@ -67,7 +67,7 @@ export default function ClanDetails() {
     clanInfo.accentColor1 = clanInfo.accentColor[0]
     clanInfo.accentColor2 = clanInfo.accentColor[1]
 
-    //console.log("clanInfo===>", clanInfo)
+    console.log("clanInfo===>", clanInfo)
 
     setClan(clanInfo)
 
@@ -121,7 +121,7 @@ export default function ClanDetails() {
               />
 
               <div className="relative p-8 md:p-12">
-                <div className="flex flex-col lg:flex-row items-start lg:items-center gap-8 mb-8">
+                <div className="flex flex-col md:flex-row items-start lg:items-center gap-8 mb-8">
                   {/* Clan Logo with Glow */}
                   <div className="relative">
                     <div
@@ -146,16 +146,16 @@ export default function ClanDetails() {
 
                   {/* Clan Info */}
                   <div className="flex-1">
-                    <div className="flex items-start gap-4 mb-3">
-                      <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
+                    <div className="flex items-center gap-4 mb-3">
+                      <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
                         {clan.name}
                       </h1>
                       <div
                         className="flex items-center gap-2 px-4 py-2 rounded-2xl border-2 bg-background/60 backdrop-blur-sm"
                         style={{ borderColor: clan.accentColor1 }}
                       >
-                        <Trophy className="h-6 w-6" style={{ color: clan.accentColor1 }} />
-                        <span className="text-3xl font-black" style={{ color: clan.accentColor1 }}>
+                        <Trophy className="h-4 w-4 md:h-6 md:w-6" style={{ color: clan.accentColor1 }} />
+                        <span className="text-xl  md:text-3xl font-bold md:font-black" style={{ color: clan.accentColor1 }}>
                           #{ clan.rank + 1 }
                         </span>
                       </div>
@@ -193,9 +193,9 @@ export default function ClanDetails() {
             <ClanStats
               data={{
                 totalMembers: clan.totalMembers,
-                totalEarned: clan.totalEarned || 0,
-                totalMints: clan.totalMint || 0,
-                rewardPerMint: clan.rewardPerMintUSD || 0
+                totalEarned: clan.totalEarnedUsd || 0,
+                totalMints: clan.totalMints || 0,
+                totalTokensMinted: clan.totalAmountMinted || 0
               }}
             />
 

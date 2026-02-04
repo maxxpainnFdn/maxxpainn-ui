@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, ArrowLeft, RefreshCw } from 'lucide-react';
-import errorMessages from "@/data/errorMessages"
 
 export default function ErrorView({  
-  title, 
-  message = "", 
+  text = "", 
   className = "",
-  titleClassName = "",
   Icon = null,
   onBack = null,
   onReload = null
@@ -30,8 +27,7 @@ export default function ErrorView({
   }, []);
 
   // Derive display values from errorMessages lookup if available
-  let displayTitle = title;
-  let displayDescription = message;
+
   let DisplayIcon = (Icon) ? Icon : AlertCircle;
 
   return (
@@ -87,20 +83,16 @@ export default function ErrorView({
         </div>
         
         {/* Text content with staggered animations */}
-        <div className={`transition-all duration-1000 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <h1 className={`text-5xl md:text-6xl font-bold text-white mb-5 tracking-tight leading-tight ${titleClassName}`}>
-            {displayTitle}
-          </h1>
-          
+        <div className={`transition-all duration-1000 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>   
           {/* Subtle underline effect */}
           <div className="flex justify-center mb-7">
             <div className="w-20 h-[2px] bg-gradient-to-r from-transparent via-white/40 to-transparent rounded-full"></div>
           </div>
         </div>
         
-        {displayDescription && (
-          <p className={`text-gray-300 text-lg font-semibold  mb-10 max-w-md leading-relaxed}`}>
-            {displayDescription}
+        {text && (
+          <p className={`text-gray-300 text:md md:text-lg font-semibold  mb-10 max-w-md leading-relaxed}`}>
+            {text}
           </p>
         )}
         

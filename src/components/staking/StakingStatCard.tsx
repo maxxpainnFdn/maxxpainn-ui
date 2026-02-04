@@ -1,9 +1,9 @@
 
 const styles = {
-  purple: { text: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20", glow: "group-hover:shadow-[0_0_30px_rgba(168,85,247,0.2)]" },
-  pink:   { text: "text-pink-400",   bg: "bg-pink-500/10",   border: "border-pink-500/20",   glow: "group-hover:shadow-[0_0_30px_rgba(236,72,153,0.2)]" },
-  green:  { text: "text-green-400",  bg: "bg-green-500/10",  border: "border-green-500/20",  glow: "group-hover:shadow-[0_0_30px_rgba(34,197,94,0.2)]" },
-  red:    { text: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20",    glow: "group-hover:shadow-[0_0_30px_rgba(239,68,68,0.2)]" },
+  purple: { text: "text-purple-400", bg: "bg-purple-500/10", },
+  pink:   { text: "text-pink-400",   bg: "bg-pink-500/10" },
+  green:  { text: "text-green-400",  bg: "bg-green-500/10", },
+  red:    { text: "text-red-400",    bg: "bg-red-500/10", },
 };
 
 // --- REUSABLE COMPONENTS ---
@@ -15,8 +15,8 @@ export default function StakingStatCard ({ label, value, subValue, icon: Icon, c
   return (
     <div className={`
         relative overflow-hidden p-6 rounded-[2rem] border bg-gray-900/40 backdrop-blur-md
-        transition-all duration-300 group hover:-translate-y-1 hover:border-white/20
-        ${s.border} ${s.glow}
+        transition-all duration-300 group hover:-translate-y-1 hover:border-white/10
+        border-purple-500/10 
     `}>
       <div className={`absolute -right-6 -top-6 w-24 h-24 rounded-full blur-2xl opacity-20 transition-opacity group-hover:opacity-40 ${s.bg.replace('/10','/30')}`} />
       <div className="relative z-10 flex flex-col h-full justify-between">

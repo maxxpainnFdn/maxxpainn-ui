@@ -116,15 +116,7 @@ export const useStaking = () => {
       
       userStakeInfo.unlockDate = new Date(Number(userStakeInfo.endTime.toString()) * 1000);
       
-      const reward = StakingMath.getReward(
-        Number(userStakeInfo.amountFormatted),
-        userStakeInfo.termDays,
-        ((Date.now() / 1000) - startTimeSecs)
-      )
-      
-      const pendingReward = utils.formatUnit(userStakeInfo.pendingRewards, tokenConfig.decimals)
-
-      userStakeInfo.rewards = Number(pendingReward) + reward;
+      userStakeInfo.rewards = getRewards(userStakeInfo)
     }
 
     return Status.successData({
@@ -138,12 +130,19 @@ export const useStaking = () => {
     
     if (!userStakeInfo) return 0;
     
+    const nowSecs = Date.now() / 1000;
+    
     const startTimeSecs = Number(userStakeInfo.startTime.toString());
+    const endTimeSecs = Number(userStakeInfo.endTime.toString())
+    
+    const elapsedTimeSecs = (nowSecs > endTimeSecs)
+                ? endTimeSecs - startTimeSecs
+                : nowSecs - startTimeSecs;
     
     const reward = StakingMath.getReward(
       Number(userStakeInfo.amountFormatted),
       userStakeInfo.termDays,
-      ((Date.now() / 1000) - startTimeSecs)
+      elapsedTimeSecs
     )
     
     const pendingReward = utils.formatUnit(userStakeInfo.pendingRewards, tokenConfig.decimals)

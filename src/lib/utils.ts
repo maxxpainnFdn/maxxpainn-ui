@@ -118,7 +118,7 @@ export default class utils {
     return valueBN.toString();
   }
   
-  static toUnits(value: string, decimals: number): BN {
+  static toUnits(value: any, decimals: number): BN {
     const [whole, fraction = ""] = value.toString().split(".");
   
     const safeFraction = fraction.slice(0, decimals);

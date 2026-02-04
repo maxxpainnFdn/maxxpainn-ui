@@ -27,7 +27,7 @@ export const WalletProvider = ({
 
   const { currentNetwork } = useNetwork()
 
-  console.log("currentNetwork===>", currentNetwork)
+  ///console.log("currentNetwork===>", currentNetwork)
 
   const wallets = useMemo(() => [
     new PhantomWalletAdapter(),

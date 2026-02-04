@@ -1,8 +1,6 @@
-import { Loader, LoaderIcon } from "lucide-react";
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
 import ErrorView from "../errorView/ErrorView";
 import Spinner from "../spinner/Spinner";
-import errorMessages from "@/data/errorMessages";
 
 export interface LoadingViewProps {
     children?: ReactNode;
@@ -24,19 +22,7 @@ export default function LoadingView({
     onReload=null
 }: LoadingViewProps) {
 
-    const errorProps = { title: "", message: error, Icon: errorIcon }
-
-    if(error != ""){
-
-        const errorSlug = error.toLowerCase().trim().replace(/\s+/g, "_");
-
-        if (errorSlug in errorMessages) {
-            const errObj = errorMessages[errorSlug];
-            errorProps.title = errObj.title || "";
-            errorProps.message = errObj.description || error;
-            errorProps.Icon = errObj.icon || null;
-        }
-    }
+  const errorProps = useMemo(() => ({ text: error, Icon: errorIcon }), [error])
 
     return (
         <>

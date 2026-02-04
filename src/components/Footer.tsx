@@ -39,7 +39,7 @@ const Footer: React.FC = () => {
             </p>
 
             {/* Power Flow Badge */}
-            <div className="inline-flex items-center gap-3 px-6 py-3 ">
+            <div className="inline-flex items-center gap-3  py-3 ">
               <Flame className="w-5 h-5 text-pink-600" />
               <div className="flex items-center gap-2 font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
                 <span>Pain</span>
