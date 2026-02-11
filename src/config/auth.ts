@@ -23,7 +23,8 @@ export const authConfig = {
   },
 
   // Statement shown to user
-  statement: `Sign this message to verify your wallet ownership and access ${app.name}. This request will not trigger a blockchain transaction or cost any gas fees.`,
+    statement: `Sign this message to verify your wallet ownership and access ${app.name}. 
+        This request will not trigger a blockchain transaction or cost any gas fees.`,
 };
 
 export default authConfig;

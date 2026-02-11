@@ -1,10 +1,11 @@
-const domainUrl =  "https://maxxpainn.local:8080";
+
+const domainUrl = window.location.origin;
 
 export default {
     name:         "MaxxPainn",
-    domain:       "maxxpainn.local",
+    domain:       window.location.host,
     description:  "MaxxPainn: a free-to-mint Solana protocol championing free, fair and equal token distribution.",
     url:          domainUrl,
     logo:         `${domainUrl}/logo.png`,
-    tokenBuyUrl:  "https://raydium.io"
+    tokenBuyUrl:  "#"
 }

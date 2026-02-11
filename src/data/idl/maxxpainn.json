@@ -1075,120 +1075,6 @@
       ]
     },
     {
-      "name": "test_algos",
-      "discriminator": [
-        194,
-        175,
-        55,
-        135,
-        67,
-        100,
-        121,
-        119
-      ],
-      "accounts": [
-        {
-          "name": "signer",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "main_config",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  109,
-                  97,
-                  105,
-                  110,
-                  95,
-                  99,
-                  111,
-                  110,
-                  102,
-                  105,
-                  103
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "protocol_state",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  112,
-                  114,
-                  111,
-                  116,
-                  111,
-                  99,
-                  111,
-                  108,
-                  95,
-                  115,
-                  116,
-                  97,
-                  116,
-                  101
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "rank_info",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  114,
-                  97,
-                  110,
-                  107,
-                  95,
-                  105,
-                  110,
-                  102,
-                  111
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "signer"
-              }
-            ]
-          }
-        },
-        {
-          "name": "rank_difficulty",
-          "writable": true
-        },
-        {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "rank_no",
-          "type": "u64"
-        },
-        {
-          "name": "rank_difficulty_bump",
-          "type": "u8"
-        }
-      ]
-    },
-    {
       "name": "unstake",
       "discriminator": [
         90,
@@ -1985,6 +1871,10 @@
           {
             "name": "rank_no",
             "type": "u64"
+          },
+          {
+            "name": "account",
+            "type": "pubkey"
           }
         ]
       }
@@ -1996,6 +1886,10 @@
         "fields": [
           {
             "name": "stake_owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "account",
             "type": "pubkey"
           }
         ]
