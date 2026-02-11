@@ -47,7 +47,8 @@ export default function ConnectedWalletContent({
   const { disconnect, address: fullAddress, publicKey: addressPubKey, wallet } = useWalletCore();
 
   const [disconnecting, setDisconnecting] = useState(false);
-
+  
+  //console.log("10000====>", "Boooooommm=====>")
 
   // Handle disconnect
   const handleDisconnect = async () => {
@@ -152,7 +153,7 @@ export default function ConnectedWalletContent({
             w-2.5 h-2.5 rounded-full
             ${currentNetwork.isTestnet ? 'bg-yellow-500' : 'bg-green-500'}
           `} />
-          <span className="text-white font-bold">{currentNetwork.displayName}</span>
+          <span className="text-white font-bold">{currentNetwork.name}</span>
           {currentNetwork.isTestnet && (
             <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-500 text-xs font-bold rounded-full">
               Testnet

@@ -21,12 +21,12 @@ export default function UserStakeInfoCol({
       >
         <div className="relative z-10">
           <div className="flex items-center gap-4 mb-6">
-            <div className="text-5xl">{badge.icon}</div>
+            <div className="text-4xl md:text-5xl">{badge.icon}</div>
             <div>
               <div className="text-xs font-bold text-gray-500 uppercase tracking-widest">
                 Rank
               </div>
-              <div className={`text-3xl font-black ${badge.color}`}>
+              <div className={`text-xl md:text-3xl font-black ${badge.color}`}>
                 {badge.label}
               </div>
             </div>
@@ -36,6 +36,12 @@ export default function UserStakeInfoCol({
               <span className="text-gray-400 font-medium">Staking Term</span>
               <span className="text-white font-bold font-mono">
                 {userStakeInfo.termDays} Days
+              </span>
+            </div>
+            <div className="flex justify-between items-center py-3 border-b border-white/5">
+              <span className="text-gray-400 font-medium">Yield</span>
+              <span className="text-white font-bold font-mono">
+                  { Number(userStakeInfo.yield).toFixed(2) }%
               </span>
             </div>
             <div className="flex justify-between items-center py-3 border-b border-white/5">

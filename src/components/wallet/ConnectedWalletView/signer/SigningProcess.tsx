@@ -19,7 +19,7 @@ export default function SigningProgress({
 }: SigningProgressProps ) {
 
   return (
-    <div className="space-y-6 py-4">
+    <div className="space-y-6 py-4 w-full">
       {/* Animated Icon */}
       <div className="flex justify-center">
         <div className="relative">

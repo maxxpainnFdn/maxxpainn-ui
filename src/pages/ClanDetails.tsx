@@ -195,7 +195,7 @@ export default function ClanDetails() {
                 totalMembers: clan.totalMembers,
                 totalEarned: clan.totalEarnedUsd || 0,
                 totalMints: clan.totalMints || 0,
-                totalTokensMinted: clan.totalAmountMinted || 0
+                rewardPerMint: clan.rewardPerMintUsd || 0
               }}
             />
 

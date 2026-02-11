@@ -732,10 +732,6 @@
           "type": "bool"
         },
         {
-          "name": "staking_min_yield_bps",
-          "type": "u64"
-        },
-        {
           "name": "staking_max_yield_bps",
           "type": "u64"
         },
@@ -1624,12 +1620,6 @@
           }
         },
         {
-          "name": "staking_min_yield_bps",
-          "type": {
-            "option": "u64"
-          }
-        },
-        {
           "name": "staking_max_yield_bps",
           "type": {
             "option": "u64"
@@ -1725,16 +1715,55 @@
       ]
     },
     {
-      "name": "StakeEvent",
+      "name": "CloseRankDifficultyLog",
       "discriminator": [
-        226,
-        134,
-        188,
-        173,
-        19,
-        33,
-        75,
-        175
+        189,
+        66,
+        152,
+        180,
+        36,
+        9,
+        32,
+        75
+      ]
+    },
+    {
+      "name": "CloseRankLog",
+      "discriminator": [
+        194,
+        170,
+        135,
+        239,
+        1,
+        193,
+        71,
+        69
+      ]
+    },
+    {
+      "name": "CloseStakeAccountLog",
+      "discriminator": [
+        231,
+        238,
+        21,
+        199,
+        58,
+        176,
+        99,
+        98
+      ]
+    },
+    {
+      "name": "StakeLog",
+      "discriminator": [
+        131,
+        73,
+        171,
+        253,
+        47,
+        213,
+        41,
+        127
       ]
     },
     {
@@ -1751,16 +1780,16 @@
       ]
     },
     {
-      "name": "UnstakeEvent",
+      "name": "UnstakeLog",
       "discriminator": [
-        162,
-        104,
-        137,
-        228,
         81,
-        3,
-        79,
-        197
+        63,
+        174,
+        22,
+        108,
+        97,
+        107,
+        109
       ]
     }
   ],
@@ -1933,6 +1962,46 @@
       }
     },
     {
+      "name": "CloseRankDifficultyLog",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "account",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CloseRankLog",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "rank_no",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CloseStakeAccountLog",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "stake_owner",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
       "name": "MainConfig",
       "type": {
         "kind": "struct",
@@ -1989,10 +2058,6 @@
           {
             "name": "staking_enabled",
             "type": "bool"
-          },
-          {
-            "name": "staking_min_yield_bps",
-            "type": "u64"
           },
           {
             "name": "staking_max_yield_bps",
@@ -2074,34 +2139,6 @@
       }
     },
     {
-      "name": "StakeEvent",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "owner",
-            "type": "pubkey"
-          },
-          {
-            "name": "amount",
-            "type": "u64"
-          },
-          {
-            "name": "term_days",
-            "type": "u64"
-          },
-          {
-            "name": "start_time",
-            "type": "i64"
-          },
-          {
-            "name": "end_time",
-            "type": "i64"
-          }
-        ]
-      }
-    },
-    {
       "name": "StakeInfo",
       "type": {
         "kind": "struct",
@@ -2138,6 +2175,34 @@
       }
     },
     {
+      "name": "StakeLog",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "term_days",
+            "type": "u64"
+          },
+          {
+            "name": "start_time",
+            "type": "i64"
+          },
+          {
+            "name": "end_time",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
       "name": "TokenClaim",
       "type": {
         "kind": "struct",
@@ -2166,7 +2231,7 @@
       }
     },
     {
-      "name": "UnstakeEvent",
+      "name": "UnstakeLog",
       "type": {
         "kind": "struct",
         "fields": [
@@ -2189,6 +2254,5 @@
         ]
       }
     }
-  ],
-  "adddress": ""
+  ]
 }

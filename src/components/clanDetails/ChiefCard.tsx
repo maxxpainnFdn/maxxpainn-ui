@@ -5,10 +5,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import ImageAvatar from "../ImageAvatar";
 import { avataaars, avataaarsNeutral } from "@dicebear/collection";
+import { Link } from "react-router-dom";
 
 export default function ChiefCard({ accountInfo, accentColor }: { accountInfo: IAccount, accentColor: string }) {
 
-    console.log("accountInfo===>", accountInfo)
+    //console.log("accountInfo===>", accountInfo)
 
     return (
       <Card className="relative overflow-hidden bg-gradient-to-br from-card via-card to-card/50 border border-border/40 shadow-xl">
@@ -34,23 +35,22 @@ export default function ChiefCard({ accountInfo, accentColor }: { accountInfo: I
               className="relative h-32 w-32 mx-auto border-4 shadow-2xl" 
               style={{ borderColor: accentColor }}
               src={accountInfo.photo || ""}
-              alt="Creator Img"
+              alt="Creator"
               seed={accountInfo.address}
               avatarType={avataaars}
             />
           </div>
-          <a href={`/profile/@${accountInfo.username}`} target="_blank">
-            <h3 className="text-2xl font-bold mb-1 text-ellipsis">@{ accountInfo.username }</h3>
-          </a>
+          <Link to={`/profile/@${accountInfo.username}`} target="_blank">
+            <h3 className="text-md sm:text-lg font-semibold mb-1 text-ellipsis">@{ accountInfo.username }</h3>
+          </Link>
           <Badge 
-            className="mb-2" 
+            className="mb-2 text-xs font-semibold px-4 py-1" 
             style={{ 
-              backgroundColor: `${accentColor}20`,
-              color: accentColor,
-              borderColor: accentColor
+                backgroundColor: `color-mix(in srgb, ${accentColor}, black 60%)`,
+                color: 'rgba(255, 255, 255, 0.95)'
             }}
           >
-            Creator
+            #{accountInfo.rank} Rank
           </Badge>
         
         </div>

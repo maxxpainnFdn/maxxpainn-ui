@@ -4,18 +4,21 @@ import { botttsNeutral } from "@dicebear/collection";
 import { useWalletCore } from "@/hooks/useWalletCore";
 import { Wallet } from "lucide-react";
 import Button from '../button/Button';
+import { useEffect } from 'react';
 
 export default function Account({
   btnProps = {}
 }) {
 
     const {
-      isConnected,
-      isConnecting,
-      openModal,
-      address = ""
+        isConnected,
+        isConnecting,
+        openModal,
+        address = "",
+        wallet,
+        networkId
     } = useWalletCore()
-
+    
     return (
       <div className="relative group w-full">
         {(!isConnected || isConnecting) ? (

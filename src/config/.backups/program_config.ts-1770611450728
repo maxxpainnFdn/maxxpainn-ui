@@ -3,6 +3,7 @@ import metadata from "../config/metadata.json"
 
 export interface StakingConfig {
   enabled: boolean;  
+  minYield: number;
   maxYield: number;
   minTermDays: number;
   maxTermDays: number;
@@ -51,6 +52,7 @@ export const programConfig: ProgramConfig = {
     },
     staking: {
         enabled:                true,
+        minYield:               2,      // in %  
         maxYield:               100,    // in %
         minTermDays:            1,      // in days
         maxTermDays:            1095,   // days, 3yrs

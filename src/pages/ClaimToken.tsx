@@ -17,7 +17,7 @@ import ClaimTokenStats from "@/components/claimToken/ClaimTokenStats";
 import LatePenaltyCard from "@/components/claimToken/LatePenaltyCard";
 import MultipliersCard from "@/components/claimToken/MultipliersCard";
 import CountDownTimer from "@/components/claimToken/CountDownTimer";
-import programConfig from "@/config/program_config";
+import {programConfig} from "@/config/program_config";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   getAssociatedTokenAddress,

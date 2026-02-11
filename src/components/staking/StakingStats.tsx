@@ -3,6 +3,7 @@ import StakingStatCard from "./StakingStatCard";
 import { stakingConfig } from "@/config/staking";
 import { StakingMath } from "@/core/StakingMath";
 import utils from "@/lib/utils";
+import { tokenConfig } from "@/config/token";
 
 const { minTermDays } = stakingConfig;
 
@@ -13,20 +14,20 @@ export default function StakingStats({ data }: Record<string, any>) {
       label: "TVL",
       icon: Lock,
       color: "purple",
-      subValue: "PAINN TOKENS",
+      subValue: `${tokenConfig.symbol} TOKENS`,
     },
     userStake: {
       label: "My Stake",
       icon: Wallet,
       color: "pink",
-      subValue: "PAINN TOKENS",
+      subValue: `${tokenConfig.symbol} TOKENS`,
     },
 
     userRewards: {
       label: "My Rewards",
       icon: Flame,
       color: "red",
-      subValue: "PAINN TOKENS",
+      subValue: `${tokenConfig.symbol} TOKENS`,
     },
     maxYield: {
       label: "Max Yield",

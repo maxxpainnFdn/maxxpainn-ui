@@ -3,7 +3,7 @@ import { Menu, X, Zap, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import HowItWorksModal from '../HowItWorksModal';
 import Account from './Account';
-import { useMediaQuery } from 'react-responsive';
+//import { useMediaQuery } from 'react-responsive';
 import BottomNav from './BottomNav';
 import app from '@/config/app';
 import EventBus from '@/core/EventBus';
@@ -66,8 +66,8 @@ export default function Navigation (){
                 <div className="absolute inset-0 bg-purple-500 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
               </div>
               <span className="text-xl sm:text-2xl md:text-3xl font-black">
-                <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">MAXX</span>
-                <span className="text-pink-600">PAINN</span>
+                <span className="white-text">MAXX</span>
+                <span className="bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">PAINN</span>
               </span>
             </Link>
 

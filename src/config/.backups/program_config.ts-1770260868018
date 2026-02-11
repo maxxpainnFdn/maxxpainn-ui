@@ -1,0 +1,56 @@
+import { PublicKey } from "@solana/web3.js";
+
+export interface ProgramConfig {
+    
+    canMint:        boolean;
+    treasuryWallet: PublicKey;
+    
+    token: {
+        name:           string;
+        symbol:         string;
+        maxSupply:      number;
+        decimals:       number;
+        metadataUri:    string;
+    };
+    
+    rankDifficulty: {
+        baseFee: number;
+        scaleFactor: number[]
+    },
+    
+    staking: {
+        enabled:                boolean,
+        stakingMinYield:        number, 
+        stakingMaxYield:        number,
+        stakingMinTermsDays:    number,
+        stakingMaxTermDays:     number, // 3yrs //staking_max_term_days: u64
+        earlyUnstakePenalty:    number
+    }
+}
+
+export const programConfig: ProgramConfig = {
+    
+    canMint:             true,
+    treasuryWallet:     new PublicKey("3RbC4A66LP6AwAHYHr89BxFHBCdPpZg6eDBfRiokDeyK"),
+    
+    token: {
+        name:           metadata.name,
+        symbol:         metadata.symbol,
+        maxSupply:      100_000_000_000_000_000,
+        decimals:       1,
+        metadataUri:    "https://arweave.net/tmWtR6356yN4-CgLe8mFpLD2wApcVzf1JIJ8eeTQ_LM"
+    },
+    
+    rankDifficulty: {
+        baseFee: 0.011, // base fee in sol
+        scaleFactor: [4, 1], // 4 / 1 = 4.0
+    },
+    staking: {
+        enabled:                true,
+        stakingMinYield:        2,      // in %  
+        stakingMaxYield:        100,    // in %
+        stakingMinTermsDays:    1,      // in days
+        stakingMaxTermDays:     1095,   // days, 3yrs
+        earlyUnstakePenalty:    25      // 25%
+    }
+}

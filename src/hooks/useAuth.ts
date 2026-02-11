@@ -10,6 +10,8 @@ import { authSessionInfoAtom, isAuthenticatedAtom, userAccountInfoAtom } from '@
 import authConfig from '@/config/auth';
 import { Status } from '@/core/Status';
 import http from "@/core/HttpClient"
+import utils from '@/lib/utils';
+import EventBus from '@/core/EventBus';
 
 interface UseAuthReturn {
   isAuthenticated: boolean;
@@ -23,47 +25,63 @@ interface UseAuthReturn {
 
 export function useAuth(): UseAuthReturn {
 
-  const { isConnected, address, signMessage, wallet } = useWalletCore();
-  const { currentNetwork } = useNetwork();
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSigningIn, setIsSigningIn] = useState(false);
-  const [authSession, setAuthSession] = useAtom(authSessionInfoAtom)
-  const setUserAccountInfo = useSetAtom(userAccountInfoAtom)
-  const isAuthenticated = useAtomValue(isAuthenticatedAtom)
-
-  const getSessions = () => {
-    try{
-      return JSON.parse(localStorage.getItem(authConfig.sessionStorageKey) || "{}")
-    } catch(e){
-      return {}
+    const {
+        isConnected,
+        address,
+        signMessage,
+        wallet,
+        networkId,
+        openModal
+    } = useWalletCore();
+    
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSigningIn, setIsSigningIn] = useState(false);
+    const [authSession, setAuthSession] = useAtom(authSessionInfoAtom)
+    const setUserAccountInfo = useSetAtom(userAccountInfoAtom)
+    const isAuthenticated = useAtomValue(isAuthenticatedAtom)
+    
+    const getSessions = () => {
+        try{
+            return JSON.parse(localStorage.getItem(authConfig.sessionStorageKey) || "{}")
+        } catch(e){
+            return {}
+        }
     }
-  }
+    
+    const updateSessions = (address: string, sessionData: SessionData ) => {
+        let sessions = getSessions()
+        const sessKey = utils.uuidFromSeed(address)
+        sessions[sessKey] = sessionData
+        localStorage.setItem(authConfig.sessionStorageKey, JSON.stringify(sessions))
+    }
 
-  const updateSessions = (address: string, sessionData: SessionData ) => {
-    let sessions = getSessions()
-    sessions[address] = sessionData
-    localStorage.setItem(authConfig.sessionStorageKey, JSON.stringify(sessions))
-  }
 
+    const initialize = () => {
 
-  const initialize = () => {
+        if (!isConnected || address == null) return;
+    
+        let sessions = getSessions()
+        
+        const sessKey = utils.uuidFromSeed(address)
+        
+        let session = sessions[sessKey] || null
+        
+        if (!session) {
+            //console.log("Session not found")
+            setAuthSession(null)
+            openModal()
+            return;
+        }
 
-    if (!isConnected || address == null) return;
-
-    let sessions = getSessions()
-
-    if (Object.keys(sessions).length == 0 || !(address in sessions)) return;
-
-    setAuthSession(sessions[address])
-  }
-
-  useEffect(() => { initialize() }, []);
-
-  useEffect(()=> {
-    initialize()
-  }, [isConnected, address])
-
+        setAuthSession(sessions[sessKey])
+    }
+    
+    useEffect(() => { initialize() }, []);
+    
+    useEffect(()=> {
+        initialize()
+    }, [isConnected, address])
+    
 
   // Listen for wallet disconnect
   useEffect(() => {
@@ -72,17 +90,16 @@ export function useAuth(): UseAuthReturn {
       setAuthSession(null);
     })
 
-    return () => {
-      wallet?.adapter?.off("disconnect");
-    }
+    //return () => {
+    //  wallet?.adapter?.off("disconnect");
+    //}
   }, []);
 
   const   buildSignMessage =(
-    address:   string,
-    nonce:     string,
-    chainId:   string,
-    issuedAt:  number,
-    expiresAt: number
+    address:    string,
+    nonce:      string,
+    chainId:    string,
+    timestamp:  number,
   ): string => {
     const message = [
       `${authConfig.appDomain} wants you to sign in with your Solana account:`,
@@ -94,8 +111,7 @@ export function useAuth(): UseAuthReturn {
       `Version: 1`,
       `Chain ID: ${chainId}`,
       `Nonce: ${nonce}`,
-      `Issued At: ${new Date(issuedAt)}`,
-      `Expiration Time: ${new Date(expiresAt)}`,
+      `Timestamp: ${timestamp}`,
     ].join('\n');
 
     return message;
@@ -105,89 +121,88 @@ export function useAuth(): UseAuthReturn {
   const signIn = useCallback(async (): Promise<Status> => {
 
     if (!isConnected || !address || !signMessage) {
-      return Status.error("Reconnect wallet to continue");
+        return Status.error("Reconnect wallet to continue");
     }
 
     setIsSigningIn(true);
 
     try {
+    
+        const accountAddress = address;
+        const chainId = networkId;
+    
+        const nonceStatus = await http.post("/auth/nonce", { accountAddress, chainId })
+    
+        //console.log("nonceStatus===>", nonceStatus)
+    
+        if(nonceStatus.isError()){
+            return Status.error(`Nonce Error: ${nonceStatus.getMessage()}`)
+        }
+    
+        const nonce = nonceStatus.getData() as string;
+    
+        const timestamp = Date.now()
+    
+        // 2. Build the message
+        const message = buildSignMessage(
+            address,
+            nonce,
+            chainId,
+            timestamp
+        );
+    
+        // 3. Sign the message
+        const encodedMessage = new TextEncoder().encode(message);
+        const signatureBytes = await signMessage(encodedMessage);
+        const signature = bs58.encode(signatureBytes);
+    
+        const formData = {
+            accountAddress,
+            signature,
+            message,
+            nonce,
+            chainId
+        }
+    
+        const resultStatus = await http.post("/auth/verify", formData)
+    
+        if(resultStatus.isError()){
+            return Status.error(resultStatus.getMessage())
+        }
+    
+        const sessionAndAcctData = resultStatus.getData() as SessionWithAccountData;
+    
+        if (sessionAndAcctData.isAuthenticated) {
+    
+            const { accountInfo, ...sessData } = sessionAndAcctData;
+    
+            // set account info
+            setUserAccountInfo(accountInfo)
+    
+            // set active session globally
+            setAuthSession(sessData);
+    
+            // update the session pool
+            updateSessions(accountAddress, sessData)
+            
+            return Status.success();
+        }
 
-      const chainId = currentNetwork.chainId;
-      const accountAddress = address;
-
-      const nonceStatus = await http.post("/auth/nonce", { accountAddress, chainId })
-
-      //console.log("nonceStatus===>", nonceStatus)
-
-      if(nonceStatus.isError()){
-        return Status.error(`Nonce Error: ${nonceStatus.getMessage()}`)
-      }
-
-      const nonce = nonceStatus.getData() as string;
-
-      const issuedAt = Date.now()
-      const expiresAt = issuedAt + (60 * 60 * 24 * 30) // 30days +
-
-      // 2. Build the message
-      const message = buildSignMessage(
-        address,
-        nonce,
-        chainId,
-        issuedAt,
-        expiresAt
-      );
-
-      // 3. Sign the message
-      const encodedMessage = new TextEncoder().encode(message);
-      const signatureBytes = await signMessage(encodedMessage);
-      const signature = bs58.encode(signatureBytes);
-
-      const formData = {
-        accountAddress,
-        signature,
-        message,
-        nonce,
-        chainId
-      }
-
-      const resultStatus = await http.post("/auth/verify", formData)
-
-      if(resultStatus.isError()){
-        return Status.error(resultStatus.getMessage())
-      }
-
-      const sessionAndAcctData = resultStatus.getData() as SessionWithAccountData;
-
-      if (sessionAndAcctData.isAuthenticated) {
-
-        const { accountInfo, ...sessData } = sessionAndAcctData;
-
-        // set account info
-        setUserAccountInfo(accountInfo)
-
-        // set active session globally
-        setAuthSession(sessData);
-
-        // update the session pool
-        updateSessions(accountAddress, sessData)
-        return Status.success();
-      }
-
-      return Status.error("Failed to verify signature, please try again");
+        return Status.error("Failed to verify signature, please try again");
 
     } catch (error: any) {
 
-      //console.error('Sign in failed:', error);
-
-      // User rejected the signature
-      if (error?.message?.includes('User rejected') || error?.code === 4001) {
-        return Status.error("User rejected request")
-      }
-
-      return Status.error("Failed to verify signature, please try again");
+        //console.error('Sign in failed:', error);
+    
+        // User rejected the signature
+        if (error?.message?.includes('User rejected') || error?.code === 4001) {
+            return Status.error("User rejected request")
+        }
+    
+        return Status.error("Failed to verify signature, please try again");
 
     } finally {
-      setIsSigningIn(false);
+        setIsSigningIn(false);
     }
   }, [isConnected, address, signMessage]);
 
@@ -206,10 +221,10 @@ export function useAuth(): UseAuthReturn {
       return Status.successData(authSession.accessToken)
     }
 
-    const chainId = currentNetwork.chainId;
+    //const chainId = currentNetwork.chainId;
     const accountAddress = address;
 
-    let refreshStatus = await http.post("/auth/refresh", { accountAddress, chainId })
+    let refreshStatus = await http.post("/auth/refresh", { accountAddress, chainId: networkId })
 
     if(refreshStatus.isError()){
       return refreshStatus

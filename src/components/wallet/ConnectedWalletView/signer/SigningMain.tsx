@@ -81,7 +81,7 @@ export default function SigningMain({
           </div>
           <div className="flex-1">
             <p className="text-xs text-gray-500 font-medium">Network</p>
-            <p className="text-white font-bold">{currentNetwork.displayName}</p>
+            <p className="text-white font-bold">{currentNetwork.name}</p>
           </div>
           {currentNetwork.isTestnet && (
             <span className="px-2 py-1 bg-yellow-500/20 text-yellow-500 text-xs font-bold rounded-full">

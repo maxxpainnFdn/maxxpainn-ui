@@ -38,7 +38,7 @@ export default function NetworkSelectContent({
     // Small delay for UX feedback
     await utils.sleep(500)
 
-    toast.success(`Switched to ${network.displayName}`);
+    toast.success(`Switched to ${network.name}`);
 
     onNetworkChange?.();
     setSwitching(null);
@@ -71,7 +71,7 @@ export default function NetworkSelectContent({
             }
           `} />
           <span className="text-white font-bold">
-            {currentNetwork.displayName}
+            {currentNetwork.name}
           </span>
           {currentNetwork.isTestnet  && (
             <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-500 text-xs font-bold rounded-full">
@@ -123,7 +123,7 @@ export default function NetworkSelectContent({
 
               {/* Network Info */}
               <div className="flex-1 text-left">
-                <p className="text-white font-bold">{network.displayName}</p>
+                <p className="text-white font-bold">{network.name}</p>
                 <p className="text-xs text-gray-500 mt-0.5">
                   {network.isTestnet ? 'Test Network' : 'Production Network'}
                 </p>

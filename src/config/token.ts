@@ -1,11 +1,5 @@
-export interface TokenInfo {
-  decimals: number;
-  symbol: string;
-}
+import { programConfig, TokenConfig } from "./program_config";
 
-export const maxxpainnToken: TokenInfo = {
-  decimals: 1,
-  symbol: "MAXX"
-};
+export const maxxpainnToken: TokenConfig = programConfig.token;
 
 export const tokenConfig = maxxpainnToken;

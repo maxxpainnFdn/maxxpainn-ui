@@ -1,15 +1,3 @@
-export interface StakingConfig {
-  minYield: number;
-  maxYield: number;
-  minTermDays: number;
-  maxTermDays: number;
-  penaltyPercent: number;
-}
+import { programConfig, StakingConfig } from "./program_config";
 
-export const stakingConfig: StakingConfig = {
-  minYield: 5,
-  maxYield: 100,
-  minTermDays: 1,
-  maxTermDays: 1095,
-  penaltyPercent: 10
-};
+export const stakingConfig: StakingConfig = programConfig.staking

@@ -29,16 +29,16 @@ const PRECISION = 1_000_000n;
 // ----------------------------------------------------------------------------
 // Formula: BaseReward = BASE_REWARD × K / (√rank + K)
 // This creates a dampened decay curve
-const BASE_REWARD = 1_000_000n;
+const BASE_REWARD = 5_005_000n;
 const BASE_REWARD_NUMERATOR = BASE_REWARD * PRECISION;
-const DAMPENER_K = 10_000n;
+const DAMPENER_K = 5_000n;
 
 // ----------------------------------------------------------------------------
 // Early Adopter Configuration (Unchanged)
 // ----------------------------------------------------------------------------
 // Linear decay from 3.0x (Rank 1) to 1.0x (Rank 1M)
 const EA_MAX_RANK = 1_000_000n;
-const EAM_MAX_SCALED = 3n * PRECISION; // 3.0x
+const EAM_MAX_SCALED = 2n * PRECISION; // 3.0x
 const EAM_MIN_SCALED = 1n * PRECISION; // 1.0x
 
 // ----------------------------------------------------------------------------
@@ -46,16 +46,16 @@ const EAM_MIN_SCALED = 1n * PRECISION; // 1.0x
 // ----------------------------------------------------------------------------
 // Formula: NEM = min(1 + 0.002 × √delta, 2.0)
 // Reaches 2.0x cap when 250,000 users join after you
-const NEM_CURVE_SCALED = 2_000n; // 0.002 (was 0.1)
-const NEM_MAX_SCALED = 2n * PRECISION; // 2.0x cap (was 3.0x)
+const NEM_CURVE_SCALED = 4_000n; // 0.002 (was 0.1)
+const NEM_MAX_SCALED = 3n * PRECISION; // 2.0x cap (was 3.0x)
 
 // ----------------------------------------------------------------------------
 // Lock Period Configuration (UPDATED)
 // ----------------------------------------------------------------------------
 // Formula: LPM = min(1 + 0.06 × √days, 3.0)
 // Reaches 3.0x cap at ~1,095 days (3 years)
-const LPM_SCALE_SCALED = 60_000n; // 0.06 (was 0.5)
-const LPM_MAX_SCALED = 3n * PRECISION; // 3.0x cap (NEW)
+const LPM_SCALE_SCALED = 80_000n; // 0.08 
+const LPM_MAX_SCALED = 5n * PRECISION; // 5.0x cap (NEW)
 
 // ----------------------------------------------------------------------------
 // Penalty Array (Unchanged)

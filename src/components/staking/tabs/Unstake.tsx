@@ -35,7 +35,7 @@ export default function Unstake({
     if (isEmergency) {
       const confirm = await alertDialog.confirm(
         "Force Unstake? ",
-        ` Forcing an unstake will deduct and burn ${stakingConfig.penaltyPercent}% of your principal. 
+        ` Forcing an unstake will deduct and burn ${stakingConfig.earlyUnstakePenalty}% of your principal. 
         All accrued rewards will be permanently forfeited.
         `
       )
@@ -72,7 +72,7 @@ export default function Unstake({
             <h3 className="text-xl font-bold text-white">No Active Stakes</h3>
          </div>
       ) : (
-         <div className=" p-4 pb-0 relative overflow-hidden">
+         <div className=" p-2 md:p-4 pb-0 relative overflow-hidden">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                <div className="flex items-center gap-4">
                   <div className="p-3 bg-green-500/10 rounded-2xl border border-green-500/20">

@@ -29,12 +29,12 @@ export default function ClanStats ({ data }: { data: IClanStats }) {
             title: "Earned",
             suffix: "USDC"
         },
-        "totalTokensMinted": {
+        "rewardPerMint": {
           mainBg: "from-yellow-500/5",
           iconBg: "bg-yellow-500/10",
           icon:  <Flame className="h-6 w-6 text-yellow-400" />,
-          title: "Minted",
-          suffix: <span className='yellow-500'>{ tokenConfig.symbol }</span>
+          title: "Reward Per Mint",
+          suffix: "USDC"
         }
     }
 

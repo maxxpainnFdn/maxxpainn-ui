@@ -5,6 +5,7 @@ import Color from "color";
 import api from "@/config/api";
 import { BN } from "@coral-xyz/anchor";
 import { format, formatDistanceToNow, differenceInDays } from "date-fns";
+import { v5 as uuidv5, v4 as uuidv4 } from 'uuid';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -222,4 +223,9 @@ export default class utils {
     const SECONDS_PER_DAY = 60 * 60 * 24;
     return SECONDS_PER_DAY * days;
   }
+    
+  static uuidFromSeed(seed: string): string {
+    return uuidv5(seed, "a13a7628-1154-43cc-9e2a-93c0a6ddedcc");
+  }
+
 }

@@ -28,8 +28,8 @@ const Footer: React.FC = () => {
                 <div className="absolute inset-0 bg-purple-500 blur-xl opacity-50"></div>
               </div>
               <h3 className="text-xl sm:text-2xl md:text-3xl font-black">
-                <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">MAXX</span>
-                <span className="text-pink-600">PAINN</span>
+                  <span className="white-text">MAXX</span>
+                  <span className="bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">PAINN</span>
               </h3>
             </div>
 

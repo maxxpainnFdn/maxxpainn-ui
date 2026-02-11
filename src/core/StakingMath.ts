@@ -1,7 +1,7 @@
 import { UserStakeInfo } from "@/types/UserStakeInfo";
 import { stakingConfig } from "@/config/staking";
 
-const { minYield, maxYield, minTermDays, maxTermDays } = stakingConfig;
+const { maxYield, minTermDays, maxTermDays } = stakingConfig;
 
 // Constants
 const SECONDS_PER_DAY = 86400;
@@ -56,7 +56,6 @@ export class StakingMath {
     termDays: number,
     termElapsedSecs: number,
   ): number {
-    
     if (principal === 0 || termDays === 0 || termElapsedSecs <= 0) {
       return 0;
     }
@@ -68,7 +67,7 @@ export class StakingMath {
     const cappedElapsedSecs = Math.min(termElapsedSecs, termSecs);
 
     // 2. Calculation
-    // Rate = APY / 100
+    // Rate = yield% / 100
     // Fraction = Elapsed / Total Term
     // Reward = Principal * Rate * Fraction
     const rate = yieldPercent / 100;
@@ -79,32 +78,28 @@ export class StakingMath {
   }
 
   /**
-   * Calculates the APY based on the term length using linear interpolation.
+   * Calculates the yield percentage based on the term length.
    * Mirrors: get_fixed_yield_bps (but returns %)
+   *
+   * yield = maxYield * term / maxTermDays
+   *
+   * This proportional formula ensures that splitting a long stake
+   * into repeated shorter stakes cannot earn more than the max yield.
    */
   static getFixedYieldPercent(termDays: number): number {
+    if (maxTermDays === 0) {
+      return 0;
+    }
+
     // 1. Clamp term_days
     let term = Math.max(termDays, minTermDays);
     term = Math.min(term, maxTermDays);
 
-    // 2. Calculate Ranges
-    const yieldRange = maxYield - minYield;
-    const termRange = maxTermDays - minTermDays;
-    const elapsed = term - minTermDays;
-
-    // 3. Interpolate
-    if (termRange === 0) {
-      return minYield;
-    }
-
-    const interpolated = (yieldRange * elapsed) / termRange;
-
-    // 4. Final APY
-    return minYield + interpolated;
+    // 2. Proportional yield: maxYield * term / maxTermDays
+    return (maxYield * term) / maxTermDays;
   }
 
-  static getMultiplier(termDays) {
-    // Mock Logic: 1x base + 0.5x per 90 days
+  static getMultiplier(termDays: number) {
     const yieldPercent = this.getFixedYieldPercent(termDays);
     return (1 + yieldPercent / 100).toFixed(2);
   }

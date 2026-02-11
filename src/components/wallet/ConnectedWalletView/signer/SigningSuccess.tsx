@@ -2,7 +2,7 @@ import { Check } from "lucide-react";
 
 export default function SigningSuccess(){
   return  (
-    <div className="space-y-6 py-8">
+    <div className="space-y-6 py-8 w-full">
       <div className="flex justify-center">
         <div className="relative">
           <div className="absolute inset-0 bg-green-500/20 blur-2xl rounded-full animate-pulse" />

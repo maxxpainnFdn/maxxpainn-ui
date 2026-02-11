@@ -14,7 +14,7 @@ export default function SigningError({
   inputBgClass
 }: SigningErrorProps) {
   return (
-    <div className="space-y-6 py-4">
+    <div className="space-y-6 py-4 w-full">
       <div className="flex justify-center">
         <div className="relative">
           <div className="absolute inset-0 bg-red-500/20 blur-2xl rounded-full" />

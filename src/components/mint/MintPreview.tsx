@@ -6,7 +6,7 @@ export interface MintPreviewData {
     earlyAdopterMultiplier: number;
     lockPeriodMultiplier: number;
     networkMultiplier: number;
-    minRewardAmount: number;
+    minRewardAmount: number | string;
 }
 
 export default function MintPreview({ 

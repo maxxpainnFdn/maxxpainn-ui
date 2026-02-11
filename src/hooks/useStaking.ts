@@ -8,7 +8,7 @@ import { PublicKey, SystemProgram } from "@solana/web3.js";
 import { UserStakeInfo } from "@/types/UserStakeInfo";
 import { BN } from "@coral-xyz/anchor";
 import { stakingConfig } from "@/config/staking";
-import programConfig from "@/config/program_config";
+import { programConfig } from "@/config/program_config";
 
 export interface FetchOnchainDataProps {
   networkId: string;
