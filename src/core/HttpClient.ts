@@ -51,7 +51,7 @@ export default class HttpClient {
 
       // If the server just returns data or an unexpected format
       if (response.ok) {
-        return Status.success<T>(json as T, "Success");
+        return Status.successData<T>(json)
       }
 
       return Status.error<T>(
