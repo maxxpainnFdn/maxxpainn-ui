@@ -9,7 +9,7 @@ import { SolanaLocalnet } from './soalana:localnet';
 
 export const networks: Record<string, NetworkConfig> = {
   //"solana:mainnet":  SolanaMainnet,
-  "solana:devnet":   SolanaDevnet,
+  "solana:devnet":      SolanaDevnet,
   //"solana:testnet":  SolanaTestnet,
   //"solana:localnet": SolanaLocalnet
 };
