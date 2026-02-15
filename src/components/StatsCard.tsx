@@ -22,9 +22,8 @@ export const StatsCard = ({
     <div
       className={`
         group relative bg-gray-900/40 backdrop-blur-md rounded-xl
-        p-4 md:p-6 hover:bg-purple/[0.06] hover:border-purple/[0.1] 
-        transition-all duration-500 ease-out cursor-default overflow-hidden
-        shadow-lg
+        p-4 md:p-6 hover:border-white/10 border-purple-500/10 
+        transition-all duration-300 ease-out cursor-default overflow-hidden
       `}
     >
       {/* Subtle gradient glow on hover */}
