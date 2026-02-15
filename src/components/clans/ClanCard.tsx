@@ -58,8 +58,8 @@ const ClanCard = memo(({
 
     return (
         <a  href={clanUrl}  
-            className="block group w-[245px] relative"
-            onClick={handleOnclick}
+          className="block group w-[245px] relative m-2"
+          onClick={handleOnclick}
         >
             <div 
                 className="absolute left-1/2 -translate-x-1/2 top-[120px] w-[240px] h-[240px] blur-3xl opacity-40 pointer-events-none group-hover:opacity-70 transition-opacity duration-500"
