@@ -6,30 +6,22 @@ export default function ClaimRankStats({ stats }) {
 
     const statsMeta = {
         globalRank:     { 
-            textClass: "text-purple-400",  
             label:      "Global Rank",
-            description: "A global counter that increments by 1 for each new mint event.",
             color: 'purple',
             icon: Target
         },
         eam:   { 
-            textClass: "text-yellow-400",
             label: "EAM",
-            description: "The Early Adopter’s Multiplier (EAM) gives early users an extra boost on top of the base reward",
             color: 'yellow',
             icon: Zap
         },
         mintDifficulty: { 
-            textClass:  "text-red-400", 
-            label:      "Mint Difficulty",
-            description: "A dynamic value that increases with total mints, making future mints more expensive by utilizing Solana’s storage rent fees.",
+            label:   "Mint Difficulty",
             color: 'red',
             icon: Shield
         },
         tokenSupply:    { 
-            textClass: "text-green-400",
-            label: "Token Supply",
-            description: "The total number of tokens currently in circulation",
+            label: "Current Supply",
             color: 'green',
             icon: TrendingUp
         }
@@ -41,18 +33,14 @@ export default function ClaimRankStats({ stats }) {
 
                 let meta = statsMeta[key]
                 let value = stats[key]
-                let Icon = meta.icon;
 
                 return (
-                    <div key={key} className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 hover:border-purple-500/50 transition-all duration-300 hover:transform hover:scale-105">
-                        <div className="flex items-center justify-center mb-3">
-                            <Icon className={`w-6 h-6 text-${meta.color}-400`} />
-                        </div>
-                        <div className={`text-3xl font-bold mb-2 text-${meta.color}-400`}>
-                            {value}
-                        </div>
-                        <div className="text-sm text-gray-400">{meta.label}</div>
-                    </div>
+                  <StatsCard
+                    value={value}
+                    icon={meta.icon}
+                    color={meta.color}
+                    title={meta.title}
+                  />
                 );
             })}
         </div>

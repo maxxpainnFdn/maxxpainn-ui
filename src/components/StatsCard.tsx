@@ -28,7 +28,7 @@ export const StatsCard = ({
     >
       {/* Subtle gradient glow on hover */}
       <div
-        className={`absolute inset-0 ${glow} opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl`}
+        className={`absolute inset-0 ${glow} hidden group-hover:inline-block transition-all duration-300 blur-2xl`}
       />
 
       <div className="relative z-10">

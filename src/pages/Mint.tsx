@@ -26,6 +26,7 @@ import { BN } from "@coral-xyz/anchor";
 import ClansModal from "@/components/clansModal/ClansModal";
 import MintPreview from "@/components/mint/MintPreview";
 import { ClanData } from "@/types/ClanData";
+import { tokenConfig } from "@/config/token";
 
 interface ClaimRankForm {
   term:  number;
@@ -252,7 +253,7 @@ export default function Mint(){
           }
         });
 
-        console.log("txStatus===>", txStatus)
+        //console.log("txStatus===>", txStatus)
 
         if(txStatus.isError()){
           toast.error(txStatus.getMessage())
@@ -309,7 +310,7 @@ export default function Mint(){
                                       <>
                                         <div className="text-center mb-12">
                                           <h1 className="text-2xl sm:text-4xl  md:text-6xl font-black bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 bg-clip-text text-transparent">
-                                              Mint
+                                            Mint 
                                           </h1>
                                         </div>
                                           <div className="mb-12 text-center">
@@ -331,7 +332,9 @@ export default function Mint(){
                                                   <div className="bg-gray-900/80 backdrop-blur-sm border border-purple-500/20 rounded-3xl p-8 shadow-2xl">
                                                       <div className="mb-8">
                                                           <h2 className="text-3xl font-bold text-white mb-2">Mint Your
-                                                                <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent ms-1">$PAINN</span>
+                                                                <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent ms-1">
+                                                                  ${ tokenConfig.symbol }
+                                                                </span>
                                                           </h2>
                                                           <p className="text-gray-400">
                                                               Initiate the mint, wait your selected term, then claim — longer waits earn more.
