@@ -12,5 +12,5 @@ export const SolanaDevnet: NetworkConfig = {
   caipNetworkId:   networkId,
   genesisHash:     "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
   explorer:        'https://solscan.io/?cluster=devnet',
-  isTestnet:        true,
+  isTestnet:        true, 
 }
