@@ -54,7 +54,7 @@ const Tokenomics = () => {
   ];
 
   return (
-    <section className="relative pb-32 bg-gradient-to-b from-black via-gray-900 to-black overflow-hidden">
+    <section className="relative py-32 bg-gradient-to-b from-black via-gray-900 to-black overflow-hidden">
       {/* ===== BACKGROUND ===== */}
       <div className="absolute inset-0 pointer-events-none">
         {!isMobile ? (

@@ -20,7 +20,10 @@ export const StatsCard = ({
   
   return (
     <div
-      className="group relative bg-gray-900/40  border border-white/[0.06] rounded-2xl p-3.5 md:p-5 hover:bg-white/[0.06] hover:border-white/[0.1] transition-all duration-500 ease-out cursor-default overflow-hidden"
+      className={`
+        group relative bg-gray-900/40 backdrop-blur-md 
+         p-6 rounded-[2rem] border 
+      `}
     >
       {/* Subtle gradient glow on hover */}
       <div

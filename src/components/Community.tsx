@@ -66,7 +66,7 @@ const Community = () => {
   };
 
   return (
-    <section className="relative pb-32 bg-black overflow-hidden">
+    <section className="relative py-32 bg-black overflow-hidden">
       {/* ===== BACKGROUND ===== */}
       <div className="absolute inset-0 pointer-events-none">
         {!isMobile ? (
