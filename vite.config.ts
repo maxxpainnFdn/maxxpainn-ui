@@ -32,7 +32,11 @@ export default defineConfig(({ mode }) => {
        //mode === 'development' && componentTagger(),
         nodePolyfills()
       ].filter(Boolean),
-
+      
+      build: {
+         sourcemap: true,
+      },
+      
       define: {
         'global': 'globalThis',
         'process.env': {},
