@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import { useAtomValue } from "jotai";
 import { isAuthenticatedAtom } from "./store";
 import { AlertDialogProvider } from "./services/AlertDialogProvider";
-import { GlobalErrorView } from "./GlobalErrorView";
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -21,25 +20,23 @@ const App = () => {
   }, [isAuthenticated])
 
   return (
-    <GlobalErrorView>
-      <WalletProvider key={pageKey}>
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <AlertDialogProvider>
-              <Toaster
-                position="top-center"
-                richColors={true}
-                closeButton={false}
-                expand={true}
-                visibleToasts={1}
-              />
-    
-              <Routes />
-            </AlertDialogProvider>
-          </TooltipProvider>
-        </QueryClientProvider>
-      </WalletProvider>
-    </GlobalErrorView>
+    <WalletProvider key={pageKey}>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <AlertDialogProvider>
+            <Toaster
+              position="top-center"
+              richColors={true}
+              closeButton={false}
+              expand={true}
+              visibleToasts={1}
+            />
+  
+            <Routes />
+          </AlertDialogProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </WalletProvider>
   );
 }
 

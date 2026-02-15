@@ -12,6 +12,9 @@
     "deploy": "npm run build && wrangler pages deploy"
   },
   "dependencies": {
+    "@bugsnag/browser-performance": "^3.2.0",
+    "@bugsnag/js": "^8.8.1",
+    "@bugsnag/plugin-react": "^8.8.0",
     "@coral-xyz/anchor": "^0.32.1",
     "@dicebear/collection": "^9.2.4",
     "@dicebear/core": "^9.2.4",
