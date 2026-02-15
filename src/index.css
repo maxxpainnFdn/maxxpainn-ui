@@ -1,11 +1,9 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -75,6 +73,9 @@
 
   body {
     @apply bg-background text-foreground dark;
+    /* Optional: Improves font rendering on some devices */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
@@ -88,13 +89,18 @@
     -webkit-text-size-adjust: 100% !important;
     text-size-adjust: 100% !important;
 
-    /* 2. OPTIONAL: Force root size to 16px so 'rem' doesn't scale with Android Settings */
-    /* Only add this line if the text is STILL too big */
+    /* 2. Smooth scrolling for anchor links */
+    scroll-behavior: smooth;
+
+    /* 3. OPTIONAL: Force root size */
     font-size: 16px;
   }
 }
 
-/* Enhanced animations and effects */
+/* =========================================
+   ANIMATIONS & EFFECTS
+   ========================================= */
+
 @keyframes neon-pulse {
   0%, 100% {
     box-shadow:
@@ -144,26 +150,39 @@
   75% { transform: translateX(1px) rotate(0.5deg); }
 }
 
-  @page {
-    size: A4;
-    margin: 0;
-  }
-
-  @media print {
-    body {
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-      margin: 0;
-      padding: 0;
-    }
-
-    .top-nav, .footer, .wp-table-of-contents, .bottom-nav, .scroll-progress  {
-      display: none !important;
-    }
+@keyframes shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
-body, #app {overflow-x: hidden;}
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  25% { background-position: 100% 50%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
+}
 
+/* Page Setup */
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    margin: 0;
+    padding: 0;
+  }
+  .top-nav, .footer, .wp-table-of-contents, .bottom-nav, .scroll-progress  {
+    display: none !important;
+  }
+}
+
+body, #app { overflow-x: hidden; }
+
+/* Utility Classes for Effects */
 .neon-glow2 {
   animation: neon-pulse 2s ease-in-out infinite alternate;
 }
@@ -189,13 +208,6 @@ body, #app {overflow-x: hidden;}
   animation: gradient-shift 4s ease infinite;
 }
 
-@keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  25% { background-position: 100% 50%; }
-  50% { background-position: 100% 100%; }
-  75% { background-position: 0% 100%; }
-}
-
 .pain-meter {
   position: relative;
   overflow: hidden;
@@ -214,12 +226,7 @@ body, #app {overflow-x: hidden;}
   animation: shine 3s ease-in-out infinite;
 }
 
-@keyframes shine {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-/* Enhanced slider styling */
+/* Slider Styling */
 .slider-thumb::-webkit-slider-thumb {
   appearance: none;
   height: 20px;
@@ -246,7 +253,7 @@ body, #app {overflow-x: hidden;}
   box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
 }
 
-/* Blood effect */
+/* Blood Effect */
 .blood-effect {
   position: relative;
 }
@@ -261,7 +268,7 @@ body, #app {overflow-x: hidden;}
   pointer-events: none;
 }
 
-/* Scrollbar styling */
+/* Scrollbar Styling */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -290,14 +297,118 @@ body, #app {overflow-x: hidden;}
   }
 }
 
-/* Chrome, Safari, Edge, Opera */
+/* Input Resets */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none !important;
   margin: 0 !important;
 }
 
-/* Firefox */
 input[type="number"] {
   -moz-appearance: textfield !important;
+}
+
+/* =========================================
+   PERFORMANCE & OPTIMIZATION (performance.css)
+   ========================================= */
+
+@layer utilities {
+  /* 1. GPU Acceleration (Force hardware acceleration)
+     Use this on elements with heavy animations to promote them to their own layer */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    will-change: transform, opacity;
+  }
+
+  /* 2. Content Visibility (Lazy Rendering)
+     Use on long pages for off-screen sections.
+     Note: Use contain-intrinsic-size to prevent scrollbar jumping */
+  .content-visibility-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 1000px; /* Approximate height of section */
+  }
+
+  /* 3. Paint Containment
+     Tells browser the element's children won't paint outside its bounds */
+  .contain-paint {
+    contain: paint;
+  }
+
+  /* 4. Layout Containment
+     Tells browser changes inside this element won't affect outside layout */
+  .contain-layout {
+    contain: layout;
+  }
+
+  /* 5. Strict Containment (Maximum Performance)
+     Combines layout, paint, and size containment.
+     Only use if dimensions are fixed and known. */
+  .contain-strict {
+    contain: strict;
+  }
+
+  /* 6. Text Rendering Speed */
+  .text-optimize-speed {
+    text-rendering: optimizeSpeed;
+  }
+
+  /* 7. Image Decoding
+     Ensures images decode async to prevent main thread blocking */
+  img {
+    content-visibility: auto;
+  }
+}
+
+/* Reduced Motion Preference
+   Respects user system settings to disable animations */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Smooth scroll for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Ticker / marquee animation for social proof */
+@keyframes scroll-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-scroll-left {
+  animation: scroll-left 30s linear infinite;
+}
+
+/* Subtle entrance fade for scroll-triggered sections */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+/* Pulsing ring effect for CTA buttons */
+@keyframes ping-slow {
+  0% { transform: scale(1); opacity: 0.75; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+.animate-ping-slow {
+  animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }

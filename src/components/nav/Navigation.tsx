@@ -3,15 +3,13 @@ import { Menu, X, Zap, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import HowItWorksModal from '../HowItWorksModal';
 import Account from './Account';
-//import { useMediaQuery } from 'react-responsive';
 import BottomNav from './BottomNav';
 import app from '@/config/app';
 import EventBus from '@/core/EventBus';
 import Button from '../button/Button';
 import { tokenConfig } from '@/config/token';
 
-export default function Navigation (){
-
+export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showBottomNav, setShowBottomNav] = useState(false);
@@ -25,8 +23,8 @@ export default function Navigation (){
       setShowBottomNav(window.innerWidth <= 1200);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
     handleResize();
 
     return () => {
@@ -62,12 +60,17 @@ export default function Navigation (){
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
               <div className="relative">
-                <Zap className="text-purple-500 w-6 h-6 sm:w-8 sm:h-8 group-hover:scale-110 transition-transform duration-300" fill="currentColor" />
+                <Zap
+                  className="text-purple-500 w-6 h-6 sm:w-8 sm:h-8 group-hover:scale-110 transition-transform duration-300"
+                  fill="currentColor"
+                />
                 <div className="absolute inset-0 bg-purple-500 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
               </div>
               <span className="text-xl sm:text-2xl md:text-3xl font-black">
                 <span className="white-text">MAXX</span>
-                <span className="bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">PAINN</span>
+                <span className="bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
+                  PAINN
+                </span>
               </span>
             </Link>
 
@@ -77,7 +80,7 @@ export default function Navigation (){
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  EventBus.emit("open_hiw")
+                  EventBus.emit('open_hiw');
                 }}
                 className="text-gray-300 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-purple-400 hover:to-pink-400 transition-all duration-200 font-semibold text-sm uppercase tracking-wide"
               >
@@ -123,9 +126,9 @@ export default function Navigation (){
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Button variant="secondary" size="md" className='gap-x-1'>
+                <Button variant="secondary" size="md" className="gap-x-1">
                   <span>BUY</span>
-                  <span className='hidden lg:inline-block'>
+                  <span className="hidden lg:inline-block">
                     ${tokenConfig.symbol}
                   </span>
                 </Button>
@@ -143,13 +146,13 @@ export default function Navigation (){
               )}
             </div>
 
-            {/* Mobile Menu */}
+            {/* Mobile Menu Toggle */}
             <div className="flex md:hidden items-center gap-3">
               <a
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  EventBus.emit("open_hiw")
+                  EventBus.emit('open_hiw');
                 }}
                 className="text-gray-300 hover:text-purple-400 transition-colors text-sm font-semibold"
               >
@@ -204,8 +207,7 @@ export default function Navigation (){
       </nav>
 
       {showBottomNav && <BottomNav />}
-
       <HowItWorksModal />
     </>
   );
-};
+}
