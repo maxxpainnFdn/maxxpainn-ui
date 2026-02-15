@@ -33,10 +33,10 @@ export const StatsCard = ({
 
       <div className="relative z-10">
         <div
-          className={`inline-flex p-1.5 md:p-2 rounded-lg ${glow} mb-2.5 md:mb-3`}
+          className={`inline-flex p-2 md:p-3 rounded-lg ${glow} mb-2.5 md:mb-3`}
         >
           <Icon
-            className={`w-3.5 h-3.5 md:w-4 md:h-4 ${iconColor}`}
+            className={`w-4 h-4 md:w-5 md:h-5 ${iconColor}`}
             strokeWidth={2}
           />
         </div>
