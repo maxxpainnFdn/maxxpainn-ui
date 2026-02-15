@@ -10,7 +10,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 
 const SocialProof = () => {
   const isMobile = useIsMobile();
-
+  
   const testimonials = [
     {
       text: "I lost 80% in the Luna crash. I was ready to quit crypto forever. MAXXPAINN is the first project that actually understands the anger.",
