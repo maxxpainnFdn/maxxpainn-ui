@@ -78,7 +78,7 @@ const Clans = () => {
                   <p className="text-gray-400 text-lg">Try adjusting your search or create a new clan</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 place-items-center gap-2">
+                <div className="grid auto-rows-auto grid-flow-row-dense justify-center gap-2">
                   {clans.map((clan) => (
                     <ClanCard key={clan.id} clan={clan} />
                   ))}
