@@ -1,27 +1,28 @@
 import { Info, Shield, Target, TrendingUp, Zap } from "lucide-react"
 import Popover from "../popover/Popover"
 import utils from "@/lib/utils"
+import { StatsCard } from "../StatsCard"
 
 export default function ClaimRankStats({ stats }) {
 
     const statsMeta = {
         globalRank:     { 
-            label:      "Global Rank",
+            title:      "Global Rank",
             color: 'purple',
             icon: Target
         },
         eam:   { 
-            label: "EAM",
+            title: "EAM",
             color: 'yellow',
             icon: Zap
         },
         mintDifficulty: { 
-            label:   "Mint Difficulty",
+            title:   "Mint Difficulty",
             color: 'red',
             icon: Shield
         },
         tokenSupply:    { 
-            label: "Current Supply",
+            title: "Current Supply",
             color: 'green',
             icon: TrendingUp
         }
@@ -36,10 +37,9 @@ export default function ClaimRankStats({ stats }) {
 
                 return (
                   <StatsCard
+                    key={key}
                     value={value}
-                    icon={meta.icon}
-                    color={meta.color}
-                    title={meta.title}
+                    { ...meta }
                   />
                 );
             })}

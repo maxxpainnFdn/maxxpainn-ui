@@ -22,13 +22,13 @@ export const StatsCard = ({
     <div
       className={`
         group relative bg-gray-900/40 backdrop-blur-md rounded-xl
-        p-4 md:p-6 hover:border-white/10 border-purple-500/10 
+        p-4 md:p-6 hover:border-purple/10 border border-purple-500/10
         transition-all duration-300 ease-out cursor-default overflow-hidden
       `}
     >
       {/* Subtle gradient glow on hover */}
       <div
-        className={`absolute inset-0 ${glow} hidden group-hover:inline-block transition-all duration-300 blur-2xl`}
+        className={`absolute inset-0 ${glow} opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-2xl`}
       />
 
       <div className="relative z-10">
@@ -45,7 +45,7 @@ export const StatsCard = ({
           { value }
         </p>
 
-        <p className="text-[11px] md:text-xs font-medium text-white/40 uppercase tracking-widest mt-0.5">
+        <p className="text-[11px] md:text-xs font-semibold text-white/60 uppercase tracking-widest mt-0.5">
           { title }
         </p>
       </div>

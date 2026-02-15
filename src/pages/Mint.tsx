@@ -313,15 +313,15 @@ export default function Mint(){
                                             Mint 
                                           </h1>
                                         </div>
-                                          <div className="mb-12 text-center">
-                                              <MintStats
-                                                  stats={{
-                                                      globalRank:     utils.toShortNumber(globalRank),
-                                                      eam:            getEarlyAdopterMultiplier(),
-                                                      mintDifficulty: mainConfig.rankDifficultyScaleFactorNo,
-                                                      tokenSupply:    utils.toShortNumber(tokenInfo.supplyFormatted)
-                                                  }}
-                                              />
+                                          <div className="mb-12">
+                                            <MintStats
+                                              stats={{
+                                                globalRank:     utils.toShortNumber(globalRank),
+                                                eam:            getEarlyAdopterMultiplier(),
+                                                mintDifficulty: mainConfig.rankDifficultyScaleFactorNo,
+                                                tokenSupply:    utils.toShortNumber(tokenInfo.supplyFormatted)
+                                              }}
+                                            />
                                           </div>
 
                                           {/** Main Grid */}
@@ -331,7 +331,7 @@ export default function Mint(){
                                               <div className="lg:col-span-2 space-y-6">
                                                   <div className="bg-gray-900/80 backdrop-blur-sm border border-purple-500/20 rounded-3xl p-8 shadow-2xl">
                                                       <div className="mb-8">
-                                                          <h2 className="text-3xl font-bold text-white mb-2">Mint Your
+                                                          <h2 className="text-3xl font-bold text-white mb-2">Mint
                                                                 <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent ms-1">
                                                                   ${ tokenConfig.symbol }
                                                                 </span>
