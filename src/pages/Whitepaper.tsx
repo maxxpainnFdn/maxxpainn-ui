@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Navigation from '@/components/nav/Navigation';
 import Footer from '@/components/Footer';
-import MintAlgo from '@/core/MintAlgo'; // Import the simulation class
 import {
   BookOpen, Shield, Zap, Users, Lock,
   Sparkles, ChevronRight, ArrowRight, Flame, Target,
@@ -11,10 +10,25 @@ import {
   Workflow, BarChart3,
   Milestone, Siren, BadgeCheck, Rocket, Globe, Terminal,
   Crown, Gift, MessageSquare, Vote, Wallet,
-  Percent
+  Percent, Gem
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import mintConfig from "@/config/mint"
+
+// Constants based on provided Code
+const CONSTANTS = {
+  BASE_REWARD: 5005000,
+  DAMPENER_K: 5000,
+  EAM_MAX: 3.0,
+  EAM_MIN: 1.0,
+  EA_MAX_RANK: 1000000,
+  NEM_COEFF: 0.004, // 4_000n / 1_000_000
+  NEM_MAX: 3.0,     // 3n
+  LPM_COEFF: 0.08,  // 80_000n / 1_000_000
+  LPM_MAX: 5.0,     // 5n
+  DIFF_BASE_FEE: 0.003, // 0.003 SOL
+  DIFF_SCALE: 3,        // 3/1 scale factor
+};
 
 const Whitepaper = () => {
 
@@ -23,67 +37,97 @@ const Whitepaper = () => {
 
   const wpMainContentRef = useRef()
 
-  // Generate chart data using MintAlgo simulation
+  // Generate chart data matching updated MintAlgo simulation
   const chartData = useMemo(() => {
-    // Base Reward Decay Chart Data
-    const baseRewardData = [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000].map(rank => ({
-      rank,
-      reward: MintAlgo.format(MintAlgo.getBaseReward(rank)),
-      label: rank >= 1000000000 ? `${rank/1000000000}B` :
-             rank >= 1000000 ? `${rank/1000000}M` :
-             rank >= 1000 ? `${rank/1000}K` : String(rank)
-    }));
+    // 1. Base Reward Dampened Decay: Base * K / (sqrt(rank) + K)
+    const baseRewardData = [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000].map(rank => {
+        const sqrtRank = Math.sqrt(rank);
+        const reward = (CONSTANTS.BASE_REWARD * CONSTANTS.DAMPENER_K) / (sqrtRank + CONSTANTS.DAMPENER_K);
+        return {
+            rank,
+            reward: reward,
+            label: rank >= 1000000000 ? `${rank/1000000000}B` :
+                   rank >= 1000000 ? `${rank/1000000}M` :
+                   rank >= 1000 ? `${rank/1000}K` : String(rank)
+        };
+    });
 
-    // EAM Chart Data
-    const eamData = [1, 100000, 200000, 300000, 400000, 500000, 600000, 700000, 800000, 900000, 1000000, 2000000].map(rank => ({
-      rank,
-      multiplier:  MintAlgo.format(MintAlgo.getEarlyAdopterMultiplier(rank)),
-      label: rank >= 1000000 ? `${rank/1000000}M` : rank >= 1000 ? `${rank/1000}K` : String(rank)
-    }));
-
-    // LPM Chart Data
-    const lpmData = [1, 7, 14, 30, 60, 90, 180, 365, 540, 720, 1095, 1825].map(days => ({
-      days,
-      multiplier:  MintAlgo.format(MintAlgo.getLockPeriodMultiplier(days)),
-      label: days >= 365 ? `${(days/365).toFixed(1)}y` : `${days}d`
-    }));
-
-    // NEM Chart Data (assuming user rank 1000, varying global rank)
-    const nemData = [1000, 2000, 5000, 10000, 50000, 100000, 500000, 1000000].map(globalRank => ({
-      globalRank,
-      multiplier:  MintAlgo.format(MintAlgo.getNetworkEffectMultiplier(1000, globalRank)),
-      delta: globalRank - 1000,
-      label: globalRank >= 1000000 ? `${globalRank/1000000}M` : `${globalRank/1000}K`
-    }));
-
-    // Full reward simulation at different ranks (30-day lock, 0 days late)
-    const rewardSimulation = [1, 100, 1000, 10000, 100000, 500000, 1000000].map(rank => {
-      const globalRank = Math.max(rank * 2, rank + 10000); // Simulate network growth
-      const result = MintAlgo.calculateFinalReward(rank, globalRank, 30, 0);
+    // 2. EAM Chart Data (Linear Decay)
+    const eamData = [1, 100000, 200000, 300000, 400000, 500000, 600000, 700000, 800000, 900000, 1000000, 2000000].map(rank => {
+      let multiplier;
+      if (rank > CONSTANTS.EA_MAX_RANK) {
+          multiplier = CONSTANTS.EAM_MIN;
+      } else {
+          const range = CONSTANTS.EAM_MAX - CONSTANTS.EAM_MIN;
+          const remaining = CONSTANTS.EA_MAX_RANK - rank;
+          multiplier = CONSTANTS.EAM_MIN + (range * remaining / (CONSTANTS.EA_MAX_RANK - 1));
+      }
       return {
         rank,
-        ...result,
-        label: rank >= 1000000 ? `${rank/1000000}M` :
-               rank >= 1000 ? `${rank/1000}K` : String(rank)
+        multiplier,
+        label: rank >= 1000000 ? `${rank/1000000}M` : rank >= 1000 ? `${rank/1000}K` : String(rank)
       };
     });
 
-    // Late penalty data
-    const penaltyData = [0, 1, 2, 3, 4, 5, 6, 7].map(days => {
-      const baseReward = 1000000;
-      const result =  MintAlgo.getRewardWithPenalty(baseReward, days);
+    // 3. LPM Chart Data: 1 + 0.08 * sqrt(days), Max 5.0
+    const lpmData = [1, 7, 14, 30, 90, 180, 365, 730, 1095, 1825].map(days => {
+      const raw = 1.0 + (CONSTANTS.LPM_COEFF * Math.sqrt(days));
       return {
-        day: days,
-        penalty: days === 0 ? 0 : (typeof result === 'object' ? MintAlgo.format(result.penaltyPercent) : 0),
-        retained: days === 0 ? baseReward : (typeof result === 'object' ? MintAlgo.format(result.finalReward) : result)
+        days,
+        multiplier: Math.min(raw, CONSTANTS.LPM_MAX),
+        label: days >= 365 ? `${(days/365).toFixed(1)}y` : `${days}d`
       };
     });
 
-    return { baseRewardData, eamData, lpmData, nemData, rewardSimulation, penaltyData };
+    // 4. NEM Chart Data: 1 + 0.004 * sqrt(delta), Max 3.0
+    const nemData = [1000, 5000, 10000, 50000, 100000, 250000, 500000, 1000000].map(globalRank => {
+      const delta = globalRank - 1000;
+      const raw = 1.0 + (CONSTANTS.NEM_COEFF * Math.sqrt(delta));
+      return {
+        globalRank,
+        multiplier: Math.min(raw, CONSTANTS.NEM_MAX),
+        delta,
+        label: globalRank >= 1000000 ? `${globalRank/1000000}M` : `${globalRank/1000}K`
+      };
+    });
+
+    // 5. Full Simulation
+    const rewardSimulation = [1, 100, 1000, 10000, 100000, 1000000, 10000000].map(rank => {
+      // Inputs
+      const globalRank = Math.max(rank * 2, rank + 50000); 
+      const days = 30;
+      
+      // Calcs
+      const sqrtRank = Math.sqrt(rank);
+      const base = (CONSTANTS.BASE_REWARD * CONSTANTS.DAMPENER_K) / (sqrtRank + CONSTANTS.DAMPENER_K);
+      
+      let eam;
+      if (rank > CONSTANTS.EA_MAX_RANK) eam = 1.0;
+      else eam = 1.0 + (2.0 * (CONSTANTS.EA_MAX_RANK - rank) / (CONSTANTS.EA_MAX_RANK - 1));
+      
+      const nemRaw = 1.0 + (CONSTANTS.NEM_COEFF * Math.sqrt(globalRank - rank));
+      const nem = Math.min(nemRaw, CONSTANTS.NEM_MAX);
+      
+      const lpmRaw = 1.0 + (CONSTANTS.LPM_COEFF * Math.sqrt(days));
+      const lpm = Math.min(lpmRaw, CONSTANTS.LPM_MAX);
+      
+      const final = base * eam * nem * lpm;
+      
+      return {
+        rank,
+        baseReward: base,
+        earlyAdopterMultiplier: eam,
+        networkMultiplier: nem,
+        lockPeriodMultiplier: lpm,
+        finalReward: final,
+        label: rank >= 1000000 ? `${rank/1000000}M` : rank >= 1000 ? `${rank/1000}K` : String(rank)
+      };
+    });
+
+    return { baseRewardData, eamData, lpmData, nemData, rewardSimulation };
   }, []);
 
   useEffect(() => {
-
     const handleScroll = () => {
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
       const progress = (window.scrollY / totalHeight) * 100;
@@ -103,10 +147,10 @@ const Whitepaper = () => {
     { id: 'lock-tiers', label: 'Lock Period Tiers', icon: Timer },
     { id: 'late-penalty', label: 'Late Mint Penalty', icon: AlertTriangle },
     { id: 'clan-system', label: 'Clan System', icon: Users },
+    { id: 'staking', label: 'Staking Protocol', icon: Gem }, // Added
     { id: 'on-chain-state', label: 'On-Chain State', icon: Database },
     { id: 'security', label: 'Security Model', icon: Shield },
     { id: 'economics', label: 'Economic Analysis', icon: BarChart3 },
-    { id: 'roadmap', label: 'Roadmap', icon: Milestone },
     { id: 'conclusion', label: 'Conclusion', icon: Rocket },
   ];
 
@@ -114,12 +158,6 @@ const Whitepaper = () => {
     setActiveSection(id);
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
-
-
-  const generatePDF = async (e) => {
-    e.preventDefault()
-    window.print()
-  }
 
   return (
     <div className="overflow-x-hidden min-h-screen bg-black text-white selection:bg-purple-500/30">
@@ -139,8 +177,6 @@ const Whitepaper = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black" />
         <div className="absolute top-[-10%] right-[-5%] w-[700px] h-[700px] bg-purple-600/10 rounded-full blur-[150px] animate-pulse" style={{ animationDuration: '10s' }} />
         <div className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-red-600/10 rounded-full blur-[130px] animate-pulse" style={{ animationDuration: '12s', animationDelay: '2s' }} />
-        <div className="absolute top-[40%] left-[40%] w-[500px] h-[500px] bg-pink-600/10 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '14s', animationDelay: '4s' }} />
-        <div className="absolute top-[60%] right-[20%] w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '16s', animationDelay: '6s' }} />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:60px_60px]" />
       </div>
 
@@ -156,7 +192,7 @@ const Whitepaper = () => {
                 Technical Whitepaper
               </span>
               <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-xs font-mono">
-                v1.0.0
+                v1.1.0
               </span>
             </div>
 
@@ -180,7 +216,7 @@ const Whitepaper = () => {
                 { label: 'Network', value: 'Solana', color: 'purple' },
                 { label: 'Framework', value: 'Anchor', color: 'blue' },
                 { label: 'Token', value: 'SPL', color: 'green' },
-                { label: 'Decimals', value: '4', color: 'pink' },
+                { label: 'Decimals', value: '1', color: 'pink' },
                 { label: 'Launch', value: 'Fair', color: 'yellow' },
               ].map((item, i) => (
                 <div key={i} className="px-4 py-2 rounded-xl bg-gray-900/60 border border-white/10 backdrop-blur-sm">
@@ -192,8 +228,8 @@ const Whitepaper = () => {
 
             {/* Quick Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-              <QuickStat icon={Coins} label="Mint Cost" value="FREE*" />
-              <QuickStat icon={Percent} label="Buy/Sell Tax" value="0%" />
+              <QuickStat icon={Coins} label="Mint Cost" value="Free + Storage" />
+              <QuickStat icon={Percent} label="Staking Yield" value="Up to 100%" />
               <QuickStat icon={Lock} label="Min Lock" value="1 Day" />
               <QuickStat icon={Timer} label="Max Lock" value="5 Years" />
             </div>
@@ -240,7 +276,6 @@ const Whitepaper = () => {
                 {/* Download Button */}
                 <a
                   href="/MaxxPainn.pdf"
-                  //onClick={generatePDF}
                   target="_blank"
                 >
                     <Button
@@ -281,39 +316,28 @@ const Whitepaper = () => {
 
                   <Paragraph>
                     The protocol introduces a novel <Highlight>Supply-Based Difficulty Adjustment</Highlight> system
-                    that progressively increases the cost of minting as participation grows. This creates
+                    that progressively increases the cost of minting (via account storage rent) as participation grows. This creates
                     natural economic pressure that transitions the ecosystem from mint-dominated to
                     market-dominated token acquisition over time.
                   </Paragraph>
 
-                  <KeyPoints title="Core Innovations">
-                    <KeyPoint>100% free minting—participants only pay Solana network fees</KeyPoint>
-                    <KeyPoint>Time-weighted rewards that scale with commitment duration</KeyPoint>
-                    <KeyPoint>Bot-resistant design through progressive cost increases</KeyPoint>
-                    <KeyPoint>Fair launch with no pre-mine, VC allocation, or team tokens</KeyPoint>
-                    <KeyPoint>Community-driven clan system with referral rewards</KeyPoint>
-                    <KeyPoint>Clan tokenization at 100M milestone with 10% member airdrops</KeyPoint>
-                  </KeyPoints>
-
-                  <Divider />
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                     <MetricCard
-                      label="Minting Cost"
+                      label="Mint Cost"
                       value="FREE"
-                      footnote="*Gas + Storage fees only"
+                      footnote="*Gas + Dynamic Storage Rent"
                       color="green"
                     />
                     <MetricCard
                       label="Maximum Supply"
-                      value="∞"
-                      footnote="Algorithmically controlled"
+                      value="100P"
+                      footnote="100 Quadrillion (Approx)"
                       color="purple"
                     />
                     <MetricCard
-                      label="Precision"
-                      value="10⁻⁶"
-                      footnote="6 decimal fixed-point"
+                      label="Decimals"
+                      value="1"
+                      footnote="Minimal fragmentation"
                       color="blue"
                     />
                   </div>
@@ -333,93 +357,20 @@ const Whitepaper = () => {
                   <SubsectionTitle icon={AlertTriangle} color="red">
                     The Problem with Traditional Token Launches
                   </SubsectionTitle>
-
                   <Paragraph>
-                    The cryptocurrency ecosystem has long struggled with fundamental fairness issues
-                    in token distribution. Traditional launch mechanisms exhibit several critical flaws:
-                  </Paragraph>
-
-                  <ProblemGrid>
-                    <ProblemCard
-                      title="Capital Concentration"
-                      description="Venture capital and wealthy participants receive preferential allocation through private sales, SAFT agreements, and early access rounds."
-                    />
-                    <ProblemCard
-                      title="Information Asymmetry"
-                      description="Insiders possess timing information that allows them to enter and exit positions before retail participants."
-                    />
-                    <ProblemCard
-                      title="Bot Exploitation"
-                      description="Automated systems front-run legitimate participants, extracting value through speed rather than conviction."
-                    />
-                    <ProblemCard
-                      title="Misaligned Incentives"
-                      description="Quick unlock schedules encourage dumping rather than long-term holding and ecosystem building."
-                    />
-                  </ProblemGrid>
-
-                  <Divider />
-
-                  <SubsectionTitle icon={Zap} color="green">
-                    The MAXXPAINN Solution
-                  </SubsectionTitle>
-
-                  <Paragraph>
-                    MAXXPAINN fundamentally reimagines token distribution by introducing <Highlight>"pain"</Highlight>—measured
-                    in time—as the primary cost of participation. This creates a self-selecting mechanism
-                    where only truly committed participants are willing to lock their potential rewards
-                    for extended periods.
+                    The cryptocurrency ecosystem has long struggled with fundamental fairness issues. 
+                    VC allocation, insider trading, and bot sniping often leave retail users as exit liquidity.
                   </Paragraph>
 
                   <ConceptBox title="The Core Thesis" color="purple">
                     <p className="text-lg text-gray-300 italic">
                       "The longer you're willing to wait, the more you deserve to receive."
                     </p>
-                    <p className="text-gray-500 mt-2 text-sm">
-                      This simple principle creates powerful economic incentives that naturally filter
-                      out short-term speculators while rewarding patient believers.
-                    </p>
                   </ConceptBox>
-
-                  <Paragraph>
-                    By measuring commitment in time rather than capital, MAXXPAINN democratizes access
-                    to token ownership. A retail participant willing to wait 180 days receives meaningful
-                    multipliers that can compete with—or exceed—those available to larger capital holders
-                    choosing shorter timeframes.
-                  </Paragraph>
-                </ContentCard>
-
-                <ContentCard className="mt-8">
-                  <SubsectionTitle icon={Globe} color="blue">
-                    Design Principles
-                  </SubsectionTitle>
-
-                  <PrincipleGrid>
-                    <PrincipleCard
-                      number="01"
-                      title="Temporal Fairness"
-                      description="Time is the great equalizer. Everyone has the same 24 hours, making lock duration a fair cost metric."
-                    />
-                    <PrincipleCard
-                      number="02"
-                      title="Skin in the Game"
-                      description="Locking tokens creates genuine commitment. Participants who lock longer have more to gain."
-                    />
-                    <PrincipleCard
-                      number="03"
-                      title="Anti-Fragility"
-                      description="The protocol becomes stronger as participation grows through difficulty adjustments."
-                    />
-                    <PrincipleCard
-                      number="04"
-                      title="Transparency"
-                      description="All logic is on-chain. Anyone can audit the math and verify fair treatment."
-                    />
-                  </PrincipleGrid>
                 </ContentCard>
               </Section>
 
-              {/* ==================== PROTOCOL ARCHITECTURE ==================== */}
+              {/* ==================== ARCHITECTURE ==================== */}
               <Section id="architecture">
                 <SectionHeader
                   number="03"
@@ -427,89 +378,12 @@ const Whitepaper = () => {
                   title="Protocol Architecture"
                   color="blue"
                 />
-
                 <ContentCard>
-                  <LeadText>
-                    MAXXPAINN is implemented as a Solana program using the Anchor framework,
-                    leveraging Program Derived Addresses (PDAs) for deterministic, secure
-                    account management.
-                  </LeadText>
-
-                  <ArchitectureDiagram />
-
-                  <SubsectionTitle icon={Layers} color="purple">
-                    System Components
-                  </SubsectionTitle>
-
-                  <ComponentGrid>
-                    <ComponentCard
-                      name="Solana Runtime"
-                      type="Infrastructure"
-                      description="The underlying blockchain providing consensus, execution, and state management."
-                      color="purple"
-                    />
-                    <ComponentCard
-                      name="MAXXPAINN Program"
-                      type="Smart Contract"
-                      description="Core Anchor program containing all protocol logic, deployed as an immutable on-chain program."
-                      color="blue"
-                    />
-                    <ComponentCard
-                      name="SPL Token Mint"
-                      type="Token Layer"
-                      description="Standard Solana token mint with PDA-controlled authority for trustless minting."
-                      color="green"
-                    />
-                    <ComponentCard
-                      name="State Accounts"
-                      type="Data Layer"
-                      description="PDAs storing global configuration, user ranks, and difficulty adjustments."
-                      color="pink"
-                    />
-                  </ComponentGrid>
-                </ContentCard>
-
-                <ContentCard className="mt-8">
-                  <SubsectionTitle icon={GitBranch} color="cyan">
-                    Program Instructions
-                  </SubsectionTitle>
-
-                  <Paragraph>
-                    The protocol exposes the following instruction endpoints:
-                  </Paragraph>
-
-                  <InstructionTable>
-                    <InstructionRow
-                      name="initialize_config"
-                      description="One-time setup of global protocol parameters"
-                      access="Authority"
-                    />
-                    <InstructionRow
-                      name="initialize_token"
-                      description="Creates the SPL token mint with PDA authority"
-                      access="Authority"
-                    />
-                    <InstructionRow
-                      name="claim_rank"
-                      description="Registers a new participant with chosen lock duration"
-                      access="Public"
-                    />
-                    <InstructionRow
-                      name="claim_tokens"
-                      description="Mints tokens to participants after lock expiry"
-                      access="Public"
-                    />
-                    <InstructionRow
-                      name="close_rank"
-                      description="Closes rank accounts after claiming"
-                      access="Owner"
-                    />
-                    <InstructionRow
-                      name="close_rank_difficulty"
-                      description="Closes difficulty PDAs and returns lamports to treasury"
-                      access="Authority"
-                    />
-                  </InstructionTable>
+                   <ArchitectureDiagram />
+                   <Paragraph>
+                      The system is comprised of the core Program, PDA states for user Ranks and Difficulty adjustments, 
+                      and a centralized Treasury (managed via on-chain governance/authority) for collecting storage fees.
+                   </Paragraph>
                 </ContentCard>
               </Section>
 
@@ -521,154 +395,33 @@ const Whitepaper = () => {
                   title="The Minting Process"
                   color="green"
                 />
-
                 <ContentCard>
                   <LeadText>
-                    The minting lifecycle consists of two distinct phases: <Highlight>Rank Claiming</Highlight> and
-                    <Highlight> Token Claiming</Highlight>. Understanding this separation is crucial for
-                    optimal participation strategy.
+                     Minting is a three-step process involving an initial commitment (Rank Claim) and a delayed realization (Token Claim).
                   </LeadText>
-
                   <ProcessTimeline>
                     <TimelineStep
                       phase="Phase 1"
                       title="Claim Rank"
-                      description="Participant connects wallet, selects lock duration and clan, then claims their sequential rank number."
+                      description="The user begins the mint process by claiming their rank, choosing a lock duration, and committing to the protocol."
                       duration="Instant"
-                      cost="~0.005 SOL"
+                      cost="Dynamic SOL"
                     />
-                    <TimelineStep
+                     <TimelineStep
                       phase="Phase 2"
                       title="Wait Period"
-                      description="The participant waits for their chosen lock duration to expire. No action required during this phase."
+                      description="The Proof-of-Patience phase. Users cannot access tokens until lock expires."
                       duration="1 day - 5 years"
                       cost="None"
                     />
-                    <TimelineStep
+                     <TimelineStep
                       phase="Phase 3"
                       title="Claim Tokens"
-                      description="After lock expiry, participant claims their calculated token reward. Must claim within 7 days to avoid penalties."
+                      description="User mints tokens to their wallet. Must be done within 7 days of expiry to avoid penalty."
                       duration="Instant"
-                      cost="~0.0002 SOL"
+                      cost="Gas Only"
                     />
                   </ProcessTimeline>
-
-                  <Divider />
-
-                  <SubsectionTitle icon={Terminal} color="green">
-                    Claim Rank: Detailed Flow
-                  </SubsectionTitle>
-
-                  <PseudoCode title="claim_rank(wait_period_days, clan_id)">
-{`FUNCTION claim_rank(wait_period_days: u16, clan_id: u64):
-
-    // Step 1: Validate protocol state
-    REQUIRE main_config.can_mint == TRUE
-        ERROR: "Minting is currently disabled"
-
-    // Step 2: Validate minimum lock duration
-    REQUIRE wait_period_days >= main_config.min_wait_days
-        ERROR: "Lock duration below minimum threshold"
-
-    // Step 3: Atomically increment global rank counter
-    global_rank.value = global_rank.value + 1
-    rank_no = global_rank.value
-
-    // Step 4: Calculate maximum allowed lock for this rank tier
-    max_allowed = get_max_wait_period(rank_no)
-
-    // Step 5: Validate maximum lock duration
-    REQUIRE wait_period_days <= max_allowed
-        ERROR: "Lock duration exceeds maximum for rank tier"
-
-    // Step 6: Create user's rank account (PDA)
-    rank_info = CREATE_PDA(
-        seeds: ["rank_info", signer.pubkey],
-        data: {
-            owner: signer.pubkey,
-            rank_no: rank_no,
-            clan_id: clan_id,
-            wait_period_secs: wait_period_days * 86400,
-            created_at: current_timestamp(),
-            has_minted: FALSE
-        }
-    )
-
-    // Step 7: Create difficulty adjustment account
-    storage_fee = calculate_storage_fee(rank_no)
-    CREATE_DIFFICULTY_PDA(signer, storage_fee)
-
-    // Step 8: Emit event for indexers
-    EMIT ClaimRankEvent(signer.pubkey, rank_no, clan_id)
-
-    RETURN SUCCESS`}
-                  </PseudoCode>
-
-                  <Callout type="info" title="Why Sequential Ranks?">
-                    Sequential rank assignment ensures a globally consistent ordering of participants.
-                    This ordering is fundamental to the Early Adopter Multiplier calculation, where
-                    lower ranks receive higher bonuses. The atomicity of Solana transactions guarantees
-                    no race conditions in rank assignment.
-                  </Callout>
-                </ContentCard>
-
-                <ContentCard className="mt-8">
-                  <SubsectionTitle icon={Terminal} color="blue">
-                    Claim Tokens: Detailed Flow
-                  </SubsectionTitle>
-
-                  <PseudoCode title="claim_tokens()">
-{`FUNCTION claim_tokens():
-
-    // Step 1: Load user's rank information
-    rank_info = LOAD_PDA(["rank_info", token_claimer.pubkey])
-
-    // Step 2: Verify ownership
-    REQUIRE rank_info.owner == token_claimer.pubkey
-        ERROR: "Caller is not the rank owner"
-
-    // Step 3: Verify not already claimed
-    REQUIRE rank_info.has_minted == FALSE
-        ERROR: "Tokens already claimed for this rank"
-
-    // Step 4: Calculate claim eligibility timestamp
-    claim_date = rank_info.created_at + rank_info.wait_period_secs
-    current_time = current_timestamp()
-
-    // Step 5: Verify lock period has expired
-    REQUIRE current_time >= claim_date
-        ERROR: "Lock period has not yet expired"
-
-    // Step 6: Calculate reward amount
-    reward = calculate_reward(
-        rank_info: rank_info,
-        global_rank: global_rank.value,
-        current_time: current_time,
-        claim_date: claim_date
-    )
-
-    // Step 7: Mark as minted BEFORE actual mint (reentrancy guard)
-    rank_info.has_minted = TRUE
-
-    // Step 8: Mint tokens to user's associated token account
-    MINT_TO(
-        mint: token_mint,
-        destination: token_claimer.ata,
-        amount: reward,
-        authority: mint_authority_pda  // PDA signs
-    )
-
-    // Step 9: Emit event
-    EMIT TokenClaimEvent(token_claimer.pubkey, reward)
-
-    RETURN SUCCESS`}
-                  </PseudoCode>
-
-                  <Callout type="warning" title="Reentrancy Protection">
-                    Notice that <code>has_minted</code> is set to TRUE before the actual token mint CPI.
-                    This is a critical security pattern that prevents potential reentrancy attacks where
-                    a malicious contract could attempt to claim multiple times in a single transaction.
-                  </Callout>
                 </ContentCard>
               </Section>
 
@@ -683,84 +436,35 @@ const Whitepaper = () => {
 
                 <ContentCard>
                   <LeadText>
-                    The reward calculation is the mathematical heart of MAXXPAINN. It combines four
-                    independent multipliers to produce a fair, transparent, and incentive-aligned
-                    token distribution.
+                    The reward calculation combines four independent multipliers to produce 
+                    fair, transparent, and incentive-aligned token distribution.
                   </LeadText>
 
-                  <FormulaDisplay
-                    title="Master Reward Formula"
-                    color="yellow"
-                  >
+                  <FormulaDisplay title="Master Reward Formula" color="yellow">
                     Reward = BaseReward × EAM × NEM × LPM × (1 - LatePenalty)
                   </FormulaDisplay>
-
-                  <Paragraph>
-                    Each component serves a specific economic purpose:
-                  </Paragraph>
-
-                  <MultiplierOverview>
-                    <MultiplierCard
-                      name="Base Reward"
-                      symbol="BR"
-                      purpose="Establishes fundamental token allocation that decreases as more participants join"
-                      range="Decreases with √rank"
-                    />
-                    <MultiplierCard
-                      name="Early Adopter"
-                      symbol="EAM"
-                      purpose="Rewards early believers who take risk when the protocol is unproven"
-                      range="1.0× to 3.0×"
-                    />
-                    <MultiplierCard
-                      name="Network Effect"
-                      symbol="NEM"
-                      purpose="Rewards patience by measuring network growth since joining"
-                      range="1.0× to 3.0×"
-                    />
-                    <MultiplierCard
-                      name="Lock Period"
-                      symbol="LPM"
-                      purpose="Directly rewards longer commitment durations"
-                      range="~1.1× to ~5.4×"
-                    />
-                  </MultiplierOverview>
                 </ContentCard>
 
                 <ContentCard className="mt-8">
                   <SubsectionTitle icon={Binary} color="purple">
-                    Component 1: Base Reward Calculation
+                    Component 1: Dampened Base Reward
                   </SubsectionTitle>
 
                   <Paragraph>
-                    The Base Reward establishes the fundamental token allocation for each rank.
-                    It uses an inverse square root decay to create a smooth, predictable reduction
-                    in rewards as more participants join.
+                    Unlike simple exponential decay, MAXXPAINN uses a "dampened" inverse square root decay.
+                    This ensures early participants get high rewards, but the drop-off is smoothed
+                    by the dampener constant $K$, keeping rewards meaningful even at high ranks.
                   </Paragraph>
 
-                  <FormulaDisplay title="Base Reward Formula" color="purple">
-                    BaseReward = (BASE_FACTOR × MULTIPLIER) / √(rank + 1)
+                  <FormulaDisplay title="Dampened Base Reward Formula" color="purple">
+                    BaseReward = BASE × K / (√(rank) + K)
                   </FormulaDisplay>
 
                   <ConstantsTable title="Base Reward Constants">
-                    <ConstantRow name="BASE_FACTOR" value="10,000,000" description="Initial reward factor" />
-                    <ConstantRow name="MULTIPLIER" value="100" description="Scaling multiplier" />
+                    <ConstantRow name="BASE_REWARD" value="5,005,000" description="Maximum base tokens" />
+                    <ConstantRow name="DAMPENER_K" value="5,000" description="Smoothing constant" />
                   </ConstantsTable>
 
-                  <PseudoCode title="calculate_base_reward(rank)">
-{`FUNCTION calculate_base_reward(rank: u64) -> number:
-
-    BASE_FACTOR = 10_000_000
-    MULTIPLIER = 100
-    OFFSET = 1  // Prevent division by zero
-
-    adjusted = rank + OFFSET
-    sqrt_value = sqrt(adjusted)
-
-    RETURN (BASE_FACTOR * MULTIPLIER) / sqrt_value`}
-                  </PseudoCode>
-
-                  {/* Base Reward Chart with Real Data */}
                   <SimulatedChart
                     title="Base Reward Decay Curve (Live Simulation)"
                     color="purple"
@@ -779,24 +483,16 @@ const Whitepaper = () => {
                   </SubsectionTitle>
 
                   <Paragraph>
-                    The Early Adopter Multiplier rewards participants who join when the protocol
-                    is young and unproven. It provides a linear decay from 3.0× down to 1.0×
-                    over the first one million participants.
+                    Rewards participants who join when the protocol is young. It linearly decays from 
+                    2.0× for Rank #1 down to 1.0× for Rank #1,000,000.
                   </Paragraph>
 
                   <FormulaDisplay title="EAM Formula" color="yellow">
-                    EAM = EAM_MIN + (EAM_MAX - EAM_MIN) × (1 - (rank - 1) / (EA_MAX_RANK - 1))
+                    EAM = 1.0 + 2.0 × (1 - (rank - 1) / 999,999)
                   </FormulaDisplay>
 
-                  <ConstantsTable title="EAM Constants">
-                    <ConstantRow name="EAM_MAX" value="3.0×" description="Maximum multiplier for rank #1" />
-                    <ConstantRow name="EAM_MIN" value="1.0×" description="Minimum multiplier (rank ≥ 1M)" />
-                    <ConstantRow name="EA_MAX_RANK" value="1,000,000" description="Cutoff rank for bonus" />
-                  </ConstantsTable>
-
-                  {/* EAM Chart with Real Data */}
                   <SimulatedChart
-                    title="Early Adopter Multiplier Curve (Live Simulation)"
+                    title="Early Adopter Multiplier Curve"
                     color="yellow"
                     data={chartData.eamData}
                     valueKey="multiplier"
@@ -806,13 +502,6 @@ const Whitepaper = () => {
                     xLabel="Rank Number →"
                     maxValue={3}
                   />
-
-                  <Callout type="info" title="Strategic Implication">
-                    Early participation is significantly rewarded. A rank #1 participant receives
-                    3× the tokens of someone at rank #1,000,001 (all other factors equal).
-                    This creates strong incentives for early adoption while still maintaining
-                    meaningful rewards for later participants.
-                  </Callout>
                 </ContentCard>
 
                 <ContentCard className="mt-8">
@@ -821,21 +510,19 @@ const Whitepaper = () => {
                   </SubsectionTitle>
 
                   <Paragraph>
-                    The Network Effect Multiplier rewards participants based on how much the
-                    network has grown since they joined. This creates a "patience bonus" where
-                    early participants who wait longer see more new participants join after them.
+                    NEM rewards patience by measuring how many users joined <i>after</i> you.
+                    The formula uses a square root curve to heavily reward the first wave of followers.
                   </Paragraph>
 
                   <FormulaDisplay title="NEM Formula" color="blue">
-                    NEM = min(NEM_MAX, 1.0 + NEM_CURVE × √(globalRank - userRank))
+                    NEM = min(3.0, 1.0 + 0.004 × √(GlobalRank - UserRank))
                   </FormulaDisplay>
 
                   <ConstantsTable title="NEM Constants">
-                    <ConstantRow name="NEM_CURVE" value="0.1" description="Growth curve coefficient" />
+                    <ConstantRow name="NEM_COEFF" value="0.004" description="Growth curve coefficient" />
                     <ConstantRow name="NEM_MAX" value="3.0×" description="Maximum network bonus cap" />
                   </ConstantsTable>
 
-                  {/* NEM Chart with Real Data */}
                   <SimulatedChart
                     title="Network Effect Multiplier (User Rank: 1,000)"
                     color="blue"
@@ -847,11 +534,6 @@ const Whitepaper = () => {
                     xLabel="Global Rank →"
                     maxValue={3}
                   />
-
-                  <Callout type="info" title="The Patience Premium">
-                    NEM creates an interesting incentive model: users who commit to longer lock periods receive higher rewards,
-                    as the likelihood of additional minters entering the network during their wait is significantly greater.
-                  </Callout>
                 </ContentCard>
 
                 <ContentCard className="mt-8">
@@ -860,24 +542,22 @@ const Whitepaper = () => {
                   </SubsectionTitle>
 
                   <Paragraph>
-                    The Lock Period Multiplier directly rewards longer commitment durations.
-                    It uses a square root curve to provide meaningful bonuses for moderate
-                    lock periods while preventing excessive rewards for extreme durations.
+                    The LPM incentivizes long-term commitment. By locking tokens for extended periods,
+                    users can multiply their rewards significantly.
                   </Paragraph>
 
                   <FormulaDisplay title="LPM Formula" color="pink">
-                    LPM = 1.0 + LPM_SCALE × √(lockDays)
+                    LPM = min(5.0, 1.0 + 0.08 × √(lockDays))
                   </FormulaDisplay>
 
                   <ConstantsTable title="LPM Constants">
-                    <ConstantRow name="LPM_SCALE" value="0.1" description="Duration scaling factor" />
-                    <ConstantRow name="MIN_LOCK" value="1 day" description="Minimum lock duration" />
-                    <ConstantRow name="MAX_LOCK" value="1,825 days" description="Maximum lock (5 years)" />
+                    <ConstantRow name="LPM_COEFF" value="0.08" description="Duration scaling factor" />
+                    <ConstantRow name="LPM_MAX" value="5.0×" description="Maximum lock multiplier" />
+                    <ConstantRow name="MAX_LOCK" value="5 years" description="~1825 days" />
                   </ConstantsTable>
 
-                  {/* LPM Chart with Real Data */}
                   <SimulatedChart
-                    title="Lock Period Multiplier Curve (Live Simulation)"
+                    title="Lock Period Multiplier Curve"
                     color="pink"
                     data={chartData.lpmData}
                     valueKey="multiplier"
@@ -885,73 +565,27 @@ const Whitepaper = () => {
                     formatValue={(v) => `${v.toFixed(2)}×`}
                     yLabel="Multiplier"
                     xLabel="Lock Duration →"
-                    maxValue={25}
+                    maxValue={5}
                   />
                 </ContentCard>
 
                 <ContentCard className="mt-8">
-                  <SubsectionTitle icon={Calculator} color="green">
-                    Complete Reward Calculation
-                  </SubsectionTitle>
-
-                  <Paragraph>
-                    Bringing all components together, here is the complete reward calculation
-                    as implemented on-chain:
-                  </Paragraph>
-
-                  <PseudoCode title="calculate_final_reward(rank, global_rank, lock_days, days_late)">
-{`FUNCTION calculate_final_reward(
-    user_rank: u64,
-    global_rank: u64,
-    lock_days: u64,
-    days_late: u64
-) -> MintRewardInfo:
-
-    // Calculate all multipliers
-    base_reward = calculate_base_reward(user_rank)
-    eam = calculate_early_adopter_multiplier(user_rank)
-    nem = calculate_network_effect_multiplier(user_rank, global_rank)
-    lpm = calculate_lock_period_multiplier(lock_days)
-
-    // Combine multipliers
-    reward_amount = base_reward * nem * eam * lpm
-
-    // Apply late penalty if applicable
-    IF days_late > 0:
-        penalty = get_late_mint_penalty(days_late)
-        final_reward = reward_amount * (1 - penalty / 100)
-    ELSE:
-        final_reward = reward_amount
-
-    RETURN {
-        rank: user_rank,
-        base_reward: base_reward,
-        network_multiplier: nem,
-        early_adopter_multiplier: eam,
-        lock_period_multiplier: lpm,
-        final_reward: final_reward,
-        penalty_percent: penalty
-    }`}
-                  </PseudoCode>
-
-                  {/* Live Simulation Table */}
-                  <div className="my-8 bg-gray-900/60 border border-green-500/30 rounded-2xl overflow-hidden">
-                    <div className="p-4 border-b border-white/10 bg-green-950/30">
-                      <h4 className="text-lg font-bold text-green-400 flex items-center gap-2">
-                        <Calculator className="w-5 h-5" />
-                        Live Reward Simulation (30-day lock, 0 days late)
-                      </h4>
-                    </div>
-                    <div className="overflow-x-auto">
+                    <SubsectionTitle icon={Calculator} color="green">
+                        Live Simulation Table
+                    </SubsectionTitle>
+                    <Paragraph>
+                        Reward calculation assuming 30-day lock and moderate network growth.
+                    </Paragraph>
+                     <div className="overflow-x-auto rounded-xl border border-white/10">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="bg-black/40">
                             <th className="text-left py-3 px-4 text-gray-400 font-bold">Rank</th>
-                            <th className="text-right py-3 px-4 text-gray-400 font-bold">Base Reward</th>
+                            <th className="text-right py-3 px-4 text-gray-400 font-bold">Base</th>
                             <th className="text-right py-3 px-4 text-gray-400 font-bold">EAM</th>
                             <th className="text-right py-3 px-4 text-gray-400 font-bold">NEM</th>
                             <th className="text-right py-3 px-4 text-gray-400 font-bold">LPM</th>
-                            <th className="text-right py-3 px-4 text-gray-400 font-bold">Final Reward</th>
+                            <th className="text-right py-3 px-4 text-gray-400 font-bold">Total</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -959,10 +593,7 @@ const Whitepaper = () => {
                             <tr key={i} className="border-t border-white/5 hover:bg-white/5">
                               <td className="py-3 px-4 text-white font-mono">#{item.label}</td>
                               <td className="py-3 px-4 text-right text-purple-400 font-mono">
-                                {item.baseReward >= 1000000
-                                  ? `${(item.baseReward / 1000000).toFixed(2)}M`
-                                  : `${(item.baseReward / 1000).toFixed(0)}K`
-                                }
+                                {(item.baseReward / 1000).toFixed(0)}K
                               </td>
                               <td className="py-3 px-4 text-right text-yellow-400 font-mono">
                                 {item.earlyAdopterMultiplier.toFixed(2)}×
@@ -986,7 +617,6 @@ const Whitepaper = () => {
                         </tbody>
                       </table>
                     </div>
-                  </div>
                 </ContentCard>
               </Section>
 
@@ -995,82 +625,44 @@ const Whitepaper = () => {
                 <SectionHeader
                   number="06"
                   icon={Gauge}
-                  title="Supply-Based Difficulty System"
+                  title="Rank-Based Difficulty System"
                   color="red"
                 />
 
                 <ContentCard>
                   <LeadText>
-                    The Difficulty System is MAXXPAINN's primary defense against bot attacks
-                    and mass-minting exploitation. It creates progressively increasing costs
-                    that make bulk participation economically unfeasible.
+                    The Difficulty System leverages Solana’s native rent mechanism to introduce a storage cost barrier that scales with the eighth root of the rank.
+                    This helps prevent protocol abuse and serves as an effective anti-bot mechanism.
                   </LeadText>
 
-                  <SubsectionTitle icon={Target} color="red">
-                    The Mechanism
-                  </SubsectionTitle>
-
-                  <Paragraph>
-                    When a participant claims a rank, the protocol creates a "difficulty account"—a
-                    Program Derived Address (PDA) whose allocated size (and therefore rent cost)
-                    scales with the rank number. This leverages Solana's rent mechanism as a
-                    built-in cost function.
-                  </Paragraph>
-
                   <FormulaDisplay title="Storage Fee Formula" color="red">
-                    StorageFee = BaseFee × ⁸√rank × ScaleFactor
+                    Fee = 0.003 SOL × 3 × ⁸√rank
                   </FormulaDisplay>
 
                   <Paragraph>
-                    The 8th root function (calculated as √√√rank) provides an extremely gradual
-                    curve—it takes approximately 256× increase in rank to double the cost.
+                    The base fee is 0.003 SOL. The scaler is 3. The 8th root ensures that cost doubles 
+                    only after extremely large jumps in rank (256x rank increase = 2x cost), allowing 
+                    the protocol to remain accessible while deterring massive bot swarms.
                   </Paragraph>
+                  
+                  <PseudoCode title="get_storage_fee(rank)">
+{`// Native Rust Implementation (No Floats)
+fn get_storage_fee(rank_no: u64) -> u64 {
+    let base = 3_000_000; // 0.003 SOL in lamports
+    let scale = 3;
 
-                  <PseudoCode title="calculate_storage_fee(rank_no, config)">
-{`FUNCTION calculate_storage_fee(rank_no: u64, config: MainConfig) -> u64:
-
-    base_fee = config.rank_difficulty_base_fee_lamports
-    scale_numerator = config.rank_difficulty_scale_factor[0]
-    scale_denominator = config.rank_difficulty_scale_factor[1]
-
-    // Calculate 8th root using nested square roots
-    // 8th root = √(√(√(x)))
-    rank = rank_no as u128
-
-    root_2 = isqrt(rank)          // 2nd root
-    root_4 = isqrt(root_2)        // 4th root
-    eighth_root = isqrt(root_4)   // 8th root
-
-    result = base_fee * eighth_root * scale_numerator / scale_denominator
-
-    RETURN result as u64`}
+    // 8th root = sqrt(sqrt(sqrt(rank)))
+    let root = rank_no.isqrt().isqrt().isqrt();
+    
+    return base * root * scale;
+}`}
                   </PseudoCode>
 
                   <DifficultyChart />
-
-                  <ConceptBox title="Why 8th Root?" color="red">
-                    <p className="text-gray-300 mb-3">
-                      The choice of 8th root is deliberate and calculated:
-                    </p>
-                    <ul className="space-y-2 text-gray-400 text-sm">
-                      <li className="flex items-start gap-2">
-                        <ChevronRight className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-                        <span><strong className="text-white">Gradual Growth:</strong> Enables millions of participants before costs become prohibitive</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <ChevronRight className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-                        <span><strong className="text-white">Bot Deterrent:</strong> Mass-minting 1000 ranks costs significantly more than a single rank</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <ChevronRight className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-                        <span><strong className="text-white">Efficient Computation:</strong> Three nested isqrt() calls are O(1) on modern CPUs</span>
-                      </li>
-                    </ul>
-                  </ConceptBox>
                 </ContentCard>
               </Section>
 
-              {/* ==================== LOCK PERIOD TIERS ==================== */}
+              {/* ==================== LOCK TIERS ==================== */}
               <Section id="lock-tiers">
                 <SectionHeader
                   number="07"
@@ -1078,283 +670,119 @@ const Whitepaper = () => {
                   title="Lock Period Tiers"
                   color="cyan"
                 />
-
                 <ContentCard>
-                  <LeadText>
-                    Maximum lock durations are gated by rank tier to prevent extreme lock period
-                    multipliers from dominating early-stage tokenomics. As the protocol matures,
-                    later participants gain access to longer lock options.
-                  </LeadText>
-
-                  <PseudoCode title="get_max_wait_period(rank)">
-{`FUNCTION get_max_wait_period(rank: u64) -> u16:
-
-    MATCH rank:
-        0 ..= 100,000:             RETURN 30    // max 1 month
-        100,001 ..= 1,000,000:     RETURN 90    // max 3 months
-        1,000,001 ..= 5,000,000:   RETURN 180   // max 6 months
-        5,000,001 ..= 10,000,000:  RETURN 360   // max 1 year
-        10,000,001 ..= 100,000,000: RETURN 480  // max 16 months
-        100,000,001 ..= 400,000,000: RETURN 540 // max 18 months
-        400,000,001 ..= 1,000,000,000: RETURN 720 // max 2 years
-        _ : RETURN 1825  // Cap at 5 years for 1B+ ranks`}
-                  </PseudoCode>
-
-                  <LockTierTable lpmData={chartData.lpmData} />
+                    <LeadText>
+                        Max lock durations are gated by rank to prevent extreme multipliers early on.
+                    </LeadText>
+                    <LockTierTable lpmData={chartData.lpmData} />
                 </ContentCard>
               </Section>
 
               {/* ==================== LATE PENALTY ==================== */}
               <Section id="late-penalty">
-                <SectionHeader
-                  number="08"
-                  icon={AlertTriangle}
-                  title="Late Mint Penalty"
-                  color="orange"
-                />
-
-                <ContentCard>
-                  <LeadText>
-                    Participants must claim their tokens within 7 days of lock expiry to receive
-                    full rewards. Progressive penalties discourage indefinite delays and ensure
-                    active participation.
-                  </LeadText>
-
-                  <PseudoCode title="get_late_penalty(delay_days)">
-{`// Penalty lookup table (percentage of reward forfeited)
-LATE_MINT_PENALTY = [
-    0,    // Day 0: No penalty (claim on time)
-    1,    // Day 1: 1% penalty
-    3,    // Day 2: 3% penalty
-    8,    // Day 3: 8% penalty
-    17,   // Day 4: 17% penalty
-    35,   // Day 5: 35% penalty
-    72,   // Day 6: 72% penalty
-    99    // Day 7+: 99% penalty (almost total loss)
-]
-
-FUNCTION get_late_penalty(delay_days: u64) -> u64:
-    index = min(delay_days, 7)
-    RETURN LATE_MINT_PENALTY[index]`}
-                  </PseudoCode>
-
-                  <PenaltyChart />
-
-                  <Callout type="warning" title="Claim Promptly!">
-                    The penalty curve is intentionally aggressive. A 7-day delay results in losing
-                    99% of your earned tokens. Set calendar reminders for your claim date!
-                  </Callout>
-                </ContentCard>
+                 <SectionHeader number="08" icon={AlertTriangle} title="Late Mint Penalty" color="orange" />
+                 <ContentCard>
+                    <Paragraph>
+                        Claiming must occur within 7 days of lock expiry. The penalty curve is aggressive (Exponential).
+                    </Paragraph>
+                    <PenaltyChart />
+                 </ContentCard>
               </Section>
 
               {/* ==================== CLAN SYSTEM ==================== */}
               <Section id="clan-system">
-                <SectionHeader
-                  number="09"
-                  icon={Users}
-                  title="Clan System"
-                  color="purple"
-                />
-
+                <SectionHeader number="09" icon={Users} title="Clan System" color="purple" />
                 <ContentCard>
-                  <LeadText>
-                    Clans are community-driven groups that compete for dominance on the MAXXPAINN
-                    leaderboard. The system incentivizes organic growth through referral rewards
-                    paid in SOL, with a major evolution planned at the 100M rank milestone.
-                  </LeadText>
-
-                  <ClanMechanics />
-
-                  <SubsectionTitle icon={Coins} color="green">
-                    Reward Structure
-                  </SubsectionTitle>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <MetricCard
-                      label="Per Referral"
-                      value={mintConfig.mintRewardUsd+" USD"}
-                      footnote="Minimum paid per mint"
-                      color="green"
-                    />
-                    <MetricCard
-                      label="Payment"
-                      value="Instant"
-                      footnote="On-chain transfer"
-                      color="blue"
-                    />
-                    <MetricCard
-                      label="Limit"
-                      value="Unlimited"
-                      footnote="No cap on earnings"
-                      color="purple"
-                    />
-                  </div>
-
-                  <Paragraph>
-                    Clan rewards create a sustainable flywheel: community members are incentivized
-                    to spread awareness, new participants join through trusted referrals, and the
-                    network effect compounds over time.
-                  </Paragraph>
-                </ContentCard>
-
-                {/* Clan Tokenization Future */}
-                <ContentCard className="mt-8">
-                  <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-950/40 via-purple-950/40 to-blue-950/40 border border-pink-500/30 p-8">
-                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-pink-500/50 to-transparent" />
-
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="p-4 rounded-2xl bg-gradient-to-br from-pink-600 to-purple-600">
-                        <Crown className="w-8 h-8 text-white" />
-                      </div>
-                      <div>
-                        <span className="text-xs font-bold text-pink-400 uppercase tracking-wider">100M Rank Milestone</span>
-                        <h3 className="text-2xl font-black text-white">Clan Tokenization</h3>
-                      </div>
-                    </div>
-
-                    <Paragraph>
-                      At the <Highlight>100 million rank milestone</Highlight>, clans will evolve into fully
-                      tokenized autonomous communities. Each clan will receive its own SPL token with
-                      built-in governance and social features.
-                    </Paragraph>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                      <div className="p-4 rounded-xl bg-black/30 border border-pink-500/20">
-                        <Coins className="w-6 h-6 text-pink-400 mb-2" />
-                        <h4 className="font-bold text-white mb-1">Clan Tokens</h4>
-                        <p className="text-gray-400 text-sm">Each clan gets its own SPL token with customizable tokenomics</p>
-                      </div>
-                      <div className="p-4 rounded-xl bg-black/30 border border-purple-500/20">
-                        <Gift className="w-6 h-6 text-purple-400 mb-2" />
-                        <h4 className="font-bold text-white mb-1">10% Airdrop</h4>
-                        <p className="text-gray-400 text-sm">All existing clan members receive 10% of the clan token supply</p>
-                      </div>
-                      <div className="p-4 rounded-xl bg-black/30 border border-blue-500/20">
-                        <MessageSquare className="w-6 h-6 text-blue-400 mb-2" />
-                        <h4 className="font-bold text-white mb-1">Social Features</h4>
-                        <p className="text-gray-400 text-sm">In-app chat, forums, proposals, and community tools</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="p-4 rounded-xl bg-black/20 border border-white/10">
-                        <h4 className="font-bold text-white mb-2 flex items-center gap-2">
-                          <Vote className="w-4 h-4 text-purple-400" />
-                          Clan Governance
-                        </h4>
-                        <ul className="space-y-1 text-gray-400 text-sm">
-                          <li>• Token-weighted voting on clan decisions</li>
-                          <li>• Proposal creation and execution</li>
-                          <li>• Treasury management controls</li>
-                        </ul>
-                      </div>
-                      <div className="p-4 rounded-xl bg-black/20 border border-white/10">
-                        <h4 className="font-bold text-white mb-2 flex items-center gap-2">
-                          <Wallet className="w-4 h-4 text-green-400" />
-                          Clan Treasury
-                        </h4>
-                        <ul className="space-y-1 text-gray-400 text-sm">
-                          <li>• Collective fund management</li>
-                          <li>• Revenue sharing from referrals</li>
-                          <li>• Multi-sig security options</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
+                    <LeadText>Clans drive organic growth via instant on-chain referral rewards.</LeadText>
+                    <ClanMechanics />
                 </ContentCard>
               </Section>
 
-              {/* ==================== ON-CHAIN STATE ==================== */}
-              <Section id="on-chain-state">
+              {/* ==================== STAKING PROTOCOL ==================== */}
+              <Section id="staking">
                 <SectionHeader
                   number="10"
-                  icon={Database}
-                  title="On-Chain State"
-                  color="indigo"
-                />
-
-                <ContentCard>
-                  <LeadText>
-                    MAXXPAINN uses Program Derived Addresses (PDAs) for deterministic, secure
-                    account management. Each account type serves a specific purpose in the protocol.
-                  </LeadText>
-
-                  <AccountSchemas />
-                </ContentCard>
-              </Section>
-
-              {/* ==================== SECURITY ==================== */}
-              <Section id="security">
-                <SectionHeader
-                  number="11"
-                  icon={Shield}
-                  title="Security Model"
-                  color="green"
-                />
-
-                <ContentCard>
-                  <LeadText>
-                    Security is paramount in DeFi. MAXXPAINN implements multiple layers of
-                    protection against common attack vectors.
-                  </LeadText>
-
-                  <SecurityGrid />
-
-                  <SubsectionTitle icon={Eye} color="yellow">
-                    Audit Status
-                  </SubsectionTitle>
-
-                  <Paragraph>
-                    The MAXXPAINN smart contracts are designed with security-first principles.
-                    We recommend users review the open-source code and await formal audits
-                    before committing significant capital.
-                  </Paragraph>
-                </ContentCard>
-              </Section>
-
-              {/* ==================== ECONOMICS ==================== */}
-              <Section id="economics">
-                <SectionHeader
-                  number="12"
-                  icon={BarChart3}
-                  title="Economic Analysis"
+                  icon={Gem}
+                  title="Staking Protocol"
                   color="emerald"
                 />
 
                 <ContentCard>
                   <LeadText>
-                    MAXXPAINN's economic model creates multiple equilibrium points that
-                    encourage healthy market dynamics.
+                    Beyond the initial distribution, MAXXPAINN offers a robust staking mechanism
+                    allowing holders to earn yield by re-locking their claimed tokens.
                   </LeadText>
 
-                  <EconomicModel />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+                     <div className="p-6 rounded-2xl bg-emerald-950/20 border border-emerald-500/20">
+                        <h4 className="text-lg font-bold text-emerald-400 mb-4">Staking Parameters</h4>
+                        <ul className="space-y-4">
+                            <li className="flex justify-between items-center border-b border-white/5 pb-2">
+                                <span className="text-gray-400">Min Lock</span>
+                                <span className="text-white font-mono">1 Day</span>
+                            </li>
+                            <li className="flex justify-between items-center border-b border-white/5 pb-2">
+                                <span className="text-gray-400">Max Lock</span>
+                                <span className="text-white font-mono">3 Years (1095 Days)</span>
+                            </li>
+                            <li className="flex justify-between items-center border-b border-white/5 pb-2">
+                                <span className="text-gray-400">Max APY</span>
+                                <span className="text-white font-mono">100%</span>
+                            </li>
+                            <li className="flex justify-between items-center">
+                                <span className="text-gray-400">Early Unstake</span>
+                                <span className="text-red-400 font-mono">25% Penalty</span>
+                            </li>
+                        </ul>
+                     </div>
+                     <div className="p-6 rounded-2xl bg-gray-900/60 border border-white/10 flex flex-col justify-center">
+                        <p className="text-gray-300 mb-4">
+                            The staking protocol is designed to reduce circulating supply after the mint phase.
+                            Yield is derived from protocol revenue and allocated treasury funds.
+                        </p>
+                        <div className="p-4 rounded-xl bg-red-950/20 border border-red-500/20">
+                            <h5 className="flex items-center gap-2 text-red-400 font-bold mb-2">
+                                <AlertTriangle className="w-4 h-4"/> Penalty Warning
+                            </h5>
+                            <p className="text-xs text-gray-400">
+                                Unstaking before your term ends results in a flat 25% penalty on the principal. 
+                                Patience is enforced strictly.
+                            </p>
+                        </div>
+                     </div>
+                  </div>
                 </ContentCard>
               </Section>
 
-              {/* ==================== ROADMAP ====================
-              <Section id="roadmap">
-                <SectionHeader
-                  number="13"
-                  icon={Milestone}
-                  title="Roadmap"
-                  color="cyan"
-                />
 
+              {/* ==================== ON-CHAIN STATE ==================== */}
+              <Section id="on-chain-state">
+                <SectionHeader number="11" icon={Database} title="On-Chain State" color="indigo" />
                 <ContentCard>
-                  <LeadText>
-                    MAXXPAINN's development is milestone-driven, with major features unlocked
-                    based on network participation rather than arbitrary timelines.
-                  </LeadText>
-
-                  <RoadmapTimeline />
+                    <AccountSchemas />
                 </ContentCard>
               </Section>
-              */}
+
+              {/* ==================== SECURITY ==================== */}
+              <Section id="security">
+                <SectionHeader number="12" icon={Shield} title="Security Model" color="green" />
+                <ContentCard>
+                    <SecurityGrid />
+                </ContentCard>
+              </Section>
+
+               {/* ==================== ECONOMICS ==================== */}
+               <Section id="economics">
+                <SectionHeader number="13" icon={BarChart3} title="Economic Analysis" color="emerald" />
+                <ContentCard>
+                   <EconomicModel />
+                </ContentCard>
+              </Section>
 
               {/* ==================== CONCLUSION ==================== */}
               <Section id="conclusion">
                 <SectionHeader
-                  number="13"
+                  number="14"
                   icon={Rocket}
                   title="Conclusion"
                   color="pink"
@@ -1372,14 +800,8 @@ FUNCTION get_late_penalty(delay_days: u64) -> u64:
                     </h2>
 
                     <p className="text-xl text-gray-300 mb-6 leading-relaxed">
-                      MAXXPAINN represents a paradigm shift in fair token distribution—one where
-                      commitment is measured in time, not capital.
-                    </p>
-
-                    <p className="text-gray-400 mb-10 leading-relaxed">
-                      By transforming patience into profit, we create a self-selecting community
-                      of true believers. The math is transparent. The rules are immutable.
-                      The opportunity is equal.
+                      MAXXPAINN represents a paradigm shift in fair token distribution.
+                      The math is updated. The difficulty is set. The timer starts now.
                     </p>
 
                     <div className="flex flex-wrap justify-center gap-4">
@@ -1404,7 +826,7 @@ FUNCTION get_late_penalty(delay_days: u64) -> u64:
 };
 
 // ============================================================
-// SIMULATED CHART COMPONENT (FIXED)
+// SUB-COMPONENTS
 // ============================================================
 
 const SimulatedChart = ({ title, color, data, valueKey, labelKey, formatValue, yLabel, xLabel, maxValue }) => {
@@ -1423,31 +845,21 @@ const SimulatedChart = ({ title, color, data, valueKey, labelKey, formatValue, y
     <div className="my-8 p-6 rounded-2xl bg-gray-900/60 border border-white/10">
       <div className="flex items-center justify-between mb-4">
         <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider">{title}</h4>
-        {/* Note: Dynamic template literal classes (bg-${color}-500) may need safelisting in Tailwind config */}
         <span className={`text-xs px-2 py-1 rounded-full bg-${color}-500/20 text-${color}-400`}>
           Live Data
         </span>
       </div>
 
-      {/* Container is h-40 */}
       <div className="h-40 flex items-end justify-between gap-1 px-2">
         {data.map((item, i) => {
           const height = Math.max((item[valueKey] / max) * 100, 2);
           return (
             <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
-              {/*
-                 FIX APPLIED HERE:
-                 Added 'h-32' (8rem) to the wrapper.
-                 Since the main container is h-40 (10rem), this allows 8rem for the bar
-                 and leaves 2rem for the label below it.
-              */}
               <div className="w-full relative h-32 flex items-end">
                 <div
                   className={`w-full bg-gradient-to-t ${colors[color].bar} group-hover:${colors[color].hover} rounded-t transition-all cursor-pointer`}
                   style={{ height: `${height}%`, minHeight: '4px' }}
                 />
-
-                {/* Tooltip */}
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black/90 rounded text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
                   {formatValue(item[valueKey])}
                 </div>
@@ -1461,10 +873,6 @@ const SimulatedChart = ({ title, color, data, valueKey, labelKey, formatValue, y
     </div>
   );
 };
-
-// ============================================================
-// EXISTING HELPER COMPONENTS (Keep all existing ones)
-// ============================================================
 
 const Section = ({ id, children }) => (
   <section id={id} className="scroll-mt-24">
@@ -1519,10 +927,6 @@ const Highlight = ({ children }) => (
   <span className="text-purple-400 font-semibold">{children}</span>
 );
 
-const Divider = () => (
-  <div className="my-10 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-);
-
 const SubsectionTitle = ({ icon: Icon, color, children }) => {
   const colors = {
     purple: 'text-purple-400',
@@ -1574,35 +978,6 @@ const MetricCard = ({ label, value, footnote, color }) => {
   );
 };
 
-const KeyPoints = ({ title, children }) => (
-  <div className="mt-8 p-6 rounded-2xl bg-purple-950/20 border border-purple-500/20">
-    <h4 className="text-lg font-bold text-purple-400 mb-4">{title}</h4>
-    <ul className="space-y-3">
-      {children}
-    </ul>
-  </div>
-);
-
-const KeyPoint = ({ children }) => (
-  <li className="flex items-start gap-3 text-gray-300">
-    <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
-    <span>{children}</span>
-  </li>
-);
-
-const ProblemGrid = ({ children }) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-8">
-    {children}
-  </div>
-);
-
-const ProblemCard = ({ title, description }) => (
-  <div className="p-5 rounded-2xl bg-red-950/20 border border-red-500/20">
-    <h4 className="font-bold text-red-400 mb-2">{title}</h4>
-    <p className="text-gray-400 text-sm">{description}</p>
-  </div>
-);
-
 const ConceptBox = ({ title, color, children }) => {
   const colors = {
     purple: 'border-purple-500/30 bg-purple-950/20',
@@ -1622,82 +997,6 @@ const ConceptBox = ({ title, color, children }) => {
     </div>
   );
 };
-
-const PrincipleGrid = ({ children }) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-    {children}
-  </div>
-);
-
-const PrincipleCard = ({ number, title, description }) => (
-  <div className="p-6 rounded-2xl bg-gray-900/60 border border-white/10 group hover:border-purple-500/30 transition-colors">
-    <span className="text-xs font-mono text-purple-500 mb-2 block">{number}</span>
-    <h4 className="text-lg font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">{title}</h4>
-    <p className="text-gray-400 text-sm">{description}</p>
-  </div>
-);
-
-const ComponentGrid = ({ children }) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-    {children}
-  </div>
-);
-
-const ComponentCard = ({ name, type, description, color }) => {
-  const colors = {
-    purple: 'border-purple-500/30',
-    blue: 'border-blue-500/30',
-    green: 'border-green-500/30',
-    pink: 'border-pink-500/30',
-  };
-  const badgeColors = {
-    purple: 'bg-purple-500/20 text-purple-400',
-    blue: 'bg-blue-500/20 text-blue-400',
-    green: 'bg-green-500/20 text-green-400',
-    pink: 'bg-pink-500/20 text-pink-400',
-  };
-
-  return (
-    <div className={`p-5 rounded-2xl bg-gray-900/60 border ${colors[color]}`}>
-      <div className="flex items-center justify-between mb-3">
-        <h4 className="font-bold text-white">{name}</h4>
-        <span className={`text-xs px-2 py-1 rounded-full ${badgeColors[color]}`}>{type}</span>
-      </div>
-      <p className="text-gray-400 text-sm">{description}</p>
-    </div>
-  );
-};
-
-const InstructionTable = ({ children }) => (
-  <div className="overflow-x-auto mt-6">
-    <table className="w-full text-sm">
-      <thead>
-        <tr className="border-b border-white/10">
-          <th className="text-left py-3 px-4 text-gray-400 font-bold uppercase tracking-wider">Instruction</th>
-          <th className="text-left py-3 px-4 text-gray-400 font-bold uppercase tracking-wider">Description</th>
-          <th className="text-left py-3 px-4 text-gray-400 font-bold uppercase tracking-wider">Access</th>
-        </tr>
-      </thead>
-      <tbody>
-        {children}
-      </tbody>
-    </table>
-  </div>
-);
-
-const InstructionRow = ({ name, description, access }) => (
-  <tr className="border-b border-white/5 hover:bg-white/5">
-    <td className="py-3 px-4 font-mono text-cyan-400">{name}</td>
-    <td className="py-3 px-4 text-gray-300">{description}</td>
-    <td className="py-3 px-4">
-      <span className={`text-xs px-2 py-1 rounded-full ${
-        access === 'Public' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
-      }`}>
-        {access}
-      </span>
-    </td>
-  </tr>
-);
 
 const ProcessTimeline = ({ children }) => (
   <div className="relative my-8">
@@ -1747,37 +1046,6 @@ const PseudoCode = ({ title, children }) => (
   </div>
 );
 
-const Callout = ({ type, title, children }) => {
-  const styles = {
-    info: 'border-blue-500/30 bg-blue-950/20',
-    warning: 'border-yellow-500/30 bg-yellow-950/20',
-  };
-  const iconColors = {
-    info: 'text-blue-400',
-    warning: 'text-yellow-400',
-  };
-  const titleColors = {
-    info: 'text-blue-400',
-    warning: 'text-yellow-400',
-  };
-
-  return (
-    <div className={`my-6 p-5 rounded-2xl border ${styles[type]}`}>
-      <div className="flex items-start gap-3">
-        {type === 'info' ? (
-          <Eye className={`w-5 h-5 flex-shrink-0 mt-0.5 ${iconColors[type]}`} />
-        ) : (
-          <AlertTriangle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${iconColors[type]}`} />
-        )}
-        <div>
-          <h4 className={`font-bold mb-1 ${titleColors[type]}`}>{title}</h4>
-          <p className="text-gray-400 text-sm">{children}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const FormulaDisplay = ({ title, color, children }) => {
   const colors = {
     yellow: 'border-yellow-500/30 bg-yellow-950/30 text-yellow-400',
@@ -1823,26 +1091,9 @@ const ConstantRow = ({ name, value, description }) => (
   </tr>
 );
 
-const MultiplierOverview = ({ children }) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-8">
-    {children}
-  </div>
-);
-
-const MultiplierCard = ({ name, symbol, purpose, range }) => (
-  <div className="p-5 rounded-2xl bg-gray-900/60 border border-white/10">
-    <div className="flex items-center justify-between mb-3">
-      <h4 className="font-bold text-white">{name}</h4>
-      <span className="text-xs px-2 py-1 rounded-full bg-purple-500/20 text-purple-400 font-mono">{symbol}</span>
-    </div>
-    <p className="text-gray-400 text-sm mb-2">{purpose}</p>
-    <p className="text-xs text-gray-500 font-mono">{range}</p>
-  </div>
-);
-
 const DifficultyChart = () => (
   <div className="my-8 p-6 rounded-2xl bg-gray-900/60 border border-white/10">
-    <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Difficulty (Storage Fee) Growth - 8th Root Scale</h4>
+    <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Difficulty (Storage Fee) Growth</h4>
     <div className="h-32 flex items-end justify-between gap-1">
       {[
         { rank: 1, label: '1' },
@@ -1856,7 +1107,7 @@ const DifficultyChart = () => (
         const height = (eighthRoot / maxRoot) * 100;
         return (
           <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
-            <div className="w-full relative">
+            <div className="w-full relative h-28 flex items-end">
               <div
                 className="w-full bg-gradient-to-t from-red-600 to-orange-400 rounded-t transition-all group-hover:from-red-500 group-hover:to-orange-300"
                 style={{ height: `${height}%`, minHeight: '4px' }}
@@ -1870,7 +1121,7 @@ const DifficultyChart = () => (
         );
       })}
     </div>
-    <p className="text-xs text-gray-500 text-center mt-4">Rank Number (256× increase = 2× cost) →</p>
+    <p className="text-xs text-gray-500 text-center mt-4">Rank Number (Log Scale)</p>
   </div>
 );
 
@@ -1904,10 +1155,10 @@ const PenaltyChart = () => (
 );
 
 const LockTierTable = ({ lpmData }) => {
-  // Calculate LPM for each tier's max lock using the actual algorithm
   const getLPMForDays = (days) => {
-    const item = lpmData?.find(d => d.days === days);
-    return item ? item.multiplier.toFixed(2) : (1 + 0.1 * Math.sqrt(days)).toFixed(2);
+    // 1 + 0.08 * sqrt(days), max 5
+    const lpm = Math.min(5.0, 1.0 + (0.08 * Math.sqrt(days)));
+    return lpm.toFixed(2);
   };
 
   return (
@@ -1918,25 +1169,23 @@ const LockTierTable = ({ lpmData }) => {
             <th className="text-left py-3 px-4 text-gray-400 font-bold uppercase tracking-wider">Rank Range</th>
             <th className="text-left py-3 px-4 text-gray-400 font-bold uppercase tracking-wider">Max Lock</th>
             <th className="text-left py-3 px-4 text-gray-400 font-bold uppercase tracking-wider">Max LPM</th>
-            <th className="text-left py-3 px-4 text-gray-400 font-bold uppercase tracking-wider">Phase</th>
           </tr>
         </thead>
         <tbody>
           {[
-            { range: '0 - 100,000', lock: 30, phase: 'Early Adopter' },
-            { range: '100K - 1M', lock: 90, phase: 'Growth' },
-            { range: '1M - 5M', lock: 180, phase: 'Scaling' },
-            { range: '5M - 10M', lock: 360, phase: 'Mature' },
-            { range: '10M - 100M', lock: 480, phase: 'Extended' },
-            { range: '100M - 400M', lock: 540, phase: 'Long-term' },
-            { range: '400M - 1B', lock: 720, phase: 'Maximum' },
-            { range: '1B+', lock: 1825, phase: 'Ultimate' },
+            { range: '0 - 100,000', lock: 30 },
+            { range: '100K - 1M', lock: 90 },
+            { range: '1M - 5M', lock: 180 },
+            { range: '5M - 10M', lock: 360 },
+            { range: '10M - 100M', lock: 480 },
+            { range: '100M - 400M', lock: 540 },
+            { range: '400M - 1B', lock: 720 },
+            { range: '1B+', lock: 1825 },
           ].map((row, i) => (
             <tr key={i} className="border-t border-white/5 hover:bg-white/5">
               <td className="py-3 px-4 font-mono text-white">{row.range}</td>
               <td className="py-3 px-4 font-bold text-cyan-400">{row.lock} days</td>
               <td className="py-3 px-4 font-mono text-pink-400">~{getLPMForDays(row.lock)}×</td>
-              <td className="py-3 px-4 text-gray-400">{row.phase}</td>
             </tr>
           ))}
         </tbody>
@@ -1966,7 +1215,7 @@ const ClanMechanics = () => (
         <Coins className="w-8 h-8 text-green-400" />
       </div>
       <h4 className="font-bold text-white mb-2">Earn Forever</h4>
-      <p className="text-gray-400 text-sm">Referral rewards are paid instantly on-chain. No limits, no vesting.</p>
+      <p className="text-gray-400 text-sm">Referral rewards are paid instantly on-chain: {mintConfig.mintRewardUsd} USD equivalent.</p>
     </div>
   </div>
 );
@@ -1981,11 +1230,8 @@ const AccountSchemas = () => (
         fields: [
           { name: 'authority', type: 'Pubkey', desc: 'Admin address' },
           { name: 'treasury', type: 'Pubkey', desc: 'Fee recipient' },
-          { name: 'can_mint', type: 'bool', desc: 'Protocol pause flag' },
-          { name: 'min_wait_days', type: 'u16', desc: 'Minimum lock duration' },
-          { name: 'max_wait_days', type: 'u16', desc: 'Maximum lock duration' },
-          { name: 'difficulty_base_fee', type: 'u64', desc: 'Base storage fee' },
-          { name: 'difficulty_scale', type: '[u64; 2]', desc: 'Scale numerator/denominator' },
+          { name: 'difficulty_base_fee', type: 'u64', desc: '0.003 SOL' },
+          { name: 'difficulty_scale', type: '[u64; 2]', desc: '[3, 1]' },
         ]
       },
       {
@@ -2003,10 +1249,8 @@ const AccountSchemas = () => (
         fields: [
           { name: 'owner', type: 'Pubkey', desc: 'Participant address' },
           { name: 'rank_no', type: 'u64', desc: 'Assigned rank number' },
-          { name: 'clan_id', type: 'u64', desc: 'Associated clan ID' },
-          { name: 'wait_period_secs', type: 'u64', desc: 'Lock duration in seconds' },
-          { name: 'created_at', type: 'i64', desc: 'Unix timestamp of claim' },
-          { name: 'has_minted', type: 'bool', desc: 'Token claim status' },
+          { name: 'wait_period_secs', type: 'u64', desc: 'Lock duration' },
+          { name: 'has_minted', type: 'bool', desc: 'Claim status' },
         ]
       },
       {
@@ -2014,7 +1258,7 @@ const AccountSchemas = () => (
         seeds: ['rank_difficulty', 'owner'],
         color: 'red',
         fields: [
-          { name: '[u8; N]', type: 'bytes', desc: 'Variable-sized buffer (N = f(rank))' },
+          { name: 'raw_data', type: 'bytes', desc: 'Variable size buffer' },
         ]
       },
     ].map((account, i) => (
@@ -2049,34 +1293,24 @@ const SecurityGrid = () => (
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-8">
     {[
       {
-        title: 'PDA Seed Validation',
-        description: 'All accounts derived from deterministic seeds verified by Anchor constraints.',
+        title: 'PDA Validation',
+        description: 'Deterministic account derivation ensures secure state management.',
         icon: Key,
       },
       {
-        title: 'Owner Verification',
-        description: 'Token claims verify signer matches rank_info.owner before minting.',
-        icon: BadgeCheck,
-      },
-      {
         title: 'Reentrancy Guard',
-        description: 'has_minted flag set before CPI prevents double-claim attacks.',
+        description: 'Checks-Effects-Interactions pattern strictly enforced.',
         icon: Shield,
       },
       {
-        title: 'Overflow Protection',
-        description: 'All u128 operations use checked arithmetic with explicit errors.',
+        title: 'Checked Arithmetic',
+        description: 'Overflow/Underflow protection on all math operations.',
         icon: Siren,
       },
       {
-        title: 'Treasury Validation',
-        description: 'Account closures verify treasury against config to prevent fund theft.',
+        title: 'Treasury Safety',
+        description: 'Fee destination hardcoded to config authority.',
         icon: Lock,
-      },
-      {
-        title: 'Admin Controls',
-        description: 'can_mint flag allows emergency pause. Only authority can modify.',
-        icon: Eye,
       },
     ].map((item, i) => (
       <div key={i} className="p-5 rounded-2xl bg-gray-900/60 border border-green-500/20 flex gap-4">
@@ -2100,165 +1334,50 @@ const EconomicModel = () => (
         <ul className="space-y-2 text-gray-400 text-sm">
           <li className="flex items-start gap-2">
             <ChevronRight className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
-            <span>No maximum supply cap—fully market-driven</span>
+            <span>Smooth dampened decay curve</span>
           </li>
           <li className="flex items-start gap-2">
             <ChevronRight className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
-            <span>Decreasing marginal rewards via √rank decay</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <ChevronRight className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
-            <span>Rising difficulty creates natural mint ceiling</span>
+            <span>High precision (1 decimal) reduces dust</span>
           </li>
         </ul>
       </div>
       <div className="p-6 rounded-2xl bg-blue-950/30 border border-blue-500/20">
-        <h4 className="text-lg font-bold text-blue-400 mb-4">Market Forces</h4>
+        <h4 className="text-lg font-bold text-blue-400 mb-4">Equilibrium</h4>
         <ul className="space-y-2 text-gray-400 text-sm">
           <li className="flex items-start gap-2">
             <ChevronRight className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-            <span>Mint vs Buy equilibrium naturally emerges</span>
+            <span>Difficulty rises with rank^0.125</span>
           </li>
           <li className="flex items-start gap-2">
             <ChevronRight className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-            <span>Long locks reduce immediate sell pressure</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <ChevronRight className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-            <span>Early adopter premium rewards risk-taking</span>
+            <span>Staking removes supply from circulation</span>
           </li>
         </ul>
       </div>
     </div>
-
-    <div className="p-6 rounded-2xl bg-gray-900/60 border border-white/10">
-      <h4 className="text-lg font-bold text-white mb-4">Equilibrium Analysis</h4>
-      <p className="text-gray-400 mb-4">
-        The protocol naturally trends toward three equilibrium states:
-      </p>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 rounded-xl bg-black/30 text-center">
-          <p className="text-purple-400 font-bold mb-1">Phase 1: Mint Dominance</p>
-          <p className="text-xs text-gray-500">Low difficulty, high rewards. Minting preferred.</p>
-        </div>
-        <div className="p-4 rounded-xl bg-black/30 text-center">
-          <p className="text-yellow-400 font-bold mb-1">Phase 2: Crossover</p>
-          <p className="text-xs text-gray-500">Mint cost approaches market price.</p>
-        </div>
-        <div className="p-4 rounded-xl bg-black/30 text-center">
-          <p className="text-green-400 font-bold mb-1">Phase 3: Market Dominance</p>
-          <p className="text-xs text-gray-500">Buying cheaper than minting. Price support.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-const RoadmapTimeline = () => (
-  <div className="space-y-6 mt-8">
-    {[
-      {
-        phase: 'Phase 1',
-        title: 'Genesis',
-        target: '0 → 100K Ranks',
-        status: 'active',
-        color: 'purple',
-        items: ['Smart contract deployment', 'Web app launch', 'Clan system V1', 'Community bootstrap']
-      },
-      {
-        phase: 'Phase 2',
-        title: 'Growth',
-        target: '100K → 1M Ranks',
-        status: 'upcoming',
-        color: 'blue',
-        items: ['DEX liquidity pools', 'Enhanced analytics', 'Ambassador program', 'Lock period extension (90 days)']
-      },
-      {
-        phase: 'Phase 3',
-        title: 'Scaling',
-        target: '1M → 10M Ranks',
-        status: 'upcoming',
-        color: 'green',
-        items: ['Security audit', 'CEX listings', 'Governance proposals', 'Clan Wars V1']
-      },
-      {
-        phase: 'Phase 4',
-        title: 'Clan Evolution',
-        target: '10M → 100M Ranks',
-        status: 'upcoming',
-        color: 'pink',
-        highlight: true,
-        items: ['🚀 Clan Tokenization', '10% token airdrop to members', 'Social features (chat, forums)', 'Clan treasury & governance']
-      },
-      {
-        phase: 'Phase 5',
-        title: 'Ecosystem',
-        target: '100M+ Ranks',
-        status: 'upcoming',
-        color: 'yellow',
-        items: ['Full DAO transition', 'Multi-chain expansion', 'DeFi integrations', 'Protocol revenue sharing']
-      },
-    ].map((phase, i) => (
-      <div
-        key={i}
-        className={`p-6 rounded-2xl border ${
-          phase.highlight
-            ? 'bg-gradient-to-r from-pink-950/40 to-purple-950/40 border-pink-500/30'
-            : 'bg-gray-900/60 border-white/10'
-        }`}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
-            <span className={`text-xs font-bold px-3 py-1 rounded-full bg-${phase.color}-500/20 text-${phase.color}-400 uppercase tracking-wider`}>
-              {phase.phase}
-            </span>
-            <h4 className="text-xl font-bold text-white">{phase.title}</h4>
-          </div>
-          <span className="text-sm text-gray-400 font-mono">{phase.target}</span>
-        </div>
-        <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          {phase.items.map((item, j) => (
-            <li key={j} className="flex items-center gap-2 text-gray-300 text-sm">
-              <ChevronRight className={`w-4 h-4 text-${phase.color}-500`} />
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
-    ))}
   </div>
 );
 
 const ArchitectureDiagram = () => (
   <div className="my-8 p-6 rounded-2xl bg-gray-900/60 border border-white/10">
-    <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-6">System Architecture</h4>
     <div className="flex flex-col md:flex-row items-center justify-between gap-6">
       <div className="p-4 rounded-xl bg-purple-950/40 border border-purple-500/30 text-center w-full md:w-auto">
         <Server className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-        <p className="text-white font-bold">Solana Runtime</p>
-        <p className="text-xs text-gray-500">L1 Blockchain</p>
+        <p className="text-white font-bold">Solana</p>
       </div>
       <ArrowRight className="w-6 h-6 text-gray-600 rotate-90 md:rotate-0" />
       <div className="p-4 rounded-xl bg-blue-950/40 border border-blue-500/30 text-center w-full md:w-auto">
         <Cpu className="w-8 h-8 text-blue-400 mx-auto mb-2" />
-        <p className="text-white font-bold">MAXXPAINN Program</p>
-        <p className="text-xs text-gray-500">Anchor Smart Contract</p>
+        <p className="text-white font-bold">Program</p>
       </div>
       <ArrowRight className="w-6 h-6 text-gray-600 rotate-90 md:rotate-0" />
       <div className="p-4 rounded-xl bg-green-950/40 border border-green-500/30 text-center w-full md:w-auto">
         <Database className="w-8 h-8 text-green-400 mx-auto mb-2" />
-        <p className="text-white font-bold">PDA Accounts</p>
-        <p className="text-xs text-gray-500">On-Chain State</p>
-      </div>
-      <ArrowRight className="w-6 h-6 text-gray-600 rotate-90 md:rotate-0" />
-      <div className="p-4 rounded-xl bg-pink-950/40 border border-pink-500/30 text-center w-full md:w-auto">
-        <Coins className="w-8 h-8 text-pink-400 mx-auto mb-2" />
-        <p className="text-white font-bold">SPL Token</p>
-        <p className="text-xs text-gray-500">MAXXPAINN Token</p>
+        <p className="text-white font-bold">PDAs</p>
       </div>
     </div>
   </div>
-
 );
 
 export default Whitepaper;
