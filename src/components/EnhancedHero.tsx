@@ -348,7 +348,7 @@ const EnhancedHero = () => {
               Every degen knows the pain. The rugs that stole our dreams. The
               liquidations that crushed our souls.
               <br className="hidden md:block" />
-              <span className="block mt-6 text-xl sm:text-2xl md:text-3xl font-bold md:font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 drop-shadow-md">
+              <span className="block mt-6 text-xl sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 drop-shadow-md">
                 But we're still here. Still fighting. Still believing.
               </span>
               <br />
@@ -359,36 +359,36 @@ const EnhancedHero = () => {
           </div>
 
           {/* Info Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 mb-8 md:mb-14 px-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-14 px-2">
             {[
               {
                 title: '100% FREE MINT',
                 sub: 'For Everybody',
-                border: 'border-purple-500/10',
-                bg: 'hover:bg-purple-500/5',
-                text: 'text-white-400/80',
+                border: 'border-red-500/20',
+                bg: 'hover:bg-red-500/5',
+                text: 'text-red-400',
               },
               {
                 title: 'NO BULLSHIT',
                 sub: 'Pure Degen Tokenomics',
-                border: 'border-purple-500/10',
+                border: 'border-purple-500/20',
                 bg: 'hover:bg-purple-500/5',
                 text: 'text-purple-400',
               },
               {
                 title: 'REVENGE',
                 sub: 'Against The System',
-                border: 'border-purple-500/10',
-                bg: 'hover:bg-purple-500/5',
-                text: 'text-white-400/80',
+                border: 'border-green-500/20',
+                bg: 'hover:bg-green-500/5',
+                text: 'text-green-400',
               },
             ].map((item, idx) => (
               <div
                 key={idx}
-                className={`bg-black/20 border ${item.border} rounded-2xl p-4 sm:p-6 text-center ${item.bg} transition-all duration-300 hover:-translate-y-1`}
+                className={`bg-black/20 border ${item.border} rounded-2xl p-6 text-center ${item.bg} transition-all duration-300 hover:-translate-y-1`}
               >
                 <div
-                  className={`text-lg sm:text-xl font-bold md:font-black ${item.text} mb-2 tracking-tight`}
+                  className={`text-xl font-black ${item.text} mb-2 tracking-tight`}
                 >
                   {item.title}
                 </div>
@@ -401,27 +401,26 @@ const EnhancedHero = () => {
 
           {/* Button Group */}
           <div className="flex flex-col md:flex-row gap-5 justify-center items-center w-full">
-            
-            <Link to="/whitepaper" className="w-full md:w-auto flex-1">
-              <button className="w-full px-4 py-3 md:px-8 md:py-5 bg-gray-900 hover:bg-gray-800 border border-purple-500/20 text-purple-400/90 font-bold rounded-2xl text-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(74,222,128,0.1)] hover:border-purple-500/50 flex items-center justify-center gap-3 group">
-                <FileText className="w-5 h-5 group-hover:text-purple-300" />
+            <Link to="/whitepaper" className="w-full md:w-auto flex-1 md:flex-none">
+              <button className="w-full px-4 md:px-8 py-3 md:py-5 bg-gray-900 hover:bg-gray-800 border border-green-500/20 text-green-400/90 font-bold rounded-2xl text-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(74,222,128,0.1)] hover:border-green-500/50 flex items-center justify-center gap-3 group">
+                <FileText className="w-5 h-5 group-hover:text-green-300" />
                 Whitepaper
               </button>
             </Link>
 
             <Link
               to="/roadmap"
-              className="w-full md:w-auto md:min-w-[240px] "
+              className="w-full md:w-auto md:min-w-[240px] order-first md:order-none"
             >
-              <button className="font-bold w-full px-4 py-3 md:px-8 md:py-5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white rounded-2xl text-xl shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:shadow-[0_0_50px_rgba(236,72,153,0.5)] transition-all duration-300 hover:scale-[1.03] flex items-center justify-center gap-3 relative overflow-hidden">
+              <button className="font-bold w-full px-4 md:px-8 py-3 md:py-5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white rounded-2xl text-xl shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:shadow-[0_0_50px_rgba(236,72,153,0.5)] transition-all duration-300 hover:scale-[1.03] flex items-center justify-center gap-3 relative overflow-hidden">
                 <div className="absolute inset-0 bg-white/20 translate-y-full hover:translate-y-0 transition-transform duration-300" />
                 <Map className="w-6 h-6" />
                 Roadmap
               </button>
             </Link>
 
-            <Link to="/manifesto" className="w-full md:w-auto flex-1">
-              <button className="w-full px-4 py-3 md:px-8 md:py-5 bg-gray-900 hover:bg-gray-800 border border-purple-500/20 text-purple-400/90 font-bold rounded-2xl text-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(168,85,247,0.1)] hover:border-purple-500/50 flex items-center justify-center gap-3 group">
+            <Link to="/manifesto" className="w-full md:w-auto flex-1 md:flex-none">
+              <button className="w-full px-4 md:px-8 py-3 md:py-5 bg-gray-900 hover:bg-gray-800 border border-purple-500/20 text-purple-400/90 font-bold rounded-2xl text-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(168,85,247,0.1)] hover:border-purple-500/50 flex items-center justify-center gap-3 group">
                 <BookOpen className="w-5 h-5 group-hover:text-purple-300" />
                 Our Manifesto
               </button>
@@ -462,14 +461,14 @@ const EnhancedHero = () => {
               className={`flex flex-col items-center justify-center bg-gray-900/30 border border-white/5 rounded-2xl p-4 md:p-8 text-center hover:-translate-y-1 transition-all duration-300 group hover:bg-gray-800/50 hover:border-white/10 shadow-lg ${stat.glow}`}
             >
               <div
-                className={`text-2xl sm:text-4xl font-bold sm:font-black text-white/80 mb-2 drop-shadow-sm`}
+                className={`text-2xl sm:text-4xl font-black ${stat.color} mb-2 drop-shadow-sm`}
               >
                 {stat.value}
               </div>
-              <div className="text-gray-400/80 font-bold text-sm tracking-widest uppercase">
+              <div className="text-gray-400 font-bold text-sm tracking-widest uppercase">
                 {stat.label}
               </div>
-              <div className="text-[11px] text-purple-500 font-mono mt-2 hidden group-hover:inline-block transition-opacity">
+              <div className="text-[11px] text-gray-600 font-mono mt-2 hidden group-hover:inline-block transition-opacity">
                 {idx === 0
                   ? 'And Counting...'
                   : idx === 1
