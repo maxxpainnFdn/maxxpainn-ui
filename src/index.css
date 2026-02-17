@@ -412,3 +412,26 @@ html {
 .animate-ping-slow {
   animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
+
+
+.nav-scroll-container::-webkit-scrollbar {
+  height: 2px !important;
+  width: 6px !important; /* Thin width */
+}
+.nav-scroll-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 2px !important;
+}
+.nav-scroll-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #8b5cf6, #ef4444) !important;
+  border-radius: 2px !important;
+}
+
+@supports (scrollbar-color: auto) {
+  @supports not selector(::-webkit-scrollbar) {
+    .nav-scroll-container {
+      scrollbar-width: thin;
+      scrollbar-color: #8b5cf6 rgba(255, 255, 255, 0.05);
+    }
+  }
+}
