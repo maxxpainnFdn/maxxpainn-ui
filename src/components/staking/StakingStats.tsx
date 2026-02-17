@@ -55,8 +55,8 @@ export default function StakingStats({ data }: Record<string, any>) {
           value = utils.toLocaleString(value)
         }
         
-        value = <>
-          {value}  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border border-white/5 bg-white/5 text-${color}-400`}>
+        label = <>
+          {label}  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border border-white/5 bg-white/5 text-${color}-400`}>
             {subValue}
           </span>
         </>
