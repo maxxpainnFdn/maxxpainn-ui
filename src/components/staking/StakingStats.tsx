@@ -1,9 +1,9 @@
 import { Flame, Lock, TrendingUp, Wallet } from "lucide-react";
-import StakingStatCard from "./StakingStatCard";
 import { stakingConfig } from "@/config/staking";
 import { StakingMath } from "@/core/StakingMath";
 import utils from "@/lib/utils";
 import { tokenConfig } from "@/config/token";
+import { StatsCard } from "../StatsCard";
 
 const { minTermDays } = stakingConfig;
 
@@ -38,14 +38,13 @@ export default function StakingStats({ data }: Record<string, any>) {
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
       {Object.keys(data).map((key) => {
+        
         let { label, subValue, icon, color } = metadataObj[key];
 
         if (key == "maxYield") {
-          subValue =
-            StakingMath.getMultiplier(stakingConfig.maxTermDays) +
-            "x MULTIPLIER";
+          subValue = StakingMath.getMultiplier(stakingConfig.maxTermDays) + "x MULTIPLIER";
         } else if (key == "minYield") {
           subValue = StakingMath.getMultiplier(minTermDays) + "x MULTIPLIER";
         }
@@ -55,14 +54,18 @@ export default function StakingStats({ data }: Record<string, any>) {
         if (typeof value == 'number') {
           value = utils.toLocaleString(value)
         }
+        
+        value = <>
+          {value}  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border border-white/5 bg-white/5 text-${color}-400`}>
+            {subValue}
+          </span>
+        </>
 
         return (
-          <StakingStatCard
-            key={key}
-            label={label}
-            value={value}
-            subValue={subValue}
+          <StatsCard
+            title={label}
             icon={icon}
+            value={value}
             color={color}
           />
         );

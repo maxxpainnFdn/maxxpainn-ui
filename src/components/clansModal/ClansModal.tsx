@@ -53,6 +53,9 @@ export default function ClansModal ({ children, onChange }: ClansModalProps) {
           title={<Title />}  
           desktopClass="w-full max-w-[80%] top-[18%]"
           description="Prove your allegiance to your clan. The clan you select earns SOL rewards."
+          desktopDialogProps={{
+            onOpenAutoFocus: (e) => e.preventDefault(),
+          }}
         >
             <div className="overflow-y-auto  z-10">
 
