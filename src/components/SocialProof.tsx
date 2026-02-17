@@ -62,7 +62,7 @@ const SocialProof = () => {
     },
     { 
       label: "Collective Losses", 
-      value: "\$3.2B+", 
+      value: "$3.2B+", 
       icon: <ShieldAlert className="w-6 h-6" />,
       color: "from-red-500 to-orange-500"
     },

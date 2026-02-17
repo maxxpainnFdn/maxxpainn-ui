@@ -7,7 +7,7 @@ import Navigation from '@/components/nav/Navigation';
 import { SiMedium, SiTelegram, SiX } from '@icons-pack/react-simple-icons';
 import { Helmet } from 'react-helmet-async';
 
-const FAQ = () => {
+ const Faq = () => {
   const [hoveredItem, setHoveredItem] = useState(null);
 
   const faqs = [
@@ -274,4 +274,4 @@ const FAQ = () => {
   );
 };
 
-export default FAQ;
+export default Faq;

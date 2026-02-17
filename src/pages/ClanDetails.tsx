@@ -273,7 +273,7 @@ export default function ClanDetails() {
           }
         </LoadingView>
         <Footer />
-      </>
-    </div>
+      </div>
+    </>
   )
 }

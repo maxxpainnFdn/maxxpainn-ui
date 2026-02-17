@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { useAtomValue } from "jotai";
 import { isAuthenticatedAtom } from "./store";
 import { AlertDialogProvider } from "./services/AlertDialogProvider";
+import usePageView from "./hooks/usePageView";
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -15,10 +16,12 @@ const App = () => {
   const isAuthenticated = useAtomValue(isAuthenticatedAtom)
   const [pageKey, setPageKey] = useState(0)
 
+  usePageView(); 
+  
   useEffect(()=>{
     setPageKey(prev=> (prev+1))
   }, [isAuthenticated])
-
+  
   return (
     <WalletProvider key={pageKey}>
       <QueryClientProvider client={queryClient}>
