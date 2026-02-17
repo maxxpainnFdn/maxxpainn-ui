@@ -147,7 +147,10 @@ export default function Navigation() {
               )}
             </div>
             
-            <MobileNav navItems={navItems} />
+            <MobileNav
+              navItems={navItems}
+              docsLinks={docsLinks}
+            />
           </div>
         </div>
       </nav>

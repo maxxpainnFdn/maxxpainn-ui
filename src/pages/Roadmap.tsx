@@ -162,32 +162,20 @@ const Roadmap = () => {
           
           {/* --- HEADER --- */}
           <div className="text-center mb-20">
-            <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-gray-900/50 border border-purple-500/20 mb-8 backdrop-blur-md">
-              <Target className="w-4 h-4 text-purple-500 animate-pulse" />
-              <span className="text-xs font-bold tracking-[0.3em] bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent uppercase">
-                The Journey
-              </span>
-            </div>
+    
 
-            <h1 className="text-3xl sm:text-5xl md:text-8xl font-black mb-6 tracking-tighter leading-none">
-              <span className="text-white">ROADMAP TO </span>
-              <span className="bg-gradient-to-r from-red-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                REDEMPTION
+            <h1 className="text-3xl sm:text-5xl md:text-8xl font-black mb-4 tracking-tighter leading-none">
+              <span className="text-white">PROJECT'S </span>
+              <span className="bg-gradient-to-r  from-purple-500 to-pink-500 bg-clip-text text-transparent">
+                ROADMAP
               </span>
             </h1>
             
-            <p className="text-lg sm:text-2xl text-gray-400 max-w-3xl mx-auto font-light mb-8">
-              From collective pain to unstoppable power.
-              <br />
-              <span className="text-white font-bold">This is how we're going to make it, anon.</span>
+            <p className="text-lg sm:text-2xl text-white max-w-3xl mx-auto font-light mb-8">
+              This is how we're going to make it, anon.
             </p>
 
-            {/* Current Status Badge */}
-            <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-orange-950/30 border border-orange-500/30 text-orange-400 font-bold uppercase tracking-wider">
-              <Flame className="w-5 h-5 animate-pulse" />
-              WAGMI MODE ACTIVATED
-              <Flame className="w-5 h-5 animate-pulse" />
-            </div>
+         
           </div>
 
           {/* --- TIMELINE --- */}
@@ -229,7 +217,7 @@ const Roadmap = () => {
                         )}
 
                         {/* Title */}
-                        <h3 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight">
+                        <h3 className="text-xl  md:text-4xl font-bold md:font-black text-white uppercase tracking-tight">
                           {phase.title}
                         </h3>
                       </div>
