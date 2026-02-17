@@ -61,9 +61,9 @@ const Manifesto = () => {
     
                   {/* Decorative divider */}
                   <div className="flex items-center justify-center gap-4 mt-12">
-                    <div className="h-px w-24 bg-gradient-to-r from-transparent to-purple-500"></div>
+                    <div className="h-18 w-18 md:h-24 md:w-24 bg-gradient-to-r from-transparent to-purple-500"></div>
                     <Flame className="w-8 h-8 text-pink-600" />
-                    <div className="h-px w-24 bg-gradient-to-l from-transparent to-purple-500"></div>
+                    <div className="h-18 w-18 md:h-24 md:w-24 bg-gradient-to-l from-transparent to-purple-500"></div>
                   </div>
                 </div>
     
@@ -73,7 +73,7 @@ const Manifesto = () => {
                   <section className="relative">
                     <div className="bg-gray-900/80 backdrop-blur-sm border border-purple-500/20 rounded-3xl p-8 md:p-12 shadow-2xl hover:border-purple-500/40 transition-all duration-300">
                       <div className="flex items-center gap-4 mb-8">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg">
+                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg">
                           <Shield className="w-8 h-8 text-white" />
                         </div>
                         <h2 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
@@ -100,7 +100,7 @@ const Manifesto = () => {
                   <section>
                     <div className="bg-gray-900/80 backdrop-blur-sm border border-purple-500/20 rounded-3xl p-8 md:p-12 shadow-2xl">
                       <div className="flex items-center gap-4 mb-8">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-600 to-orange-600 flex items-center justify-center shadow-lg">
+                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-pink-600 to-orange-600 flex items-center justify-center shadow-lg">
                           <Flame className="w-8 h-8 text-white" />
                         </div>
                         <h2 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-pink-400 to-orange-400 bg-clip-text text-transparent">
@@ -140,7 +140,7 @@ const Manifesto = () => {
                       
                       <div className="relative z-10">
                         <div className="flex items-center gap-4 mb-8">
-                          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg">
+                          <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg">
                             <Target className="w-8 h-8 text-white" />
                           </div>
                           <h2 className="text-2xl md:text-4xl font-bold text-white">
@@ -184,10 +184,10 @@ const Manifesto = () => {
                       
                       <div className="relative z-10">
                         <div className="flex items-center gap-4 mb-8 justify-center">
-                          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-600 to-orange-600 flex items-center justify-center shadow-lg">
-                            <Users className="w-8 h-8 text-white" />
+                          <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-yellow-600 to-orange-600 flex items-center justify-center shadow-lg">
+                            <Users className="w-6 h-6 md:w-8 md:h-8  text-white" />
                           </div>
-                          <h2 className="text-4xl font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
+                          <h2 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
                             The Promise
                           </h2>
                         </div>
