@@ -52,6 +52,14 @@ const Clans = () => {
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content="https://maxxpainn.com/images/pages/clans.jpg" />
       </Helmet>
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "MaxxPainn Clans",
+          "description": "Communities that earn per mint when selected during token minting."
+        })}
+      </script>
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900/20">
         <Navigation />
   
