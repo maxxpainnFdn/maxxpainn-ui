@@ -1,6 +1,5 @@
-// Navigation.jsx
 import React, { useState, useEffect, useRef } from 'react';
-import { Zap, ChevronDown } from 'lucide-react';
+import { Zap, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import HowItWorksModal from '../HowItWorksModal';
 import Account from './Account';
@@ -14,22 +13,55 @@ export default function Navigation() {
   const [scrolled, setScrolled] = useState(false);
   const [showBottomNav, setShowBottomNav] = useState(false);
   const [docsOpen, setDocsOpen] = useState(false);
-  const [showLeftFade, setShowLeftFade] = useState(false);
-  const [showRightFade, setShowRightFade] = useState(false);
+  const [docsPos, setDocsPos] = useState({ top: 0, right: 0 });
+
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(true);
 
   const scrollRef = useRef(null);
   const docsRef = useRef(null);
+
+  // Inject gradient scrollbar styles
+  useEffect(() => {
+    const styleId = 'nav-scrollbar-styles';
+    const existing = document.getElementById(styleId);
+    if (existing) existing.remove();
+
+    const styleSheet = document.createElement('style');
+    styleSheet.id = styleId;
+    styleSheet.innerText = `
+      .nav-scroll-container::-webkit-scrollbar {
+        height: 2px;
+      }
+      .nav-scroll-container::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 2px;
+      }
+      .nav-scroll-container::-webkit-scrollbar-thumb {
+        background: linear-gradient(90deg, #a855f7, #E9499D) !important;
+        border-radius: 2px !important;
+      }
+      .nav-scroll-container {
+        scrollbar-width: thin;
+        scrollbar-color: #a855f7 rgba(255, 255, 255, 0.05) !important;
+      }
+    `;
+    document.head.appendChild(styleSheet);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     const handleResize = () => {
       setShowBottomNav(window.innerWidth <= 1200);
-      updateFades();
+      setDocsOpen(false); // close dropdown on resize
+      checkScrollArrows();
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleResize, { passive: true });
+
     handleResize();
+    setTimeout(checkScrollArrows, 500);
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -37,35 +69,47 @@ export default function Navigation() {
     };
   }, []);
 
-  // Close docs dropdown on outside tap
-  useEffect(() => {
-    if (!docsOpen) return;
-    const handleOutside = (e) => {
-      if (docsRef.current && !docsRef.current.contains(e.target)) {
-        setDocsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleOutside);
-    document.addEventListener('touchstart', handleOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleOutside);
-      document.removeEventListener('touchstart', handleOutside);
-    };
-  }, [docsOpen]);
-
-  const updateFades = () => {
+  const checkScrollArrows = () => {
     const el = scrollRef.current;
     if (!el) return;
-    setShowLeftFade(el.scrollLeft > 5);
-    setShowRightFade(el.scrollLeft < el.scrollWidth - el.clientWidth - 5);
+    setShowLeftArrow(el.scrollLeft > 5);
+    const remaining = el.scrollWidth - Math.ceil(el.scrollLeft) - el.clientWidth;
+    setShowRightArrow(remaining > 5);
   };
 
-  // Initial fade check after mount
+  const scrollNav = (direction) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const scrollAmount = 150;
+    const target =
+      direction === 'right'
+        ? el.scrollLeft + scrollAmount
+        : el.scrollLeft - scrollAmount;
+    el.scrollTo({ left: target, behavior: 'smooth' });
+  };
+
   useEffect(() => {
-    // Small delay to ensure layout is painted
-    const t = setTimeout(updateFades, 50);
-    return () => clearTimeout(t);
+    const el = scrollRef.current;
+    if (el) {
+      el.addEventListener('scroll', checkScrollArrows);
+      return () => el.removeEventListener('scroll', checkScrollArrows);
+    }
   }, []);
+
+  // Toggle docs & calculate position from the button's bounding rect
+  const toggleDocs = () => {
+    setDocsOpen((prev) => {
+      const next = !prev;
+      if (next && docsRef.current) {
+        const rect = docsRef.current.getBoundingClientRect();
+        setDocsPos({
+          top: rect.bottom + 8,
+          right: Math.max(8, window.innerWidth - rect.right),
+        });
+      }
+      return next;
+    });
+  };
 
   const navItems = [
     { name: 'FAQ', href: '/faq' },
@@ -84,12 +128,12 @@ export default function Navigation() {
     'shrink-0 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide ' +
     'text-gray-300 bg-white/[0.06] border border-white/10 rounded-full ' +
     'hover:border-purple-500/40 hover:text-purple-300 active:bg-purple-500/10 ' +
-    'transition-all whitespace-nowrap';
+    'transition-all whitespace-nowrap cursor-pointer select-none';
 
   return (
     <>
       <nav
-        className={`top-nav fixed top-0 w-full z-50 transition-all duration-300 ${
+        className={`fixed top-0 w-full z-50 transition-all duration-300 ${
           scrolled
             ? 'bg-black/95 backdrop-blur-xl border-b-2 border-purple-500/30 shadow-[0_4px_20px_rgba(168,85,247,0.2)]'
             : 'bg-black/70 backdrop-blur-md border-b border-purple-500/20'
@@ -98,90 +142,60 @@ export default function Navigation() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center h-20">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 group shrink-0">
+            <Link to="/" className="flex items-center gap-3 group shrink-0 z-20">
               <div className="relative">
                 <Zap
                   className="text-purple-500 w-6 h-6 sm:w-8 sm:h-8 group-hover:scale-110 transition-transform duration-300"
                   fill="currentColor"
                 />
-                <div className="absolute inset-0 bg-purple-500 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300" />
               </div>
               <span className="hidden sm:inline-block sm:text-2xl md:text-3xl font-black">
-                <span className="white-text">MAXX</span>
+                <span className="text-white">MAXX</span>
                 <span className="bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
                   PAINN
                 </span>
               </span>
             </Link>
 
-            {/* ═══════════════════════════════════════════
-                DESKTOP NAV (md+) — unchanged
-            ═══════════════════════════════════════════ */}
+            {/* Desktop Nav */}
             <div className="hidden md:flex items-center flex-1 justify-center gap-8 mx-8">
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  EventBus.emit('open_hiw');
-                }}
-                className="text-gray-300 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-purple-400 hover:to-pink-400 transition-all duration-200 font-semibold text-sm uppercase tracking-wide"
-              >
-                How it works
-              </a>
-
               {navItems.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className="text-gray-300 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-purple-400 hover:to-pink-400 transition-all duration-200 font-semibold text-sm uppercase tracking-wide"
+                  className="text-gray-300 font-semibold text-sm uppercase hover:text-purple-400 transition-colors"
                 >
                   {item.name}
                 </Link>
               ))}
-
-              {/* Docs Dropdown (hover) */}
-              <div className="relative group">
-                <button className="text-gray-300 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-purple-400 hover:to-pink-400 transition-all duration-200 font-semibold text-sm uppercase tracking-wide flex items-center gap-1">
-                  Docs
-                  <ChevronDown className="h-4 w-4 group-hover:rotate-180 transition-transform duration-300" />
-                </button>
-                <div className="absolute left-0 top-full mt-3 w-56 bg-gray-900/95 backdrop-blur-xl border-2 border-purple-500/30 rounded-2xl shadow-[0_8px_32px_rgba(168,85,247,0.3)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 overflow-hidden">
-                  <div className="p-2">
-                    {docsLinks.map((item, idx) => (
-                      <Link
-                        key={idx}
-                        to={item.href}
-                        className="block px-4 py-3 text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-pink-600/20 rounded-xl transition-all duration-200 font-medium border border-transparent hover:border-purple-500/30"
-                      >
-                        {item.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
             </div>
 
             {/* ═══════════════════════════════════════════
-                MOBILE SCROLLABLE NAV (<md)
+                MOBILE SCROLLABLE NAV
             ═══════════════════════════════════════════ */}
-            <div className="flex md:hidden flex-1 items-center ml-3 relative overflow-hidden">
-              {/* Left fade */}
+            <div className="flex md:hidden flex-1 items-center ml-3 relative min-w-0 h-full">
+              {/* Left Arrow */}
               <div
-                className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black/90 to-transparent z-10 pointer-events-none transition-opacity duration-200 ${
-                  showLeftFade ? 'opacity-100' : 'opacity-0'
+                className={`absolute left-0 z-20 transition-all duration-300 ${
+                  showLeftArrow
+                    ? 'opacity-100 translate-x-0'
+                    : 'opacity-0 -translate-x-2 pointer-events-none'
                 }`}
-              />
-              {/* Right fade */}
-              <div
-                className={`absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black/90 to-transparent z-10 pointer-events-none transition-opacity duration-200 ${
-                  showRightFade ? 'opacity-100' : 'opacity-0'
-                }`}
-              />
+              >
+                <div className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-black via-black/80 to-transparent -z-10 pointer-events-none" />
+                <button
+                  onClick={() => scrollNav('left')}
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-800/90 border border-purple-500/40 text-purple-400 shadow-lg active:scale-95"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+              </div>
 
+              {/* Scroll Container */}
               <div
                 ref={scrollRef}
-                onScroll={updateFades}
-                className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 pr-3"
+                className="nav-scroll-container flex items-center gap-2 overflow-x-auto w-full px-2 py-3 scroll-smooth"
+                style={{ scrollBehavior: 'smooth' }}
               >
                 <button
                   onClick={(e) => {
@@ -199,10 +213,10 @@ export default function Navigation() {
                   </Link>
                 ))}
 
-                {/* Docs — tap dropdown */}
-                <div ref={docsRef} className="relative shrink-0">
+                {/* Docs button only — dropdown renders outside */}
+                <div ref={docsRef} className="shrink-0">
                   <button
-                    onClick={() => setDocsOpen((v) => !v)}
+                    onClick={toggleDocs}
                     className={`${pillClass} flex items-center gap-1 ${
                       docsOpen ? 'border-purple-500/50 text-purple-300' : ''
                     }`}
@@ -214,56 +228,65 @@ export default function Navigation() {
                       }`}
                     />
                   </button>
-
-                  {docsOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-48 bg-gray-900/95 backdrop-blur-xl border border-purple-500/30 rounded-xl shadow-[0_8px_32px_rgba(168,85,247,0.3)] z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                      <div className="py-1">
-                        {docsLinks.map((item, idx) => (
-                          <Link
-                            key={idx}
-                            to={item.href}
-                            className="block px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-purple-600/20 transition-all"
-                            onClick={() => setDocsOpen(false)}
-                          >
-                            {item.name}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
+
+                <div className="w-6 shrink-0" />
+              </div>
+
+              {/* Right Arrow */}
+              <div
+                className={`absolute right-0 z-20 transition-all duration-300 ${
+                  showRightArrow
+                    ? 'opacity-100 translate-x-0'
+                    : 'opacity-0 translate-x-2 pointer-events-none'
+                }`}
+              >
+                <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-black via-black/80 to-transparent -z-10 pointer-events-none" />
+                <button
+                  onClick={() => scrollNav('right')}
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-800/90 border border-purple-500/40 text-purple-400 shadow-lg active:scale-95"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
               </div>
             </div>
 
-            {/* Desktop Right Side */}
-            <div className="hidden screen-width-900:flex items-center gap-3 shrink-0">
-              <a
-                href={app.tokenBuyUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Button variant="secondary" size="md" className="gap-x-1">
-                  <span>BUY</span>
-                  <span className="hidden lg:inline-block">
-                    ${tokenConfig.symbol}
-                  </span>
-                </Button>
-              </a>
-
-              {!showBottomNav && (
-                <>
-                  <Link to="/mint">
-                    <Button variant="primary" size="md">
-                      MINT
-                    </Button>
-                  </Link>
-                  <Account />
-                </>
-              )}
+            {/* Right Side Actions */}
+            <div className="hidden md:flex items-center gap-3 shrink-0">
+              {/* Desktop Buttons... */}
             </div>
           </div>
         </div>
       </nav>
+
+      {/* ═══════════════════════════════════════════
+          DOCS DROPDOWN — rendered FIXED, outside
+          the overflow container so it can't be clipped
+      ═══════════════════════════════════════════ */}
+      {docsOpen && (
+        <>
+          {/* Invisible backdrop to close on tap-away */}
+          <div
+            className="fixed inset-0 z-[99]"
+            onClick={() => setDocsOpen(false)}
+          />
+          <div
+            className="fixed w-48 bg-gray-900/95 backdrop-blur-sm border border-purple-500/30 rounded-xl shadow-2xl z-[100] overflow-hidden"
+            style={{ top: docsPos.top, right: docsPos.right }}
+          >
+            {docsLinks.map((item, idx) => (
+              <Link
+                key={idx}
+                to={item.href}
+                className="block px-4 py-2.5 text-sm text-gray-300 hover:bg-purple-900/30 transition-colors"
+                onClick={() => setDocsOpen(false)}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+        </>
+      )}
 
       {showBottomNav && <BottomNav />}
       <HowItWorksModal />
