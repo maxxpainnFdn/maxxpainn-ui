@@ -27,6 +27,7 @@ import ClansModal from "@/components/clansModal/ClansModal";
 import MintPreview from "@/components/mint/MintPreview";
 import { ClanData } from "@/types/ClanData";
 import { tokenConfig } from "@/config/token";
+import { Helmet } from "react-helmet-async";
 
 interface ClaimRankForm {
   term:  number;
@@ -296,7 +297,29 @@ export default function Mint(){
       return utils.truncDecimals(eam, 2) + "x"
   }
 
+  const title = "Mint MaxxPainn - Free-to-Mint SPL Token on Solana";
+  const description = "Join MaxxPainn and mint your free Solana token. Stake, endure the time-locked staking, and earn rewards.";
+
   return (
+    <>
+      <Helmet>
+        {/* Page Title */}
+        <title>{title}</title>
+        <meta name="description" content={description} />
+  
+        {/* OpenGraph / Social Sharing */}
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://maxxpainn.com/mint" />
+        <meta property="og:image" content="https://maxxpainn.com/images/pages/mint.jpg" />
+  
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content="https://maxxpainn.com/images/pages/mint.jpg" />
+      </Helmet>
       <div className="min-h-screen bg-black text-white bg-gradient-to-br from-gray-900 via-black to-purple-900/20">
           <Navigation />
           <main className="pt-20 pb-12">
@@ -505,5 +528,6 @@ export default function Mint(){
           `}
           </style>
       </div>
+    </>
   )
 }

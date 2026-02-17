@@ -5,6 +5,7 @@ import './index.css'
 import Bugsnag from '@bugsnag/js'
 import BugsnagPluginReact from '@bugsnag/plugin-react'
 import BugsnagPerformance from '@bugsnag/browser-performance'
+import { HelmetProvider } from "react-helmet-async";
 
 Bugsnag.start({
   apiKey: '734c1846938d0ca78c21ad33646a7de3',
@@ -22,6 +23,8 @@ const root = createRoot(document.getElementById("root")!)
 
 root.render(
   <ErrorBoundary>
-    <App />
+    <HelmetProvider>
+      <App />
+    </HelmetProvider>
   </ErrorBoundary>
 )

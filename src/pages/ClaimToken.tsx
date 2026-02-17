@@ -26,6 +26,7 @@ import StakingModal from "@/components/staking/StakingModal";
 import { tokenConfig } from "@/config/token";
 import { stakingConfig } from "@/config/staking";
 import { BN } from "@coral-xyz/anchor";
+import { Helmet } from "react-helmet-async";
 
 interface TimeType {
   days: number;
@@ -436,166 +437,188 @@ export default function TokenClaim() {
     }
   };
 
+  const title = "MaxxPainn - Claim Your Freely Minted MaxxPainn Tokens";
+  const description = "Claim your earned MaxxPainn tokens safely and quickly. Participate in time-locked staking and maximize your rewards on Solana.";
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-purple-500/30 font-sans overflow-x-hidden">
-      <Navigation />
-      
-      { rewardInfo &&
-        <StakingModal
-          open={stakingModalOpen}
-          onChange={(state) => setStakingModalOpen(state)}
-          amount={{
-            valueRaw: rewardInfo.finalAmountRaw,
-            valueFormatted: rewardInfo.finalReward
-          }}
-          executeStake={handleClaimAndStake}
-        />
-      }
-      
-      {/* --- IMMERSIVE BACKGROUND --- */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-black to-black" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-purple-600/10 rounded-full blur-[120px] opacity-50" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:80px_80px]" />
-      </div>
-
-      <main className="relative z-10 pt-28 pb-20 min-h-screen flex flex-col items-center">
-        <div className="w-full h-full max-w-8xl mx-auto px-4 md:px-6">
-          <EnsureConnected className="min-h-[75vh]">
-            <LoadingView
-              error={pageError}
-              onReload={fetchAccountData}
-              loading={pageLoading}
-              className="h-[50vh] overflow-hidden"
-            >
-              {rankInfo && rewardInfo && (
-                <div className="flex flex-col gap-10 items-center">
-                  {/* --- 1. HEADER (Top) --- */}
-                  <div className="text-center animate-in fade-in slide-in-from-top-8 duration-700">
-                    <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-white tracking-tight mb-4">
-                      CLAIM{" "}
-                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
-                        TOKENS
-                      </span>
-                    </h1>
-                    <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
-                      The cycle is nearly complete.
-                      <span
-                        className={
-                          isClaimable
-                            ? "text-green-400 font-bold ml-2"
-                            : "text-purple-400 font-bold ml-2"
-                        }
-                      >
-                        {isClaimable
-                          ? "Rewards are ready for harvest."
-                          : "Endure the wait to maximize yield."}
-                      </span>
-                    </p>
-                  </div>
-
-                  {/* --- 2. RADIAL REACTOR (Middle) --- */}
-                  <CountDownTimer
-                    isClaimable={isClaimable}
-                    progressPercent={progressPercent}
-                    timeLeft={timeLeft}
-                  />
-
-                  {/* --- 3. HUD & ACTIONS (Bottom) --- */}
-                  <div className="w-full space-y-8 max-w-3xl">
-                    <ClaimTokenStats
-                      stats={{
-                        globalRank: globalRank.toLocaleString(),
-                        clan: rankInfo.clanId.toString(),
-                        rank: rankInfo.rankNo.toLocaleString(),
-                        waitTime: `${Math.floor(rankInfo.waitPeriodSecs.toNumber() / 86400)} Days`,
-                      }}
-                    />
-
-                    {/* Reward Card */}
-                    <div className="relative group overflow-hidden rounded-3xl bg-gray-900/60 border border-white/10 backdrop-blur-xl">
-                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-pink-500/5 opacity-50" />
-                      <div className="relative p-8 flex flex-col items-center text-center">
-                        <p className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2 flex items-center gap-2">
-                          <Sparkle className="w-3 h-3 text-yellow-400" />{" "}
-                          Estimated Reward
-                        </p>
-                        <div className="flex flex-col  gap-2">
-                          <span
-                            className={`text-xl xs:text-2xl sm:text-4xl lg:text-5xl font-black font-mono tracking-tighter ${rewardInfo.daysLate > 0 ? "text-red-400 line-through opacity-40 " : "text-white"}`}
-                          >
-                            {utils.toLocaleString(rewardInfo.rewardAmount)}
-                          </span>
-                          {rewardInfo.daysLate > 0 && (
-                            <span className="text-xl xs:text-2xl sm:text-4xl lg:text-5xl font-black font-mono tracking-tighter text-white animate-pulse">
-                              {utils.toLocaleString(rewardInfo.finalReward)}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm font-bold text-purple-500 mt-2 tracking-wide">
-                          $PAINN Tokens
-                        </p>
-                      </div>
-                      <div className="w-full h-1 bg-gray-800">
-                        <div
-                          className={`h-full transition-all duration-1000 ${isClaimable ? "bg-green-500" : "bg-gradient-to-r from-purple-600 to-pink-600"}`}
-                          style={{ width: `${progressPercent}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                      <Button
-                        disabled={!isClaimable || claiming}
-                        loading={claiming}
-                        onClick={() => handleClaim()}
-                        variant="secondary"
-                        size="xl"
-                        className="flex-1 py-8 rounded-2xl text-lg font-bold bg-gray-800 hover:bg-gray-700 border border-white/5"
-                      >
-                        <span className="flex items-center gap-3">
-                          <Coins className="w-5 h-5 text-gray-400" /> Claim to
-                          Wallet
-                        </span>
-                      </Button>
-                      <Button
-                        disabled={!isClaimable || claiming}
-                        onClick={() => setStakingModalOpen(true)}
-                        variant="primary"
-                        size="xl"
-                        className="flex-1 py-8 rounded-2xl text-lg font-bold shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:shadow-[0_0_50px_rgba(168,85,247,0.5)]"
-                      >
-                        <span className="flex items-center gap-3">
-                          <Flame className="w-5 h-5 text-pink-200 fill-current" />{" "}
-                          Claim & Stake
-                        </span>
-                      </Button>
-                    </div>
-
-                    {/* --- 4. DETAILS GRID (New Section) --- */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8 border-t border-white/5">
-                      {/* Card 1: Multipliers */}
-                      <MultipliersCard
-                        rewardInfo={rewardInfo}
-                        rankNo={rankInfo.rankNo.toNumber()}
-                        globalRank={globalRank}
-                      />
-
-                      {/* Card 2: Penalty Schedule */}
-                      <LatePenaltyCard daysLate={rewardInfo.daysLate} />
-
-                      {/* Card 3: Quick Info */}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </LoadingView>
-          </EnsureConnected>
+    <>
+      <Helmet>
+        {/* Page Title */}
+        <title>{title}</title>
+        <meta name="description" content={description} />
+  
+        {/* OpenGraph / Social Sharing */}
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://maxxpainn.com/claim" />
+        <meta property="og:image" content="https://maxxpainn.com/images/pages/claim.jpeg" />
+  
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content="https://maxxpainn.com/images/pages/claim.jpeg" />
+      </Helmet>
+      <div className="min-h-screen bg-black text-white selection:bg-purple-500/30 font-sans overflow-x-hidden">
+        <Navigation />
+        
+        { rewardInfo &&
+          <StakingModal
+            open={stakingModalOpen}
+            onChange={(state) => setStakingModalOpen(state)}
+            amount={{
+              valueRaw: rewardInfo.finalAmountRaw,
+              valueFormatted: rewardInfo.finalReward
+            }}
+            executeStake={handleClaimAndStake}
+          />
+        }
+        
+        {/* --- IMMERSIVE BACKGROUND --- */}
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-black to-black" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-purple-600/10 rounded-full blur-[120px] opacity-50" />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:80px_80px]" />
         </div>
-      </main>
-      <Footer />
-    </div>
+  
+        <main className="relative z-10 pt-28 pb-20 min-h-screen flex flex-col items-center">
+          <div className="w-full h-full max-w-8xl mx-auto px-4 md:px-6">
+            <EnsureConnected className="min-h-[75vh]">
+              <LoadingView
+                error={pageError}
+                onReload={fetchAccountData}
+                loading={pageLoading}
+                className="h-[50vh] overflow-hidden"
+              >
+                {rankInfo && rewardInfo && (
+                  <div className="flex flex-col gap-10 items-center">
+                    {/* --- 1. HEADER (Top) --- */}
+                    <div className="text-center animate-in fade-in slide-in-from-top-8 duration-700">
+                      <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-white tracking-tight mb-4">
+                        CLAIM{" "}
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
+                          TOKENS
+                        </span>
+                      </h1>
+                      <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                        The cycle is nearly complete.
+                        <span
+                          className={
+                            isClaimable
+                              ? "text-green-400 font-bold ml-2"
+                              : "text-purple-400 font-bold ml-2"
+                          }
+                        >
+                          {isClaimable
+                            ? "Rewards are ready for harvest."
+                            : "Endure the wait to maximize yield."}
+                        </span>
+                      </p>
+                    </div>
+  
+                    {/* --- 2. RADIAL REACTOR (Middle) --- */}
+                    <CountDownTimer
+                      isClaimable={isClaimable}
+                      progressPercent={progressPercent}
+                      timeLeft={timeLeft}
+                    />
+  
+                    {/* --- 3. HUD & ACTIONS (Bottom) --- */}
+                    <div className="w-full space-y-8 max-w-3xl">
+                      <ClaimTokenStats
+                        stats={{
+                          globalRank: globalRank.toLocaleString(),
+                          clan: rankInfo.clanId.toString(),
+                          rank: rankInfo.rankNo.toLocaleString(),
+                          waitTime: `${Math.floor(rankInfo.waitPeriodSecs.toNumber() / 86400)} Days`,
+                        }}
+                      />
+  
+                      {/* Reward Card */}
+                      <div className="relative group overflow-hidden rounded-3xl bg-gray-900/60 border border-white/10 backdrop-blur-xl">
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-pink-500/5 opacity-50" />
+                        <div className="relative p-8 flex flex-col items-center text-center">
+                          <p className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2 flex items-center gap-2">
+                            <Sparkle className="w-3 h-3 text-yellow-400" />{" "}
+                            Estimated Reward
+                          </p>
+                          <div className="flex flex-col  gap-2">
+                            <span
+                              className={`text-xl xs:text-2xl sm:text-4xl lg:text-5xl font-black font-mono tracking-tighter ${rewardInfo.daysLate > 0 ? "text-red-400 line-through opacity-40 " : "text-white"}`}
+                            >
+                              {utils.toLocaleString(rewardInfo.rewardAmount)}
+                            </span>
+                            {rewardInfo.daysLate > 0 && (
+                              <span className="text-xl xs:text-2xl sm:text-4xl lg:text-5xl font-black font-mono tracking-tighter text-white animate-pulse">
+                                {utils.toLocaleString(rewardInfo.finalReward)}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm font-bold text-purple-500 mt-2 tracking-wide">
+                            $PAINN Tokens
+                          </p>
+                        </div>
+                        <div className="w-full h-1 bg-gray-800">
+                          <div
+                            className={`h-full transition-all duration-1000 ${isClaimable ? "bg-green-500" : "bg-gradient-to-r from-purple-600 to-pink-600"}`}
+                            style={{ width: `${progressPercent}%` }}
+                          />
+                        </div>
+                      </div>
+  
+                      {/* Action Buttons */}
+                      <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                        <Button
+                          disabled={!isClaimable || claiming}
+                          loading={claiming}
+                          onClick={() => handleClaim()}
+                          variant="secondary"
+                          size="xl"
+                          className="flex-1 py-8 rounded-2xl text-lg font-bold bg-gray-800 hover:bg-gray-700 border border-white/5"
+                        >
+                          <span className="flex items-center gap-3">
+                            <Coins className="w-5 h-5 text-gray-400" /> Claim to
+                            Wallet
+                          </span>
+                        </Button>
+                        <Button
+                          disabled={!isClaimable || claiming}
+                          onClick={() => setStakingModalOpen(true)}
+                          variant="primary"
+                          size="xl"
+                          className="flex-1 py-8 rounded-2xl text-lg font-bold shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:shadow-[0_0_50px_rgba(168,85,247,0.5)]"
+                        >
+                          <span className="flex items-center gap-3">
+                            <Flame className="w-5 h-5 text-pink-200 fill-current" />{" "}
+                            Claim & Stake
+                          </span>
+                        </Button>
+                      </div>
+  
+                      {/* --- 4. DETAILS GRID (New Section) --- */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8 border-t border-white/5">
+                        {/* Card 1: Multipliers */}
+                        <MultipliersCard
+                          rewardInfo={rewardInfo}
+                          rankNo={rankInfo.rankNo.toNumber()}
+                          globalRank={globalRank}
+                        />
+  
+                        {/* Card 2: Penalty Schedule */}
+                        <LatePenaltyCard daysLate={rewardInfo.daysLate} />
+  
+                        {/* Card 3: Quick Info */}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </LoadingView>
+            </EnsureConnected>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    </>
   );
 }

@@ -302,7 +302,7 @@ const Whitepaper = () => {
                 <ContentCard>
                   <LeadText>
                     MAXXPAINN is a decentralized token distribution protocol that introduces
-                    <Highlight>Proof-of-Patience (PoP)</Highlight> as its core consensus mechanism.
+                    {" "}<Highlight>Proof-of-Patience (PoP)</Highlight> as its core consensus mechanism.
                     Unlike traditional token launches that favor capital, MAXXPAINN rewards participants
                     who demonstrate commitment through time-locked waiting periods.
                   </LeadText>
@@ -315,7 +315,7 @@ const Whitepaper = () => {
                   </Paragraph>
 
                   <Paragraph>
-                    The protocol introduces a novel <Highlight>Supply-Based Difficulty Adjustment</Highlight> system
+                    The protocol introduces a novel <Highlight>Rank-Based Difficulty Adjustment</Highlight> system
                     that progressively increases the cost of minting (via account storage rent) as participation grows. This creates
                     natural economic pressure that transitions the ecosystem from mint-dominated to
                     market-dominated token acquisition over time.
