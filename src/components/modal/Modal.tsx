@@ -25,6 +25,8 @@ export interface ModalProps {
   trigger?: ReactNode;
   onOpenChange?: (open: boolean) => void;
   className?: string;
+  desktopClass?: string;
+  desktopDialogProps?: object;
   children?: ReactNode | any;
   size?: number | string;
   modalFooter?: ReactNode | any
@@ -38,6 +40,8 @@ export default function Modal({
   trigger,
   onOpenChange,
   className = "",
+  desktopClass = "",
+  desktopDialogProps = {},
   size,
   children = <></>,
   modalFooter
@@ -45,6 +49,8 @@ export default function Modal({
 
   const [isOpen, setIsOpen] = useState(open);
   const isDesktop = useMediaQuery("(min-width: 768px)");
+  
+  //console.log("desktopClass====>", desktopClass)
 
   useEffect(() => {
     setIsOpen(open);
@@ -117,8 +123,7 @@ export default function Modal({
               bg-gray-900 border-t border-white/10 flex flex-col rounded-t-[20px]
               h-auto max-h-[90vh] mt-24 fixed bottom-0 left-0 right-0 z-50 focus:outline-none
               shadow-[0_-10px_40px_rgba(0,0,0,0.6)]
-              overflow-hidden /* Ensures gradient adheres to rounded corners */
-              ${className}
+              overflow-hidden ${className} 
             `}
           >
             {/* 1. Gradient Line at the absolute top */}
@@ -149,7 +154,8 @@ export default function Modal({
   if(isDesktop){
     dialogContentExtraProps = {
       onEscapeKeyDown: ((e) => e.preventDefault()),
-      onPointerDownOutside: ((e) => e.preventDefault())
+      onPointerDownOutside: ((e) => e.preventDefault()),
+      ...desktopDialogProps
     }
   }
 
@@ -169,7 +175,7 @@ export default function Modal({
           fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]
           w-[var(--desktop-width)] rounded-xl h-auto max-h-[85vh]
           data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-1/2
-          ${className}
+          ${className} ${desktopClass}
         `}
         { ...dialogContentExtraProps }
       >
@@ -177,7 +183,7 @@ export default function Modal({
         <GradientLine />
 
         {/* Accessible Titles */}
-        <DialogTitle className="sr-only">{title}</DialogTitle>
+        <DialogTitle className="sr-only text-lg">{title}</DialogTitle>
         <DialogDescription className="sr-only">{description}</DialogDescription>
 
         <HeaderContent />

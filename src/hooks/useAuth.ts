@@ -231,7 +231,12 @@ export function useAuth(): UseAuthReturn {
     }
 
     //lets update the new accessToken
-    let authData = refreshStatus.getData() as SessionData;
+    let authData = refreshStatus.getData() as SessionData | null;
+    
+    if (!authData || authData == null) {
+      setAuthSession(null)
+      return;
+    }
 
     if(authData.isAuthenticated){
 
