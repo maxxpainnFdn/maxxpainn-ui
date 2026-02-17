@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible';
 import Button from '../button/Button';
 import { ClanCategories } from '@/data/clanCategories'; // Ensure this path is correct
+import Modal from '../modal/Modal';
 
 interface CreateClanForm {
     name: string;
@@ -28,7 +29,7 @@ interface CreateClanForm {
     website?: string;
 }
 
-const CreateClan = ({ }) => {
+const CreateClan = () => {
 
     const [isDialogOpen, setDialogOpen] = useState(false)
     const [socialOpen, setSocialOpen] = useState(false)
@@ -80,44 +81,39 @@ const CreateClan = ({ }) => {
 
     // Custom background class for inputs to contrast with Dialog
     const inputBgClass = "bg-gray-900/50 border-white/10 focus-visible:bg-black/60";
-
-    return (
-        <Dialog
-            open={isDialogOpen}
-            onOpenChange={setDialogOpen}
-            modal={true}
+    
+  const Title = () => (
+    <div  className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+      <div className="p-2 bg-purple-500/10 rounded-lg border border-purple-500/20">
+        <Swords className="w-6 h-6 text-purple-400" />
+      </div>
+      Create Clan
+    </div>
+  )
+  
+  return (
+      <>
+        <Button
+          variant='primary'
+          size="md"
+          className="shadow-lg shadow-purple-500/20"
+          onClick={() => setDialogOpen(true) }
         >
-            <DialogTrigger asChild>
-                <Button
-                  variant='primary'
-                  size="md"
-                  className="shadow-lg shadow-purple-500/20"
-                >
-                  <Plus className="w-5 h-5 mr-2" /> Create Clan
-                </Button>
-            </DialogTrigger>
+          <Plus className="w-5 h-5 mr-2" /> Create Clan
+        </Button>
+      
+        <Modal
+          open={isDialogOpen}
+          onOpenChange={setDialogOpen}
+          title={<Title />}
+          description="Forge your alliance. Build your legacy."
+          desktopClass="sm:max-w-[550px] max-h-[85vh] flex flex-col bg-gray-900/95 backdrop-blur-2xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] p-0 gap-0 overflow-hidden"
+        >
+           
 
-            <DialogContent
-                className="sm:max-w-[550px] max-h-[85vh] flex flex-col bg-gray-900/95 backdrop-blur-2xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] p-0 gap-0 overflow-hidden"
-                onPointerDownOutside={(e) => e.preventDefault()}
-                onInteractOutside={(e) => e.preventDefault()}
-                onEscapeKeyDown={(e) => e.preventDefault()}
-            >
+          
                 {/* Header with Gradient Line */}
-                <div className="relative p-6 pb-4 border-b border-white/5 bg-black/20">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600" />
-                    <DialogHeader>
-                        <DialogTitle className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-                            <div className="p-2 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                                <Swords className="w-6 h-6 text-purple-400" />
-                            </div>
-                            Create Clan
-                        </DialogTitle>
-                        <DialogDescription className="text-gray-400 ml-1">
-                            Forge your alliance. Build your legacy.
-                        </DialogDescription>
-                    </DialogHeader>
-                </div>
+          
 
                 <div className="overflow-y-auto flex-1 p-6 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
                     <EnsureConnected>
@@ -313,8 +309,8 @@ const CreateClan = ({ }) => {
                         </form>
                     </EnsureConnected>
                 </div>
-            </DialogContent>
-        </Dialog>
+            </Modal>
+      </>
     )
 }
 

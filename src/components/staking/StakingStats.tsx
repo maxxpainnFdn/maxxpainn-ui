@@ -9,25 +9,27 @@ const { minTermDays } = stakingConfig;
 
 export default function StakingStats({ data }: Record<string, any>) {
   
+  const symbol = "$"+tokenConfig.symbol;
+  
   const metadataObj = {
     tvl: {
       label: "TVL",
       icon: Lock,
       color: "purple",
-      subValue: `${tokenConfig.symbol} TOKENS`,
+      subValue: `${symbol} TOKENS`,
     },
     userStake: {
       label: "My Stake",
       icon: Wallet,
       color: "pink",
-      subValue: `${tokenConfig.symbol} TOKENS`,
+      subValue: `${symbol}`,
     },
 
     userRewards: {
       label: "My Rewards",
       icon: Flame,
       color: "red",
-      subValue: `${tokenConfig.symbol} TOKENS`,
+      subValue: `${symbol}`,
     },
     maxYield: {
       label: "Max Yield",
@@ -38,7 +40,7 @@ export default function StakingStats({ data }: Record<string, any>) {
   };
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-5 mb-12">
       {Object.keys(data).map((key) => {
         
         let { label, subValue, icon, color } = metadataObj[key];

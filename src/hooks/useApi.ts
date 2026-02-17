@@ -17,6 +17,10 @@ export function useApi() {
 
     //lets check if the access token has expired, then we will referesh
     const accessTokenStatus = await getAccessToken()
+    
+    if (!accessTokenStatus) {
+      return Status.error("login required")
+    }
 
     if(accessTokenStatus.isError()){
       return accessTokenStatus

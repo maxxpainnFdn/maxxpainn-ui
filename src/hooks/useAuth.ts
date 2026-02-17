@@ -235,7 +235,7 @@ export function useAuth(): UseAuthReturn {
     
     if (!authData || authData == null) {
       setAuthSession(null)
-      return;
+      return Status.error("login required");
     }
 
     if(authData.isAuthenticated){
