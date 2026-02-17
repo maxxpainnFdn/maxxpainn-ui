@@ -420,7 +420,7 @@ html {
 
 /* Shown on hover */
 .nav-scroll-container:hover::-webkit-scrollbar {
-  height: 3px;
+  height: 2px;
 }
 
 .nav-scroll-container::-webkit-scrollbar-track {
@@ -428,8 +428,7 @@ html {
   border-radius: 2px !important;
 }
 .nav-scroll-container::-webkit-scrollbar-thumb {
-  /*background: linear-gradient(135deg, #8b5cf6, #ef4444) !important;*/
-  background: #8b5cf6;
+  background: linear-gradient(135deg, #8b5cf6, #db2777) !important;
   border-radius: 2px !important;
 }
 
