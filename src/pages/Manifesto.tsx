@@ -217,7 +217,7 @@ const Manifesto = () => {
                     <div className="relative inline-block">
                       <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 blur-3xl opacity-30"></div>
                       <div className="relative">
-                        <h2 className="text-5xl md:text-6xl font-black mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-pink-600 bg-clip-text text-transparent">
+                        <h2 className="text-4xl md:text-6xl font-black mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-pink-600 bg-clip-text text-transparent">
                           JOIN THE REVOLUTION
                         </h2>
                       </div>
