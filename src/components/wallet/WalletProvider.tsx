@@ -31,7 +31,7 @@ export const WalletProvider = ({
   const [pageKey, setPageKey] = useState(1)
   
   useEffect(() => {
-    const oldNetwork = localStorage.get(walletConfig.networkStorageKey) || ""
+    const oldNetwork = localStorage.getItem(walletConfig.networkStorageKey) || ""
     if (oldNetwork != "" && getNetworkById(oldNetwork) == null) {
       localStorage.removeItem(walletConfig.networkStorageKey)
       setPageKey(prev => (prev++))

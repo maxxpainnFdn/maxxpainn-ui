@@ -1,5 +1,6 @@
 import Spinner from "@/components/spinner/Spinner";
 import EventBus from "@/core/EventBus";
+import usePageView from "@/hooks/usePageView";
 import { lazy, Suspense, useEffect, FC } from "react";
 import { BrowserRouter, Routes as ReactRoutes, Route, useNavigate } from "react-router-dom";
 
@@ -61,6 +62,9 @@ export default function Routes() {
 const NavigationComp: FC = () => {
 
   const navigate = useNavigate()
+  
+  // analytics
+  usePageView(); 
 
   useEffect(()=>{
     EventBus.on("navigate", (uri) => {
