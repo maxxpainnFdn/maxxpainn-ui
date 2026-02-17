@@ -43,7 +43,7 @@ const Clans = () => {
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://maxxpainn.com/clans" />
+        <meta property="og:url" content="https://maxxpainn.com/manifesto" />
         <meta property="og:image" content="https://maxxpainn.com/images/pages/clans.jpg" />
   
         {/* Twitter */}
