@@ -348,8 +348,8 @@ const EnhancedHero = () => {
               Every degen knows the pain. The rugs that stole our dreams. The
               liquidations that crushed our souls.
               <br className="hidden md:block" />
-              <span className="block mt-6 text-xl sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 drop-shadow-md">
-                But we're still here. Still fighting. Still believing.
+              <span className="block mt-6 text-xl sm:text-2xl  text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 drop-shadow-md">
+                For degens who've bled in the trenches. Share your story, earn liquid $MAXX SPL tokens.
               </span>
               <br />
               <span className="text-sm md:text-base text-gray-400 uppercase tracking-widest mt-4 block">
