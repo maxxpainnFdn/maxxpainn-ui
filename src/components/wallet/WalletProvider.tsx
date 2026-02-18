@@ -3,7 +3,7 @@ import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { ConnectionProvider, WalletProvider as SolanaWalletProvider } from '@solana/wallet-adapter-react';
 import {
   PhantomWalletAdapter,
-  SolflareWalletAdapter,
+ // SolflareWalletAdapter,
   LedgerWalletAdapter,
   CoinbaseWalletAdapter,
   TrustWalletAdapter,
@@ -41,14 +41,14 @@ export const WalletProvider = ({
   ///console.log("currentNetwork===>", currentNetwork)
 
   const wallets = useMemo(() => [
-    new PhantomWalletAdapter(),
-    new SolflareWalletAdapter(),
-    new TrustWalletAdapter(),
-    new CoinbaseWalletAdapter(),
-    new LedgerWalletAdapter(),
-    new MathWalletAdapter(),
-    new Coin98WalletAdapter(),
-    new SafePalWalletAdapter(),
+   // new PhantomWalletAdapter(),
+   // new SolflareWalletAdapter(),
+    //new TrustWalletAdapter(),
+    //new CoinbaseWalletAdapter(),
+    //new LedgerWalletAdapter(),
+    //new MathWalletAdapter(),
+    //new Coin98WalletAdapter(),
+    //new SafePalWalletAdapter(),
   ], []);
 
   initializeWhenDetected()

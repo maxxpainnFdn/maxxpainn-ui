@@ -9,7 +9,7 @@ import {
   Mail,
 } from 'lucide-react';
 import socials from '@/config/socials';
-import { SiX } from '@icons-pack/react-simple-icons';
+import { SiMedium, SiReddit, SiX, SiYoutube } from '@icons-pack/react-simple-icons';
 
 const Link = ({
   to,
@@ -87,11 +87,32 @@ const Footer: React.FC = () => {
                       'hover:bg-blue-500/20 hover:border-blue-500/50',
                   },
                   {
+                    icon: SiYoutube,
+                    href: `https://t.me/${socials.youtube}`,
+                    label: 'Youtube',
+                    color:
+                      'hover:bg-red-500/20 hover:border-red-500/50',
+                  },
+                  {
                     icon: Send,
                     href: `https://t.me/${socials.telegram}`,
                     label: 'Telegram',
                     color:
                       'hover:bg-cyan-500/20 hover:border-cyan-500/50',
+                  },
+                  {
+                    icon: SiMedium,
+                    href: socials.medium,
+                    label: 'Medium',
+                    color:
+                      'hover:bg-black-500/20 hover:border-black-500/50',
+                  },
+                  {
+                    icon: SiReddit,
+                    href: socials.reddit,
+                    label: 'Reddit',
+                    color:
+                      'hover:bg-red-500/20 hover:border-red-500/50',
                   },
                   {
                     icon: Mail,
