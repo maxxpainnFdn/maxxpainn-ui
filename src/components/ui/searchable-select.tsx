@@ -36,6 +36,9 @@ export function SearchableSelect({
   const [highlightedIndex, setHighlightedIndex] = React.useState(0)
   const listRef = React.useRef<HTMLDivElement>(null)
   const inputRef = React.useRef<HTMLInputElement>(null)
+  
+  // FIX 1: Track if the user is using a pointer (mouse/touch) or keyboard
+  const isPointerRef = React.useRef(false)
 
   const filteredOptions = React.useMemo(() => {
     return options.filter((item) =>
@@ -52,7 +55,9 @@ export function SearchableSelect({
   }, [searchQuery])
 
   React.useEffect(() => {
-    if (open && listRef.current) {
+    // FIX 2: Only programmatically scroll if the user is using the KEYBOARD.
+    // If they are scrolling with mouse/touch, let native CSS scroll handle it.
+    if (open && listRef.current && !isPointerRef.current) {
       const activeItem = listRef.current.children[highlightedIndex] as HTMLElement
       if (activeItem) {
         activeItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
@@ -71,10 +76,15 @@ export function SearchableSelect({
     if (!open) {
       if (e.key === "Enter" || e.key === "ArrowDown") {
         setOpen(true)
+        // Reset pointer flag so auto-scroll works immediately
+        isPointerRef.current = false 
         e.preventDefault()
       }
       return
     }
+
+    // Set to keyboard mode
+    isPointerRef.current = false
 
     switch (e.key) {
       case "ArrowDown":
@@ -108,9 +118,9 @@ export function SearchableSelect({
     setSearchQuery("")
   }
 
-  // Handle wheel event for trackpad scrolling
-  const handleWheel = (e: React.WheelEvent) => {
-    e.stopPropagation()
+  // FIX 3: Detect pointer movement to disable auto-scroll
+  const handlePointerMove = () => {
+    isPointerRef.current = true
   }
 
   return (
@@ -147,8 +157,6 @@ export function SearchableSelect({
         align="start"
         sideOffset={8}
         onOpenAutoFocus={(e) => e.preventDefault()}
-        // Prevent scroll event from propagating to parent/body
-        onWheel={handleWheel}
       >
         <div className="flex flex-col w-full overflow-hidden rounded-xl">
           {/* Search Header */}
@@ -164,13 +172,13 @@ export function SearchableSelect({
             />
           </div>
 
-          {/* Gradient Line Separator */}
           <div className="h-px w-full bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
 
-          {/* Options List - Fixed scroll container */}
+          {/* Options List */}
           <div
             ref={listRef}
-            onWheel={handleWheel}
+            // Add pointer move handler to the container
+            onPointerMove={handlePointerMove}
             className="overflow-y-auto overscroll-contain p-2"
             style={{
               maxHeight: '300px',
@@ -191,7 +199,12 @@ export function SearchableSelect({
                   <div
                     key={option.value}
                     onClick={() => handleSelect(option.value)}
-                    onMouseEnter={() => setHighlightedIndex(index)}
+                    onMouseEnter={() => {
+                        // Only highlight if we are actually moving the pointer,
+                        // not just scrolling the page under the pointer
+                        isPointerRef.current = true
+                        setHighlightedIndex(index)
+                    }}
                     className={cn(
                       "relative flex cursor-pointer select-none items-center rounded-lg px-3.5 py-3.5 text-base sm:text-sm outline-none transition-all duration-200 mb-1 last:mb-0",
                       isHighlighted ? "bg-white/5 text-purple-100 pl-5" : "text-gray-400",
