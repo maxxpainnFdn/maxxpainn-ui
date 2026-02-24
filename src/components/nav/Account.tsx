@@ -1,59 +1,74 @@
-import utils from '@/lib/utils'
+/**
+ * MAXXPAINN — Account / Wallet Button
+ *
+ * Uses the Button component with btn-s (secondary) variant.
+ * clip-edges from globals.css for the avatar badge.
+ */
+
+import utils from '@/lib/utils';
 import ImageAvatar from "../ImageAvatar";
 import { botttsNeutral } from "@dicebear/collection";
 import { useWalletCore } from "@/hooks/useWalletCore";
 import { Wallet } from "lucide-react";
 import Button from '../button/Button';
-import { useEffect } from 'react';
 
-export default function Account({
-  btnProps = {}
-}) {
+export default function Account({ btnProps = {} }) {
+  const {
+    isConnected,
+    isConnecting,
+    openModal,
+    address = "",
+  } = useWalletCore();
 
-    const {
-        isConnected,
-        isConnecting,
-        openModal,
-        address = "",
-        wallet,
-        networkId
-    } = useWalletCore()
-    
-    return (
-      <div className="relative group w-full">
-        {(!isConnected || isConnecting) ? (
-          <Button
-            {...btnProps}
-            variant="secondary"
-            size="md"
-            onClick={() => openModal()}
-            disabled={isConnecting}
-            className="px-2 h-12 w-12 sm:w-full sm:px-6  hover:scale-100 active:scale-100" // Square-ish on mobile
-          >
-            <div className="relative flex items-center justify-center gap-2">
-              <Wallet className="w-6 h-6 text-purple-300" />
+  return (
+    <div className="relative w-full md:w-auto">
 
-              <span className="hidden sm:inline">
-                {isConnecting ? '...' : 'CONNECT'}
-              </span>
-            </div>
-          </Button>
-        ) : (
-          <Button
-            onClick={() => openModal() }
-             {...btnProps}
-            size="md"
-            variant="secondary"
-            className="px-2 h-12 w-12 sm:w-full sm:px-6 hover:scale-100 active:scale-100"
-          >
-            <div className="flex items-center gap-2 sm:gap-3 justify-center">
-              <div className="w-6 h-6 rounded-md bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shrink-0">
-                <ImageAvatar seed={address || ""} radius={0} className="w-6 h-6 rounded-md" avatarType={botttsNeutral} />
-              </div>
-              <span className="">{utils.maskAddress(address || "")}</span>
-            </div>
-          </Button>
-        )}
-      </div>
-    )
+      {/* ── NOT CONNECTED ── */}
+      {(!isConnected || isConnecting) ? (
+        <Button
+          {...btnProps}
+          variant="secondary"
+          fullWidth
+          onClick={() => openModal()}
+          disabled={isConnecting}
+          className="h-12 !px-0 sm:!px-5 justify-center"
+        >
+          <Wallet
+            size={16}
+            className={isConnecting ? "text-purple-400/50 animate-pulse" : "text-purple-400"}
+          />
+          <span className="hidden sm:inline-block text-[0.82rem] tracking-[0.06em] uppercase">
+            {isConnecting ? "..." : "CONNECT"}
+          </span>
+        </Button>
+
+      ) : (
+
+        /* ── CONNECTED ── */
+        <Button
+          {...btnProps}
+          variant="secondary"
+          fullWidth
+          onClick={() => openModal()}
+          className="h-12 !px-2 sm:!px-4 justify-center"
+        >
+          {/* avatar badge */}
+          <div className="w-[22px] h-[22px] flex-shrink-0 overflow-hidden border border-pink-500/50 bg-pink-500/10 clip-edges">
+            <ImageAvatar
+              seed={address}
+              radius={0}
+              className="w-full h-full"
+              avatarType={botttsNeutral}
+            />
+          </div>
+
+          {/* masked address */}
+          <span>
+            {utils.maskAddress(address)}
+          </span>
+        </Button>
+      )}
+
+    </div>
+  );
 }

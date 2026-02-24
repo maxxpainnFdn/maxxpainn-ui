@@ -320,6 +320,16 @@ export default function Mint(){
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content="https://maxxpainn.com/images/pages/mint.jpg" />
       </Helmet>
+      <script type="application/json">
+        {`
+          {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "MaxxPainn Mint",
+            "description": "Mint MaxxPainn token with Proof of Patience. Free-to-mint protocol on Solana."
+          }
+        `}
+      </script>
       <div className="min-h-screen bg-black text-white bg-gradient-to-br from-gray-900 via-black to-purple-900/20">
           <Navigation />
           <main className="pt-20 pb-12">

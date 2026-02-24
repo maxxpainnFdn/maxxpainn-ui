@@ -4,65 +4,60 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* ── MAXXPAINN Design System ──────────────────────────────
+       Mapped from the C token object in the landing page:
+         bg0-bg4  : #0d080c → #120a10 (near-black purple-tinted)
+         pink     : #ff2d78  (cerise — CTAs, energy)
+         violet   : #8b5cf6  (structure, labels, nav)
+         white    : #fdf4ff  (near-white with purple tint)
+         bright   : #e2d9f3  (body copy)
+         mid      : #b89fd4  (secondary text)
+         sub      : #9d7fba  (muted/dimmed text)
+         dim      : #3d2b5c  (very dim, borders)
+    ──────────────────────────────────────────────────────── */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Background — main page surface (bg0) */
+    --background: 320 24% 5%;             /* #0d080c */
+    --foreground: 290 80% 97%;            /* #fdf4ff */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    /* Card surface */
+    --card: 320 24% 6%;                   /* #120a10 */
+    --card-foreground: 290 80% 97%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Popover / dropdown */
+    --popover: 320 24% 6%;
+    --popover-foreground: 290 80% 97%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Primary — Cerise pink (#ff2d78) — CTA buttons */
+    --primary: 340 100% 59%;
+    --primary-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Secondary — Violet (#8b5cf6) — structural UI */
+    --secondary: 262 87% 65%;
+    --secondary-foreground: 0 0% 100%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Muted — dim card fills */
+    --muted: 280 30% 12%;
+    --muted-foreground: 276 28% 71%;      /* #b89fd4 — mid */
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Accent — violet tinted hover/focus */
+    --accent: 262 87% 65%;
+    --accent-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Destructive — cerise */
+    --destructive: 340 100% 59%;
+    --destructive-foreground: 0 0% 100%;
 
+    /* Border — subtle violet */
+    --border: 262 40% 22%;
+    --input: 262 40% 22%;
+    --ring: 262 87% 65%;
+
+    /* FIX 1: was 0.25rem — sm=0px, md=2px, lg=4px (all too small)
+       Now  : 0.5rem  — sm=4px, md=6px, lg=8px (all usable) */
     --radius: 0.5rem;
-  }
 
-  .dark {
-    --background: 0 0% 3%;
-    --foreground: 210 40% 98%;
-
-    --card: 0 0% 5%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 0 0% 5%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    color-scheme: dark;
   }
 }
 
@@ -71,51 +66,115 @@
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+    color-scheme: dark;
+  }
+
   body {
-    @apply bg-background text-foreground dark;
-    /* Optional: Improves font rendering on some devices */
+    @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar       { width: 3px; }
+  ::-webkit-scrollbar-track { @apply bg-background; }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, #8b5cf6, #ff2d78);
+  }
+
+  /* Selection highlight */
+  ::selection {
+    background: rgba(139, 92, 246, 0.3);
+    color: #fdf4ff;
   }
 }
 
-@layer base {
-  :root {
-    font-size: 16px;
+/* ── Keyframes ── */
+@layer utilities {
+  @keyframes pain-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+  }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes acc-open {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
-  html {
-    /* 1. Stop the browser from guessing size */
-    -webkit-text-size-adjust: 100% !important;
-    text-size-adjust: 100% !important;
+  .animate-pain-pulse { animation: pain-pulse 2s ease-in-out infinite; }
+  .animate-fade-up    { animation: fade-up   0.65s ease both; }
+  .animate-acc-open   { animation: acc-open  0.3s  ease both; }
 
-    /* 2. Smooth scrolling for anchor links */
-    scroll-behavior: smooth;
+  .delay-1 { animation-delay: 0.12s; }
+  .delay-2 { animation-delay: 0.24s; }
+  .delay-3 { animation-delay: 0.36s; }
+}
 
-    /* 3. OPTIONAL: Force root size */
-    font-size: 16px;
+@layer components {
+  .btn-p {
+    @apply inline-flex items-center gap-2 bg-grad-btn text-white font-sans font-bold text-[0.95rem] tracking-wider uppercase px-7 py-3 border-none cursor-pointer no-underline transition-all hover:opacity-90 hover:-translate-y-px whitespace-nowrap justify-center sm:justify-start w-full sm:w-auto;
+    @apply rounded-lg;
+  }
+
+  .btn-skewed {
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 100%, 10px 100%);
+    border-radius: 2px !important;
+  }
+
+  /*
+  @media (max-width: 600px) {
+    .btn-skewed {
+      clip-path: none;
+      @apply rounded-lg;
+    }
+  }*/
+
+  /* FIX 2: was bg-[#08050d]/80 — replaced with bg-maxx-bg0/80 */
+  .btn-s {
+    @apply inline-flex items-center gap-2 bg-maxx-bg0/80 backdrop-blur-md text-maxx-mid font-sans font-semibold text-[0.88rem] tracking-wider uppercase px-5 py-3 border border-maxx-violet/30 cursor-pointer no-underline transition-all duration-300 hover:border-maxx-violet hover:text-white hover:bg-maxx-violet/15 hover:shadow-[0_0_15px_rgba(139,92,246,0.2)] whitespace-nowrap justify-center w-full sm:w-auto;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
+    @apply rounded-lg;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 font-mono text-[0.7rem] font-medium tracking-[0.14em] uppercase text-maxx-violet mb-3.5;
+  }
+
+  .eyebrow-dot {
+    @apply w-1.5 h-1.5 bg-maxx-violet shrink-0 rounded-[1px];
+  }
+
+  .pill {
+    @apply inline-flex items-center font-mono text-[0.68rem] tracking-widest uppercase px-3 py-1.5 border border-maxx-violet/25 text-maxx-mid rounded-sm;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:border-maxx-pink/50 hover:bg-maxx-pink/5 hover:shadow-[0_8px_32px_rgba(255,45,120,0.08)];
+  }
+
+  .maxx-track {
+    @apply h-[3px] bg-maxx-violet/15 overflow-hidden rounded-sm;
+  }
+
+  .maxx-fill {
+    @apply h-full bg-grad-accent transition-[width] duration-75 ease-linear;
   }
 }
 
 /* =========================================
-   ANIMATIONS & EFFECTS
+   ANIMATIONS & EFFECTS (PRESERVED)
    ========================================= */
 
 @keyframes neon-pulse {
-  0%, 100% {
-    box-shadow:
-      0 0 2px rgba(139, 92, 246, 0.6),
-      0 0 4px rgba(139, 92, 246, 0.6),
-      0 0 8px rgba(139, 92, 246, 0.6),
-      0 0 8px rgba(139, 92, 246, 0.6);
-  }
-  50% {
-    box-shadow:
-      0 0 5px rgba(139, 92, 246, 0.6),
-      0 0 10px rgba(139, 92, 246, 0.6),
-      0 0 15px rgba(139, 92, 246, 0.6),
-      0 0 15px rgba(139, 92, 246, 0.6);
-  }
+  0%, 100% { box-shadow: 0 0 2px rgba(139, 92, 246, 0.6), 0 0 4px rgba(139, 92, 246, 0.6), 0 0 8px rgba(139, 92, 246, 0.6), 0 0 8px rgba(139, 92, 246, 0.6); }
+  50% { box-shadow: 0 0 5px rgba(139, 92, 246, 0.6), 0 0 10px rgba(139, 92, 246, 0.6), 0 0 15px rgba(139, 92, 246, 0.6), 0 0 15px rgba(139, 92, 246, 0.6); }
 }
 
 @keyframes float {
@@ -175,7 +234,7 @@
     margin: 0;
     padding: 0;
   }
-  .top-nav, .footer, .wp-table-of-contents, .bottom-nav, .scroll-progress  {
+  .top-nav, .footer, .wp-table-of-contents, .bottom-nav, .scroll-progress {
     display: none !important;
   }
 }
@@ -183,21 +242,10 @@
 body, #app { overflow-x: hidden; }
 
 /* Utility Classes for Effects */
-.neon-glow2 {
-  animation: neon-pulse 2s ease-in-out infinite alternate;
-}
-
-.float-animation {
-  animation: float 4s ease-in-out infinite;
-}
-
-.glitch-effect:hover {
-  animation: glitch 0.5s ease-in-out;
-}
-
-.rage-effect:hover {
-  animation: rage-shake 0.1s ease-in-out infinite;
-}
+.neon-glow2 { animation: neon-pulse 2s ease-in-out infinite alternate; }
+.float-animation { animation: float 4s ease-in-out infinite; }
+.glitch-effect:hover { animation: glitch 0.5s ease-in-out; }
+.rage-effect:hover { animation: rage-shake 0.1s ease-in-out infinite; }
 
 .gradient-text {
   background: linear-gradient(135deg, #ff0040, #8b5cf6, #06b6d4, #10b981, #f59e0b);
@@ -208,19 +256,16 @@ body, #app { overflow-x: hidden; }
   animation: gradient-shift 4s ease infinite;
 }
 
-.pain-meter {
+.maxx-meter {
   position: relative;
   overflow: hidden;
-  box-shadow: inset 0 2px 4px rgba(31, 41, 55,0.2);
+  box-shadow: inset 0 2px 4px rgba(31, 41, 55, 0.2);
 }
 
-.pain-meter::before {
+.maxx-meter::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   z-index: 10;
   background: linear-gradient(90deg, transparent 0%, rgba(69, 77, 89, 0.2) 50%, transparent 100%);
   animation: shine 3s ease-in-out infinite;
@@ -229,8 +274,7 @@ body, #app { overflow-x: hidden; }
 /* Slider Styling */
 .slider-thumb::-webkit-slider-thumb {
   appearance: none;
-  height: 20px;
-  width: 20px;
+  height: 20px; width: 20px;
   border-radius: 50%;
   background: linear-gradient(135deg, #8b5cf6, #ef4444);
   cursor: pointer;
@@ -244,58 +288,35 @@ body, #app { overflow-x: hidden; }
 }
 
 .slider-thumb::-moz-range-thumb {
-  height: 20px;
-  width: 20px;
+  height: 20px; width: 20px;
   border-radius: 50%;
   background: linear-gradient(135deg, #8b5cf6, #ef4444);
-  cursor: pointer;
-  border: none;
+  cursor: pointer; border: none;
   box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
 }
 
 /* Blood Effect */
-.blood-effect {
-  position: relative;
-}
-
+.blood-effect { position: relative; }
 .blood-effect::after {
   content: '🩸';
-  position: absolute;
-  top: -10px;
-  left: 50%;
+  position: absolute; top: -10px; left: 50%;
   transform: translateX(-50%);
   animation: blood-drip 3s ease-in infinite;
   pointer-events: none;
 }
 
 /* Scrollbar Styling */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #1a1a1a;
-}
-
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #0d080c; }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #8b5cf6, #ef4444);
+  background: linear-gradient(135deg, #8b5cf6, #ff2d78);
   border-radius: 4px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #a855f7, #f87171);
+  background: linear-gradient(135deg, #a855f7, #ff85ab);
 }
 
-.bg-none {
-  background: none !important;
-}
-
-@layer utilities {
-  .animate-pulse {
-    transform: translateZ(0);
-    will-change: transform;
-  }
-}
+.bg-none { background: none !important; }
 
 /* Input Resets */
 input[type="number"]::-webkit-outer-spin-button,
@@ -309,60 +330,36 @@ input[type="number"] {
 }
 
 /* =========================================
-   PERFORMANCE & OPTIMIZATION (performance.css)
+   PERFORMANCE & OPTIMIZATION
    ========================================= */
 
 @layer utilities {
-  /* 1. GPU Acceleration (Force hardware acceleration)
-     Use this on elements with heavy animations to promote them to their own layer */
+  .animate-pulse {
+    transform: translateZ(0);
+    will-change: transform;
+  }
   .gpu-accelerated {
     transform: translateZ(0);
     backface-visibility: hidden;
     perspective: 1000px;
     will-change: transform, opacity;
   }
-
-  /* 2. Content Visibility (Lazy Rendering)
-     Use on long pages for off-screen sections.
-     Note: Use contain-intrinsic-size to prevent scrollbar jumping */
   .content-visibility-auto {
     content-visibility: auto;
-    contain-intrinsic-size: 1px 1000px; /* Approximate height of section */
+    contain-intrinsic-size: 1px 1000px;
   }
+  .contain-paint { contain: paint; }
+  .contain-layout { contain: layout; }
+  .contain-strict { contain: strict; }
+  .text-optimize-speed { text-rendering: optimizeSpeed; }
 
-  /* 3. Paint Containment
-     Tells browser the element's children won't paint outside its bounds */
-  .contain-paint {
-    contain: paint;
-  }
-
-  /* 4. Layout Containment
-     Tells browser changes inside this element won't affect outside layout */
-  .contain-layout {
-    contain: layout;
-  }
-
-  /* 5. Strict Containment (Maximum Performance)
-     Combines layout, paint, and size containment.
-     Only use if dimensions are fixed and known. */
-  .contain-strict {
-    contain: strict;
-  }
-
-  /* 6. Text Rendering Speed */
-  .text-optimize-speed {
-    text-rendering: optimizeSpeed;
-  }
-
-  /* 7. Image Decoding
-     Ensures images decode async to prevent main thread blocking */
-  img {
-    content-visibility: auto;
+  .clip-edges {
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 100%, 8px 100%);
   }
 }
 
-/* Reduced Motion Preference
-   Respects user system settings to disable animations */
+img { content-visibility: auto; }
+
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
@@ -372,57 +369,30 @@ input[type="number"] {
   }
 }
 
-/* Smooth scroll for anchor links */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Ticker / marquee animation for social proof */
 @keyframes scroll-left {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
 
-.animate-scroll-left {
-  animation: scroll-left 30s linear infinite;
-}
+.animate-scroll-left { animation: scroll-left 30s linear infinite; }
 
-/* Subtle entrance fade for scroll-triggered sections */
 @keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.animate-fade-in-up {
-  animation: fade-in-up 0.6s ease-out forwards;
-}
+.animate-fade-in-up { animation: fade-in-up 0.6s ease-out forwards; }
 
-/* Pulsing ring effect for CTA buttons */
 @keyframes ping-slow {
   0% { transform: scale(1); opacity: 0.75; }
   100% { transform: scale(1.5); opacity: 0; }
 }
 
-.animate-ping-slow {
-  animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
-}
+.animate-ping-slow { animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite; }
 
-
-.nav-scroll-container::-webkit-scrollbar {
-  height: 0px; 
-}
-
-/* Shown on hover */
-.nav-scroll-container:hover::-webkit-scrollbar {
-  height: 2px;
-}
-
+/* Specific Navigation Scrollbar */
+.nav-scroll-container::-webkit-scrollbar { height: 0px; }
+.nav-scroll-container:hover::-webkit-scrollbar { height: 2px; }
 .nav-scroll-container::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.05) !important;
   border-radius: 2px !important;

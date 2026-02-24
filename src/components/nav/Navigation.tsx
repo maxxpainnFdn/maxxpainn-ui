@@ -1,5 +1,10 @@
+/**
+ * MAXXPAINN — Navigation
+ * No hex codes. All maxx-* tokens + CSS variables.
+ */
+
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Zap, ChevronDown } from 'lucide-react';
+import { ChevronDown, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import HowItWorksModal from '../HowItWorksModal';
 import Account from './Account';
@@ -11,18 +16,12 @@ import { tokenConfig } from '@/config/token';
 import { MobileNav } from './MobileNav';
 
 export default function Navigation() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [scrolled, setScrolled]           = useState(false);
   const [showBottomNav, setShowBottomNav] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-
-    const handleResize = () => {
-      setShowBottomNav(window.innerWidth <= 1200);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleResize = () => setShowBottomNav(window.innerWidth <= 1200);
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleResize, { passive: true });
@@ -35,110 +34,116 @@ export default function Navigation() {
   }, []);
 
   const navItems = [
-    { name: 'FAQ', href: '/faq' },
-    { name: 'Clans', href: '/clans' },
+    { name: 'FAQ',     href: '/faq'     },
+    { name: 'Clans',   href: '/clans'   },
     { name: 'Staking', href: '/staking' },
   ];
 
   const docsLinks = [
-    { name: 'Whitepaper', href: '/whitepaper' },
-    { name: 'Manifesto', href: '/manifesto' },
+    { name: 'Whitepaper', href: '/whitepaper'  },
+    { name: 'Manifesto',  href: '/manifesto'   },
     { name: 'Tokenomics', href: '/#tokenomics' },
-    { name: 'Roadmap', href: '/roadmap' },
+    { name: 'Roadmap',    href: '/roadmap'     },
   ];
+
+  const linkClass =
+    'font-sans font-semibold text-[0.85rem] tracking-wide uppercase ' +
+    'text-maxx-bright no-underline transition-colors hover:text-maxx-violet';
 
   return (
     <>
       <nav
-        className={`top-nav fixed top-0 w-full z-50 transition-all duration-300 ${
+        className={`fixed top-0 inset-x-0 w-full z-50 transition-all duration-300 ${
           scrolled
-            ? 'bg-black/95 backdrop-blur-xl border-b-2 border-purple-500/30 shadow-[0_4px_20px_rgba(168,85,247,0.2)]'
-            : 'bg-black/70 backdrop-blur-md border-b border-purple-500/20'
+            ? 'bg-background/95 backdrop-blur-md border-b border-maxx-violet/20'
+            : 'bg-transparent border-transparent'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex justify-between items-center h-20">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 group">
-              <div className="relative">
-                <Zap
-                  className="text-purple-500 w-6 h-6 sm:w-8 sm:h-8 group-hover:scale-110 transition-transform duration-300"
-                  fill="currentColor"
-                />
-                <div className="absolute inset-0 bg-purple-500 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
-              </div>
-              <span className="hidden sm:inline-block sm:text-2xl md:text-3xl font-black">
-                <span className="white-text">MAXX</span>
-                <span className="bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
+        {/* top accent line — visible when scrolled */}
+        {scrolled && (
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-maxx-violet/40 via-maxx-pink/40 to-transparent pointer-events-none" />
+        )}
+
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <div className="flex justify-between items-center h-[68px]">
+
+            {/* ── Logo ── */}
+            <Link to="/" className="flex items-center gap-2.5 no-underline shrink-0 group">
+              <Zap
+                className="text-purple-500 w-6 h-6 sm:w-7 sm:h-7 group-hover:scale-110 transition-transform duration-300"
+                fill="currentColor"
+              />
+              <span className="hidden sm:inline-block font-sans font-black text-xl sm:text-2xl tracking-tighter text-maxx-white">
+                <span className="text-maxx-white">MAXX</span>
+                <span className="bg-gradient-to-r from-purple-400 via-pink-600 to-rose-500 bg-clip-text text-transparent">
                   PAINN
                 </span>
               </span>
             </Link>
 
-            {/* Desktop Menu */}
-            <div className="hidden md:flex items-center flex-1 justify-center gap-8 mx-8">
+            {/* ── Desktop nav links ── */}
+            <div className="hidden lg:flex items-center flex-1 justify-center gap-8 mx-8">
+
               <a
                 href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  EventBus.emit('open_hiw');
-                }}
-                className="text-gray-300 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-purple-400 hover:to-pink-400 transition-all duration-200 font-semibold text-sm uppercase tracking-wide"
+                onClick={(e) => { e.preventDefault(); EventBus.emit('open_hiw'); }}
+                className={linkClass}
               >
                 How it works
               </a>
 
               {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className="text-gray-300 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-purple-400 hover:to-pink-400 transition-all duration-200 font-semibold text-sm uppercase tracking-wide"
-                >
+                <Link key={item.name} to={item.href} className={linkClass}>
                   {item.name}
                 </Link>
               ))}
 
-              {/* Docs Dropdown */}
-              <div className="relative group">
-                <button className="text-gray-300 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-purple-400 hover:to-pink-400 transition-all duration-200 font-semibold text-sm uppercase tracking-wide flex items-center gap-1">
+              {/* Docs dropdown */}
+              <div className="relative group h-full flex items-center">
+                <button className={`${linkClass} flex items-center gap-1.5 cursor-pointer bg-transparent border-none`}>
                   Docs
-                  <ChevronDown className="h-4 w-4 group-hover:rotate-180 transition-transform duration-300" />
+                  <ChevronDown className="h-[14px] w-[14px] group-hover:rotate-180 transition-transform duration-300" />
                 </button>
-                <div className="absolute left-0 top-full mt-3 w-56 bg-gray-900/95 backdrop-blur-xl border-2 border-purple-500/30 rounded-2xl shadow-[0_8px_32px_rgba(168,85,247,0.3)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 overflow-hidden">
-                  <div className="p-2">
-                    {docsLinks.map((item, idx) => (
-                      <Link
-                        key={idx}
-                        to={item.href}
-                        className="block px-4 py-3 text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-pink-600/20 rounded-xl transition-all duration-200 font-medium border border-transparent hover:border-purple-500/30"
-                      >
-                        {item.name}
-                      </Link>
-                    ))}
-                  </div>
+
+                <div className="
+                  absolute left-0 top-[40px] w-48 p-2
+                  bg-background/[.98] backdrop-blur-xl
+                  border border-maxx-violet/20
+                  opacity-0 invisible translate-y-2
+                  group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
+                  transition-all duration-300
+                ">
+                  {docsLinks.map((item, idx) => (
+                    <Link
+                      key={idx}
+                      to={item.href}
+                      className="
+                        block px-4 py-2.5 no-underline
+                         font-semibold text-[0.82rem] tracking-wider uppercase
+                        text-white hover:text-maxx-white hover:bg-maxx-violet/10
+                        transition-colors
+                      "
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Desktop Right Side */}
-            <div className="hidden md:flex items-center gap-3">
-              <a
-                href={app.tokenBuyUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Button variant="secondary" size="md" className="gap-x-1">
+            {/* ── Desktop right actions ── */}
+            <div className="hidden md:flex items-center gap-2.5">
+              <a href={app.tokenBuyUrl} target="_blank" rel="noopener noreferrer">
+                <Button variant="secondary" className="!px-4">
                   <span>BUY</span>
-                  <span className="hidden lg:inline-block">
-                    ${tokenConfig.symbol}
-                  </span>
+                  <span className="hidden xl:inline-block">${tokenConfig.symbol}</span>
                 </Button>
               </a>
 
               {!showBottomNav && (
                 <>
-                  <Link to="/mint">
-                    <Button variant="primary" size="md">
+                  <Link to="/mint"  className="no-underline">
+                    <Button variant="primary" className="!px-6 shadow-[0_0_15px_rgba(255,45,120,0.2)]">
                       MINT
                     </Button>
                   </Link>
@@ -146,11 +151,10 @@ export default function Navigation() {
                 </>
               )}
             </div>
-            
-            <MobileNav
-              navItems={navItems}
-              docsLinks={docsLinks}
-            />
+
+            {/* ── Mobile scrolling pills ── */}
+            <MobileNav navItems={[...navItems, ...docsLinks]} />
+
           </div>
         </div>
       </nav>

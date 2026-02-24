@@ -60,7 +60,7 @@ const PainMeter = ({ lockPeriod, maxLockPeriod }: PainMeterProps) => {
         </div>
         
         <div className="space-y-4">
-          <div className="relative h-8 pain-meter bg-gray-800 rounded-full overflow-hidden">
+          <div className="relative h-8 maxx-meter bg-gray-800 rounded-full overflow-hidden">
             <div 
               className={`absolute inset-y-0 left-0 bg-gradient-to-r ${pain.color} rounded-full transition-all duration-500`}
               style={{ width: `${(lockPeriod / maxLockPeriod) * 100}%` }}

@@ -28,7 +28,7 @@ const Roadmap = () => {
       emoji: "🔥",
       items: [
         "Early degen outreach & validation",
-        "Community formation and pain-story onboarding",
+        "Community formation and maxx-story onboarding",
         "Smart contract deployment",
         "Free mint launch for all degens"
       ]

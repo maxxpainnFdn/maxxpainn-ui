@@ -38,9 +38,9 @@ const Manifesto = () => {
           <div className="relative overflow-hidden">
             {/* Animated background elements */}
             <div className="absolute inset-0 opacity-20">
-              <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
-              <div className="absolute top-40 right-10 w-72 h-72 bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-700"></div>
-              <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000"></div>
+              <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/30 rounded-full mix-blend-multiply filter blur-3xl "></div>
+              <div className="absolute top-40 right-10 w-72 h-72 bg-pink-600/30 rounded-full mix-blend-multiply filter blur-3xl "></div>
+              <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-pink-500/30 rounded-full mix-blend-multiply filter blur-3xl"></div>
             </div>
     
             <main className="relative pt-32 pb-12">
@@ -52,7 +52,7 @@ const Manifesto = () => {
                     <span className="text-white">
                       THE
                     </span>{' '}
-                    <span className="bg-gradient-to-r from-purple-400 via-pink-400 bg-clip-text text-transparent">MANIFESTO</span>
+                    <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-pink-600 bg-clip-text text-transparent">MANIFESTO</span>
                   </h1>
                   
                   <p className="text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
@@ -61,9 +61,9 @@ const Manifesto = () => {
     
                   {/* Decorative divider */}
                   <div className="flex items-center justify-center gap-4 mt-12">
-                    <div className="h-18 w-18 md:h-24 md:w-24 bg-gradient-to-r from-transparent to-purple-500"></div>
-                    <Flame className="w-8 h-8 text-pink-600" />
-                    <div className="h-18 w-18 md:h-24 md:w-24 bg-gradient-to-l from-transparent to-purple-500"></div>
+                    <div className="h-1 w-12 bg-gradient-to-r from-purple-500 to-transparent rounded"></div>
+                      <Flame className="w-6 h-6 text-pink-600" />
+                    <div className="h-1 w-12 bg-gradient-to-l from-purple-500 to-transparent rounded"></div>
                   </div>
                 </div>
     
@@ -71,9 +71,9 @@ const Manifesto = () => {
                 <div className="space-y-16">
                   {/* Section 1 - The Genesis */}
                   <section className="relative">
-                    <div className="bg-gray-900/80 backdrop-blur-sm border border-purple-500/20 rounded-3xl p-8 md:p-12 shadow-2xl hover:border-purple-500/40 transition-all duration-300">
+                    <div className="bg-gray-900/80 backdrop-blur-sm border border-purple-500/20 rounded-lg p-8 md:p-12 shadow-2xl hover:border-purple-500/40 transition-all duration-300">
                       <div className="flex items-center gap-4 mb-8">
-                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg">
+                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg">
                           <Shield className="w-8 h-8 text-white" />
                         </div>
                         <h2 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
@@ -98,9 +98,9 @@ const Manifesto = () => {
     
                   {/* Section 2 - Our Creed */}
                   <section>
-                    <div className="bg-gray-900/80 backdrop-blur-sm border border-purple-500/20 rounded-3xl p-8 md:p-12 shadow-2xl">
+                    <div className="bg-gray-900/80 backdrop-blur-sm border border-purple-500/20 rounded-lg p-8 md:p-12 shadow-2xl">
                       <div className="flex items-center gap-4 mb-8">
-                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-pink-600 to-orange-600 flex items-center justify-center shadow-lg">
+                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-lg bg-gradient-to-br from-pink-600 to-orange-600 flex items-center justify-center shadow-lg">
                           <Flame className="w-8 h-8 text-white" />
                         </div>
                         <h2 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-pink-400 to-orange-400 bg-clip-text text-transparent">
@@ -117,9 +117,9 @@ const Manifesto = () => {
                         ].map((item, idx) => {
                           const Icon = item.icon;
                           return (
-                            <div key={idx} className="group bg-gray-800/60 border-2 border-purple-500/20 rounded-2xl p-6 hover:border-purple-500/50 hover:transform hover:translate-x-2 transition-all duration-300">
+                            <div key={idx} className="group bg-gray-800/60 border-2 border-purple-500/20 rounded-lg p-6 hover:border-purple-500/50 hover:transform hover:translate-x-2 transition-all duration-300">
                               <div className="flex items-start gap-4">
-                                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                                <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${item.color} flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                                   <Icon className="w-6 h-6 text-white" />
                                 </div>
                                 <p className="text-lg text-gray-200 leading-relaxed pt-2">
@@ -135,12 +135,12 @@ const Manifesto = () => {
     
                   {/* Section 3 - The Revolution */}
                   <section>
-                    <div className="relative overflow-hidden bg-gradient-to-r from-purple-900/40 to-pink-900/40 border-2 border-purple-500/30 rounded-3xl p-8 md:p-12 shadow-2xl">
-                      <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/20 rounded-full filter blur-3xl"></div>
+                    <div className="relative overflow-hidden bg-gradient-to-r from-purple-900/40 to-pink-900/40 border-2 border-purple-500/30 rounded-lg p-8 md:p-12 shadow-2xl">
+                      <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/20 rounded-lg filter blur-3xl"></div>
                       
                       <div className="relative z-10">
                         <div className="flex items-center gap-4 mb-8">
-                          <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg">
+                          <div className="w-12 h-12 md:w-16 md:h-16 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg">
                             <Target className="w-8 h-8 text-white" />
                           </div>
                           <h2 className="text-2xl md:text-4xl font-bold text-white">
@@ -167,8 +167,8 @@ const Manifesto = () => {
                             { label: "Holds", value: "Rebellion" },
                             { label: "Pumps", value: "Power" }
                           ].map((stat, idx) => (
-                            <div key={idx} className="text-center p-6 bg-black/30 rounded-2xl border border-purple-500/20">
-                              <div className="text-sm text-gray-400 mb-2">{stat.label}</div>
+                            <div key={idx} className="text-center p-6 bg-black/30 rounded-lg border border-purple-500/20">
+                              <div className="text-sm text-pink-400 font-bold mb-2">{stat.label}</div>
                               <div className="text-2xl font-bold text-purple-400">{stat.value}</div>
                             </div>
                           ))}
@@ -179,12 +179,12 @@ const Manifesto = () => {
     
                   {/* Section 4 - The Promise */}
                   <section>
-                    <div className="relative overflow-hidden bg-gray-900/80 backdrop-blur-sm border-2 border-purple-500/30 rounded-3xl p-8 md:p-12 shadow-2xl">
+                    <div className="relative overflow-hidden bg-gray-900/80 backdrop-blur-sm border-2 border-purple-500/30 rounded-lg p-8 md:p-12 shadow-2xl">
                       <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5"></div>
                       
                       <div className="relative z-10">
                         <div className="flex items-center gap-4 mb-8 justify-center">
-                          <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-yellow-600 to-orange-600 flex items-center justify-center shadow-lg">
+                          <div className="w-12 h-12 md:w-16 md:h-16 rounded-lg bg-gradient-to-br from-yellow-600 to-orange-600 flex items-center justify-center shadow-lg">
                             <Users className="w-6 h-6 md:w-8 md:h-8  text-white" />
                           </div>
                           <h2 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
@@ -193,7 +193,7 @@ const Manifesto = () => {
                         </div>
                         
                         <div className="max-w-4xl mx-auto">
-                          <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 border-2 border-purple-500/40 p-10 rounded-2xl backdrop-blur-sm">
+                          <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 border-2 border-purple-500/40 p-10 rounded-lg backdrop-blur-sm">
                             <blockquote className="text-xl sm:text-2xl md:text-3xl text-center font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-pink-300 to-pink-300 leading-relaxed">
                               "We swear by the code, by the blockchain, by the unstoppable force of 
                               decentralization—MAXXPAINN will be the token that turns your deepest 
@@ -242,7 +242,7 @@ const Manifesto = () => {
                     {/* CTA Button */}
                     <div className="mt-12 flex justify-center w-full">
                       <Link to="/mint">
-                        <button className="px-12 py-5 bg-gradient-to-r from-purple-600 via-pink-600 to-pink-600 hover:from-purple-700 hover:via-pink-700 hover:to-pink-700 text-white text-xl font-bold rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-[0_20px_50px_rgba(168,85,247,0.5)]">
+                        <button className="px-12 py-5 bg-gradient-to-r from-purple-600 via-pink-600 to-pink-600 hover:from-purple-700 hover:via-pink-700 hover:to-pink-700 text-white text-xl font-bold rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-[0_20px_50px_rgba(168,85,247,0.5)]">
                           Start Your Journey
                         </button>
                       </Link>
@@ -251,7 +251,7 @@ const Manifesto = () => {
     
                   {/* Bottom Quote */}
                   <section className="text-center py-8">
-                    <div className="max-w-3xl mx-auto p-8 bg-gray-900/60 border border-purple-500/20 rounded-2xl backdrop-blur-sm">
+                    <div className="max-w-3xl mx-auto p-8 bg-gray-900/60 border border-purple-500/20 rounded-lg backdrop-blur-sm">
                       <p className="text-xl text-gray-400 italic">
                         "Every great fortune was built on great pain. Your time is now."
                       </p>

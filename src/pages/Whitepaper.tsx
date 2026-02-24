@@ -1,652 +1,677 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+/**
+ * MAXXPAINN — Technical Whitepaper
+ *
+ * Design system: maxx-* tokens, bg-background/bg-card, grad-accent/grad-btn,
+ * eyebrow, pill, card-hover classes. No raw gray/purple/pink color names.
+ */
+
+import React, { useState, useEffect, useMemo } from 'react';
 import Navigation from '@/components/nav/Navigation';
 import Footer from '@/components/Footer';
 import {
-  BookOpen, Shield, Zap, Users, Lock,
-  Sparkles, ChevronRight, ArrowRight, Flame, Target,
-  Database, Cpu, GitBranch, Award, AlertTriangle, CheckCircle2,
+  BookOpen, Shield, Zap, Users, Lock, Sparkles,
+  ChevronRight, ArrowRight, Flame, Target,
+  Database, Cpu, GitBranch, Award, AlertTriangle,
   Calculator, Layers, Network, Coins, Timer, FileCode,
-  Binary, Boxes, Gauge, Eye, Key, Server,
-  Workflow, BarChart3,
-  Milestone, Siren, BadgeCheck, Rocket, Globe, Terminal,
-  Crown, Gift, MessageSquare, Vote, Wallet,
-  Percent, Gem
+  Binary, Boxes, Gauge, Key, Server,
+  Workflow, BarChart3, Siren, Rocket, Terminal,
+  Gem, Percent,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import mintConfig from "@/config/mint"
+import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
+import mintConfig from "@/config/mint";
+import Button from '@/components/button/Button';
 
-// Constants based on provided Code
+// ─── constants ────────────────────────────────────────────────
 const CONSTANTS = {
   BASE_REWARD: 5005000,
   DAMPENER_K: 5000,
   EAM_MAX: 3.0,
   EAM_MIN: 1.0,
   EA_MAX_RANK: 1000000,
-  NEM_COEFF: 0.004, // 4_000n / 1_000_000
-  NEM_MAX: 3.0,     // 3n
-  LPM_COEFF: 0.08,  // 80_000n / 1_000_000
-  LPM_MAX: 5.0,     // 5n
-  DIFF_BASE_FEE: 0.003, // 0.003 SOL
-  DIFF_SCALE: 3,        // 3/1 scale factor
+  NEM_COEFF: 0.004,
+  NEM_MAX: 3.0,
+  LPM_COEFF: 0.08,
+  LPM_MAX: 5.0,
+  DIFF_BASE_FEE: 0.003,
+  DIFF_SCALE: 3,
 };
 
-const Whitepaper = () => {
+// ─── table of contents ────────────────────────────────────────
+const TABLE_OF_CONTENTS = [
+  { id: 'abstract',          label: 'Abstract',              icon: BookOpen,      color: 'text-maxx-violet'  },
+  { id: 'introduction',      label: 'Introduction',          icon: Sparkles,      color: 'text-maxx-pink'    },
+  { id: 'architecture',      label: 'Protocol Architecture', icon: Boxes,         color: 'text-blue-400'     },
+  { id: 'minting-process',   label: 'Minting Process',       icon: Workflow,      color: 'text-green-400'    },
+  { id: 'reward-algorithm',  label: 'Reward Algorithm',      icon: Calculator,    color: 'text-yellow-400'   },
+  { id: 'difficulty-system', label: 'Difficulty System',     icon: Gauge,         color: 'text-red-400'      },
+  { id: 'lock-tiers',        label: 'Lock Period Tiers',     icon: Timer,         color: 'text-cyan-400'     },
+  { id: 'late-penalty',      label: 'Late Mint Penalty',     icon: AlertTriangle, color: 'text-orange-400'   },
+  { id: 'clan-system',       label: 'Clan System',           icon: Users,         color: 'text-maxx-violet'  },
+  { id: 'staking',           label: 'Staking Protocol',      icon: Gem,           color: 'text-emerald-400'  },
+  { id: 'on-chain-state',    label: 'On-Chain State',        icon: Database,      color: 'text-indigo-400'   },
+  { id: 'security',          label: 'Security Model',        icon: Shield,        color: 'text-green-400'    },
+  { id: 'economics',         label: 'Economic Analysis',     icon: BarChart3,     color: 'text-emerald-400'  },
+  { id: 'conclusion',        label: 'Conclusion',            icon: Rocket,        color: 'text-maxx-pink'    },
+];
 
+// ─── helpers ──────────────────────────────────────────────────
+const getLPMForDays = (days) =>
+  Math.min(CONSTANTS.LPM_MAX, 1.0 + CONSTANTS.LPM_COEFF * Math.sqrt(days)).toFixed(2);
+
+// ─── sub-components ───────────────────────────────────────────
+
+const BlockQuote = ({ color = 'border-l-maxx-violet bg-maxx-violet/5', children }) => (
+  <p className={`text-base leading-[1.85] border-l-4 pl-6 py-3 rounded-r-md text-maxx-bright ${color}`}>
+    {children}
+  </p>
+);
+
+const Para = ({ children, className = '' }) => (
+  <p className={`text-base leading-[1.9] text-maxx-mid mb-4 ${className}`}>{children}</p>
+);
+
+const Lead = ({ children }) => (
+  <p className="text-xl text-maxx-bright leading-relaxed mb-6 font-medium">{children}</p>
+);
+
+const Section = ({ id, children }) => (
+  <section id={id} className="scroll-mt-24">{children}</section>
+);
+
+const SectionHeader = ({ number, Icon, title, badge }) => (
+  <div className="flex items-center gap-4 mb-8">
+    <span className="text-4xl font-black text-maxx-white/10 font-mono select-none">{number}</span>
+    <div className={`p-2 sm:p-3 rounded-lg border ${badge}`}>
+      <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+    </div>
+    <h2 className="text-xl sm:text-3xl md:text-4xl font-black text-maxx-white uppercase tracking-tight">{title}</h2>
+  </div>
+);
+
+const Card = ({ children, className = '', border = 'border-maxx-violet/20' }) => (
+  <div className={`bg-maxx-bg1/80 border rounded-lg p-8 md:p-10 shadow-2xl ${border} ${className}`}>
+    {children}
+  </div>
+);
+
+const SubTitle = ({ Icon, iconClass, children }) => (
+  <h3 className="flex items-center gap-3 text-lg sm:text-xl font-bold text-maxx-white mb-5">
+    <Icon className={`w-5 h-5 flex-shrink-0 ${iconClass}`} />
+    {children}
+  </h3>
+);
+
+const Formula = ({ title, children, border, bg, text }) => (
+  <div className={`my-6 p-5 rounded-lg border text-center ${border} ${bg}`}>
+    <p className={`text-sm uppercase tracking-widest mb-2 opacity-60 font-mono ${text}`}>{title}</p>
+    <p className={`text-lg md:text-xl font-mono font-bold ${text}`}>{children}</p>
+  </div>
+);
+
+const MetricCard = ({ label, value, footnote, border, bg, text }) => (
+  <div className={`p-6 rounded-lg border text-center ${border} ${bg}`}>
+    <p className="text-purple-300 text-sm font-semibold uppercase  mb-2">{label}</p>
+    <p className={`text-3xl font-black ${text}`}>{value}</p>
+    <p className="text-violet-400  font-semibold  text-sm mt-1">{footnote}</p>
+  </div>
+);
+
+const BarChart = ({ title, badge, data, valueKey, labelKey, formatValue, xLabel, barClass, maxOverride }) => {
+  const max = maxOverride ?? Math.max(...data.map(d => d[valueKey]));
+  return (
+    <div className="my-6 p-6 rounded-lg bg-maxx-bg0/60 border border-maxx-violet/15">
+      <div className="flex items-center justify-between mb-4">
+        <h4 className="text-sm font-bold text-maxx-sub uppercase tracking-wider font-mono">{title}</h4>
+        <span className={`text-sm px-2 py-1 rounded-full ${badge}`}>Live Sim</span>
+      </div>
+      <div className="h-36 flex items-end justify-between gap-1 px-1">
+        {data.map((item, i) => {
+          const h = Math.max((item[valueKey] / max) * 100, 2);
+          return (
+            <div key={i} className="flex-1 flex flex-col items-center gap-1 group">
+              <div className="w-full relative h-28 flex items-end">
+                <div
+                  className={`w-full rounded-t transition-all ${barClass}`}
+                  style={{ height: `${h}%`, minHeight: 4 }}
+                />
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-maxx-bg0 border border-maxx-violet/20 rounded text-sm text-maxx-white opacity-0 group-hover:opacity-100 whitespace-nowrap z-10 pointer-events-none">
+                  {formatValue(item[valueKey])}
+                </div>
+              </div>
+              <span className="text-[0.6rem] text-maxx-sub truncate max-w-full font-mono">{item[labelKey]}</span>
+            </div>
+          );
+        })}
+      </div>
+      {xLabel && <p className="text-sm text-maxx-sub text-center mt-2 font-mono">{xLabel}</p>}
+    </div>
+  );
+};
+
+const ConstantsTable = ({ title, rows }) => (
+  <div className="my-5">
+    {title && <h4 className="text-sm font-bold text-maxx-sub uppercase tracking-wider mb-2 font-mono">{title}</h4>}
+    <div className="overflow-x-auto rounded-lg border border-maxx-violet/15">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="bg-maxx-bg0/60">
+            <th className="text-left py-2 px-4 text-maxx-sub font-medium font-mono">Constant</th>
+            <th className="text-left py-2 px-4 text-maxx-sub font-medium font-mono">Value</th>
+            <th className="text-left py-2 px-4 text-maxx-sub font-medium">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, i) => (
+            <tr key={i} className="border-t border-maxx-violet/10 hover:bg-maxx-violet/5">
+              <td className="py-2 px-4 font-mono text-maxx-violet">{r.name}</td>
+              <td className="py-2 px-4 font-mono text-maxx-white">{r.value}</td>
+              <td className="py-2 px-4 text-maxx-mid">{r.desc}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
+
+const CodeBlock = ({ title, children }) => (
+  <div className="my-6 rounded-lg overflow-hidden border border-maxx-violet/20">
+    <div className="bg-maxx-bg0 px-4 py-3 border-b border-maxx-violet/15 flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div className="flex gap-1.5">
+          <span className="w-3 h-3 rounded-full bg-red-500/50" />
+          <span className="w-3 h-3 rounded-full bg-yellow-500/50" />
+          <span className="w-3 h-3 rounded-full bg-green-500/50" />
+        </div>
+        <span className="text-sm font-mono text-maxx-sub">{title}</span>
+      </div>
+      <Terminal className="w-4 h-4 text-maxx-dim" />
+    </div>
+    <pre className="bg-maxx-bg0/80 p-6 overflow-x-auto">
+      <code className="text-sm font-mono text-maxx-mid leading-relaxed whitespace-pre">{children}</code>
+    </pre>
+  </div>
+);
+
+// ─── page ─────────────────────────────────────────────────────
+const Whitepaper = () => {
   const [activeSection, setActiveSection] = useState('abstract');
   const [scrollProgress, setScrollProgress] = useState(0);
 
-  const wpMainContentRef = useRef()
+  useEffect(() => {
+    const onScroll = () => {
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress((window.scrollY / total) * 100);
+    };
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
-  // Generate chart data matching updated MintAlgo simulation
+  const scrollTo = (id) => {
+    setActiveSection(id);
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const chartData = useMemo(() => {
-    // 1. Base Reward Dampened Decay: Base * K / (sqrt(rank) + K)
-    const baseRewardData = [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000].map(rank => {
-        const sqrtRank = Math.sqrt(rank);
-        const reward = (CONSTANTS.BASE_REWARD * CONSTANTS.DAMPENER_K) / (sqrtRank + CONSTANTS.DAMPENER_K);
-        return {
-            rank,
-            reward: reward,
-            label: rank >= 1000000000 ? `${rank/1000000000}B` :
-                   rank >= 1000000 ? `${rank/1000000}M` :
-                   rank >= 1000 ? `${rank/1000}K` : String(rank)
-        };
-    });
+    const baseRewardData = [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000].map(rank => ({
+      rank, label: rank >= 1e6 ? `${rank/1e6}M` : rank >= 1000 ? `${rank/1000}K` : String(rank),
+      reward: (CONSTANTS.BASE_REWARD * CONSTANTS.DAMPENER_K) / (Math.sqrt(rank) + CONSTANTS.DAMPENER_K),
+    }));
 
-    // 2. EAM Chart Data (Linear Decay)
-    const eamData = [1, 100000, 200000, 300000, 400000, 500000, 600000, 700000, 800000, 900000, 1000000, 2000000].map(rank => {
-      let multiplier;
-      if (rank > CONSTANTS.EA_MAX_RANK) {
-          multiplier = CONSTANTS.EAM_MIN;
-      } else {
-          const range = CONSTANTS.EAM_MAX - CONSTANTS.EAM_MIN;
-          const remaining = CONSTANTS.EA_MAX_RANK - rank;
-          multiplier = CONSTANTS.EAM_MIN + (range * remaining / (CONSTANTS.EA_MAX_RANK - 1));
-      }
-      return {
-        rank,
-        multiplier,
-        label: rank >= 1000000 ? `${rank/1000000}M` : rank >= 1000 ? `${rank/1000}K` : String(rank)
-      };
-    });
+    const eamData = [1, 100000, 200000, 300000, 400000, 500000, 600000, 700000, 800000, 900000, 1000000, 2000000].map(rank => ({
+      rank, label: rank >= 1e6 ? `${rank/1e6}M` : rank >= 1000 ? `${rank/1000}K` : String(rank),
+      multiplier: rank > CONSTANTS.EA_MAX_RANK ? 1.0
+        : CONSTANTS.EAM_MIN + ((CONSTANTS.EAM_MAX - CONSTANTS.EAM_MIN) * (CONSTANTS.EA_MAX_RANK - rank) / (CONSTANTS.EA_MAX_RANK - 1)),
+    }));
 
-    // 3. LPM Chart Data: 1 + 0.08 * sqrt(days), Max 5.0
-    const lpmData = [1, 7, 14, 30, 90, 180, 365, 730, 1095, 1825].map(days => {
-      const raw = 1.0 + (CONSTANTS.LPM_COEFF * Math.sqrt(days));
-      return {
-        days,
-        multiplier: Math.min(raw, CONSTANTS.LPM_MAX),
-        label: days >= 365 ? `${(days/365).toFixed(1)}y` : `${days}d`
-      };
-    });
+    const lpmData = [1, 7, 14, 30, 90, 180, 365, 730, 1095, 1825].map(days => ({
+      days, label: days >= 365 ? `${(days/365).toFixed(1)}y` : `${days}d`,
+      multiplier: Math.min(CONSTANTS.LPM_MAX, 1.0 + CONSTANTS.LPM_COEFF * Math.sqrt(days)),
+    }));
 
-    // 4. NEM Chart Data: 1 + 0.004 * sqrt(delta), Max 3.0
-    const nemData = [1000, 5000, 10000, 50000, 100000, 250000, 500000, 1000000].map(globalRank => {
-      const delta = globalRank - 1000;
-      const raw = 1.0 + (CONSTANTS.NEM_COEFF * Math.sqrt(delta));
-      return {
-        globalRank,
-        multiplier: Math.min(raw, CONSTANTS.NEM_MAX),
-        delta,
-        label: globalRank >= 1000000 ? `${globalRank/1000000}M` : `${globalRank/1000}K`
-      };
-    });
+    const nemData = [1000, 5000, 10000, 50000, 100000, 250000, 500000, 1000000].map(globalRank => ({
+      globalRank, label: globalRank >= 1e6 ? `${globalRank/1e6}M` : `${globalRank/1000}K`,
+      multiplier: Math.min(CONSTANTS.NEM_MAX, 1.0 + CONSTANTS.NEM_COEFF * Math.sqrt(globalRank - 1000)),
+    }));
 
-    // 5. Full Simulation
     const rewardSimulation = [1, 100, 1000, 10000, 100000, 1000000, 10000000].map(rank => {
-      // Inputs
-      const globalRank = Math.max(rank * 2, rank + 50000); 
-      const days = 30;
-      
-      // Calcs
-      const sqrtRank = Math.sqrt(rank);
-      const base = (CONSTANTS.BASE_REWARD * CONSTANTS.DAMPENER_K) / (sqrtRank + CONSTANTS.DAMPENER_K);
-      
-      let eam;
-      if (rank > CONSTANTS.EA_MAX_RANK) eam = 1.0;
-      else eam = 1.0 + (2.0 * (CONSTANTS.EA_MAX_RANK - rank) / (CONSTANTS.EA_MAX_RANK - 1));
-      
-      const nemRaw = 1.0 + (CONSTANTS.NEM_COEFF * Math.sqrt(globalRank - rank));
-      const nem = Math.min(nemRaw, CONSTANTS.NEM_MAX);
-      
-      const lpmRaw = 1.0 + (CONSTANTS.LPM_COEFF * Math.sqrt(days));
-      const lpm = Math.min(lpmRaw, CONSTANTS.LPM_MAX);
-      
-      const final = base * eam * nem * lpm;
-      
-      return {
-        rank,
-        baseReward: base,
-        earlyAdopterMultiplier: eam,
-        networkMultiplier: nem,
-        lockPeriodMultiplier: lpm,
-        finalReward: final,
-        label: rank >= 1000000 ? `${rank/1000000}M` : rank >= 1000 ? `${rank/1000}K` : String(rank)
-      };
+      const base = (CONSTANTS.BASE_REWARD * CONSTANTS.DAMPENER_K) / (Math.sqrt(rank) + CONSTANTS.DAMPENER_K);
+      const eam  = rank > CONSTANTS.EA_MAX_RANK ? 1.0 : 1.0 + 2.0 * (CONSTANTS.EA_MAX_RANK - rank) / (CONSTANTS.EA_MAX_RANK - 1);
+      const nem  = Math.min(CONSTANTS.NEM_MAX, 1.0 + CONSTANTS.NEM_COEFF * Math.sqrt(Math.max(rank * 2, rank + 50000) - rank));
+      const lpm  = Math.min(CONSTANTS.LPM_MAX, 1.0 + CONSTANTS.LPM_COEFF * Math.sqrt(30));
+      return { rank, label: rank >= 1e6 ? `${rank/1e6}M` : rank >= 1000 ? `${rank/1000}K` : String(rank), base, eam, nem, lpm, final: base * eam * nem * lpm };
     });
 
     return { baseRewardData, eamData, lpmData, nemData, rewardSimulation };
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = (window.scrollY / totalHeight) * 100;
-      setScrollProgress(progress);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const tableOfContents = [
-    { id: 'abstract', label: 'Abstract', icon: BookOpen },
-    { id: 'introduction', label: 'Introduction', icon: Sparkles },
-    { id: 'architecture', label: 'Protocol Architecture', icon: Boxes },
-    { id: 'minting-process', label: 'Minting Process', icon: Workflow },
-    { id: 'reward-algorithm', label: 'Reward Algorithm', icon: Calculator },
-    { id: 'difficulty-system', label: 'Difficulty System', icon: Gauge },
-    { id: 'lock-tiers', label: 'Lock Period Tiers', icon: Timer },
-    { id: 'late-penalty', label: 'Late Mint Penalty', icon: AlertTriangle },
-    { id: 'clan-system', label: 'Clan System', icon: Users },
-    { id: 'staking', label: 'Staking Protocol', icon: Gem }, // Added
-    { id: 'on-chain-state', label: 'On-Chain State', icon: Database },
-    { id: 'security', label: 'Security Model', icon: Shield },
-    { id: 'economics', label: 'Economic Analysis', icon: BarChart3 },
-    { id: 'conclusion', label: 'Conclusion', icon: Rocket },
-  ];
-
-  const scrollToSection = (id) => {
-    setActiveSection(id);
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const title       = "MAXXPAINN Technical Whitepaper — Proof-of-Patience Protocol";
+  const description = "Full technical documentation for MAXXPAINN, a decentralized Proof-of-Patience token distribution protocol built on Solana.";
 
   return (
-    <div className="overflow-x-hidden min-h-screen bg-black text-white selection:bg-purple-500/30">
+    <>
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description"        content={description} />
+        <meta property="og:title"       content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type"        content="website" />
+        <meta property="og:url"         content="https://maxxpainn.com/whitepaper" />
+        <meta name="twitter:card"       content="summary_large_image" />
+      </Helmet>
 
-      <Navigation />
-
-      {/* Progress Bar */}
-      <div className="scroll-progress fixed top-0 left-0 right-0 h-1 bg-gray-900 z-50">
+      {/* ── scroll progress bar ── */}
+      <div className="fixed top-0 left-0 right-0 h-[3px] bg-maxx-bg1 z-[60]">
         <div
-          className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 transition-all duration-150"
+          className="h-full bg-grad-accent transition-all duration-150"
           style={{ width: `${scrollProgress}%` }}
         />
       </div>
 
-      {/* Background */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black" />
-        <div className="absolute top-[-10%] right-[-5%] w-[700px] h-[700px] bg-purple-600/10 rounded-full blur-[150px] animate-pulse" style={{ animationDuration: '10s' }} />
-        <div className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-red-600/10 rounded-full blur-[130px] animate-pulse" style={{ animationDuration: '12s', animationDelay: '2s' }} />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:60px_60px]" />
-      </div>
+      <div className="min-h-screen bg-background">
+        <Navigation />
 
-      {/* Hero Section */}
-      <header className="relative z-10 pt-32 pb-20 border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-4xl mx-auto">
-
-            {/* Version Badge */}
-            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-gray-900/60 border border-purple-500/30 mb-8 backdrop-blur-md">
-              <FileCode className="w-5 h-5 text-purple-400" />
-              <span className="text-sm font-bold tracking-wider text-purple-400 uppercase">
-                Technical Whitepaper
-              </span>
-              <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-xs font-mono">
-                v1.1.0
-              </span>
-            </div>
-
-            {/* Title */}
-            <h1 className="text-6xl md:text-9xl font-black tracking-tighter mb-6 leading-none">
-              <span className="text-white">MAXX</span>
-              <span className="bg-gradient-to-r from-red-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">PAINN</span>
-            </h1>
-
-            {/* Subtitle */}
-            <p className="text-xl md:text-2xl text-gray-300 font-light mb-4">
-              A Proof-of-Patience Token Distribution Protocol
-            </p>
-            <p className="text-lg text-gray-500 mb-10">
-              Built on Solana • Powered by Time • Secured by Mathematics
-            </p>
-
-            {/* Meta Info */}
-            <div className="flex flex-wrap justify-center gap-3 text-sm mb-10">
-              {[
-                { label: 'Network', value: 'Solana', color: 'purple' },
-                { label: 'Framework', value: 'Anchor', color: 'blue' },
-                { label: 'Token', value: 'SPL', color: 'green' },
-                { label: 'Decimals', value: '1', color: 'pink' },
-                { label: 'Launch', value: 'Fair', color: 'yellow' },
-              ].map((item, i) => (
-                <div key={i} className="px-4 py-2 rounded-xl bg-gray-900/60 border border-white/10 backdrop-blur-sm">
-                  <span className="text-gray-500">{item.label}:</span>
-                  <span className={`ml-2 font-bold text-${item.color}-400`}>{item.value}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-              <QuickStat icon={Coins} label="Mint Cost" value="Free + Storage" />
-              <QuickStat icon={Percent} label="Staking Yield" value="Up to 100%" />
-              <QuickStat icon={Lock} label="Min Lock" value="1 Day" />
-              <QuickStat icon={Timer} label="Max Lock" value="5 Years" />
-            </div>
+        <div className="relative overflow-hidden">
+          {/* ambient glows */}
+          <div className="absolute inset-0 opacity-30 pointer-events-none">
+            <div className="absolute top-20 left-10 w-96 h-96 bg-maxx-violet/20 rounded-full blur-3xl" />
+            <div className="absolute top-60 right-10 w-96 h-96 bg-maxx-pink/10 rounded-full blur-3xl" />
           </div>
-        </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="relative z-10 py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col xl:flex-row gap-12">
+          {/* ── HERO ── */}
+          <header className="relative pt-32 pb-16 border-b border-maxx-violet/15">
+            <div className="max-w-7xl mx-auto px-4 md:px-6">
+              <div className="text-center max-w-4xl mx-auto">
 
-            {/* Sidebar Navigation */}
-            <aside className="xl:w-80 flex-shrink-0 wp-table-of-contents">
-              <div className="xl:sticky xl:top-24">
-                <div className="bg-gray-900/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 mb-6">
-                  <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/10">
-                    <BookOpen className="w-5 h-5 text-purple-400" />
-                    <h3 className="text-sm font-bold text-white uppercase tracking-widest">
-                      Table of Contents
-                    </h3>
-                  </div>
-                  <nav className="space-y-1 max-h-[60vh] overflow-y-auto pr-2">
-                    {tableOfContents.map((item, index) => (
-                      <button
-                        key={item.id}
-                        onClick={() => scrollToSection(item.id)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200 group ${
-                          activeSection === item.id
-                            ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                            : 'text-gray-400 hover:text-white hover:bg-white/5'
-                        }`}
-                      >
-                        <span className="text-xs font-mono text-gray-600 group-hover:text-gray-500">
-                          {String(index + 1).padStart(2, '0')}
-                        </span>
-                        <item.icon className="w-4 h-4 flex-shrink-0" />
-                        <span className="text-sm font-medium">{item.label}</span>
-                      </button>
-                    ))}
-                  </nav>
+                {/* eyebrow badge */}
+                <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-lg bg-maxx-bg1/80 border border-maxx-violet/25 mb-8">
+                  <FileCode className="w-4 h-4 text-maxx-violet" />
+                  <span className="eyebrow mb-0">Technical Whitepaper</span>
+                  <span className="pill py-0.5">v1.1.0</span>
                 </div>
 
-                {/* Download Button */}
-                <a
-                  href="/MaxxPainn.pdf"
-                  target="_blank"
-                >
-                    <Button
-                      className="w-full py-4 rounded-2xl bg-gray-900/60 border border-white/10 text-white hover:bg-white/10 transition-all"
-                    >
-                        <FileCode className="w-4 h-4 mr-2" />
-                        Download PDF
-                    </Button>
-                </a>
-              </div>
-            </aside>
+                {/* title */}
+                <h1 className="text-6xl md:text-9xl font-black tracking-tighter mb-6 leading-none">
+                  <span className="text-maxx-white">MAXX</span>
+                  <span className="bg-grad-accent bg-clip-text text-transparent">PAINN</span>
+                </h1>
 
-            {/* Content Area */}
-            <div id="wp-content" ref={wpMainContentRef} className="flex-1 min-w-0 space-y-20">
+                <p className="text-xl md:text-2xl text-maxx-bright mb-3 leading-relaxed">
+                  A Proof-of-Patience SocialFi Protocol
+                </p>
+                <p className="text-base text-maxx-sub mb-10">
+                  Built on Solana · Powered by Time · Secured by Mathematics
+                </p>
 
-              {/* ==================== ABSTRACT ==================== */}
-              <Section id="abstract">
-                <SectionHeader
-                  number="01"
-                  icon={BookOpen}
-                  title="Abstract"
-                  color="purple"
-                />
-                <ContentCard>
-                  <LeadText>
-                    MAXXPAINN is a decentralized token distribution protocol that introduces
-                    {" "}<Highlight>Proof-of-Patience (PoP)</Highlight> as its core consensus mechanism.
-                    Unlike traditional token launches that favor capital, MAXXPAINN rewards participants
-                    who demonstrate commitment through time-locked waiting periods.
-                  </LeadText>
-
-                  <Paragraph>
-                    Built natively on Solana using the Anchor framework, MAXXPAINN implements a
-                    sophisticated reward algorithm that dynamically calculates token distribution
-                    based on four independent variables: participant rank, early adopter status,
-                    network growth contribution, and lock duration commitment.
-                  </Paragraph>
-
-                  <Paragraph>
-                    The protocol introduces a novel <Highlight>Rank-Based Difficulty Adjustment</Highlight> system
-                    that progressively increases the cost of minting (via account storage rent) as participation grows. This creates
-                    natural economic pressure that transitions the ecosystem from mint-dominated to
-                    market-dominated token acquisition over time.
-                  </Paragraph>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                    <MetricCard
-                      label="Mint Cost"
-                      value="FREE"
-                      footnote="*Gas + Dynamic Storage Rent"
-                      color="green"
-                    />
-                    <MetricCard
-                      label="Maximum Supply"
-                      value="100P"
-                      footnote="100 Quadrillion (Approx)"
-                      color="purple"
-                    />
-                    <MetricCard
-                      label="Decimals"
-                      value="1"
-                      footnote="Minimal fragmentation"
-                      color="blue"
-                    />
-                  </div>
-                </ContentCard>
-              </Section>
-
-              {/* ==================== INTRODUCTION ==================== */}
-              <Section id="introduction">
-                <SectionHeader
-                  number="02"
-                  icon={Sparkles}
-                  title="Introduction"
-                  color="pink"
-                />
-
-                <ContentCard>
-                  <SubsectionTitle icon={AlertTriangle} color="red">
-                    The Problem with Traditional Token Launches
-                  </SubsectionTitle>
-                  <Paragraph>
-                    The cryptocurrency ecosystem has long struggled with fundamental fairness issues. 
-                    VC allocation, insider trading, and bot sniping often leave retail users as exit liquidity.
-                  </Paragraph>
-
-                  <ConceptBox title="The Core Thesis" color="purple">
-                    <p className="text-lg text-gray-300 italic">
-                      "The longer you're willing to wait, the more you deserve to receive."
-                    </p>
-                  </ConceptBox>
-                </ContentCard>
-              </Section>
-
-              {/* ==================== ARCHITECTURE ==================== */}
-              <Section id="architecture">
-                <SectionHeader
-                  number="03"
-                  icon={Boxes}
-                  title="Protocol Architecture"
-                  color="blue"
-                />
-                <ContentCard>
-                   <ArchitectureDiagram />
-                   <Paragraph>
-                      The system is comprised of the core Program, PDA states for user Ranks and Difficulty adjustments, 
-                      and a centralized Treasury (managed via on-chain governance/authority) for collecting storage fees.
-                   </Paragraph>
-                </ContentCard>
-              </Section>
-
-              {/* ==================== MINTING PROCESS ==================== */}
-              <Section id="minting-process">
-                <SectionHeader
-                  number="04"
-                  icon={Workflow}
-                  title="The Minting Process"
-                  color="green"
-                />
-                <ContentCard>
-                  <LeadText>
-                     Minting is a three-step process involving an initial commitment (Rank Claim) and a delayed realization (Token Claim).
-                  </LeadText>
-                  <ProcessTimeline>
-                    <TimelineStep
-                      phase="Phase 1"
-                      title="Claim Rank"
-                      description="The user begins the mint process by claiming their rank, choosing a lock duration, and committing to the protocol."
-                      duration="Instant"
-                      cost="Dynamic SOL"
-                    />
-                     <TimelineStep
-                      phase="Phase 2"
-                      title="Wait Period"
-                      description="The Proof-of-Patience phase. Users cannot access tokens until lock expires."
-                      duration="1 day - 5 years"
-                      cost="None"
-                    />
-                     <TimelineStep
-                      phase="Phase 3"
-                      title="Claim Tokens"
-                      description="User mints tokens to their wallet. Must be done within 7 days of expiry to avoid penalty."
-                      duration="Instant"
-                      cost="Gas Only"
-                    />
-                  </ProcessTimeline>
-                </ContentCard>
-              </Section>
-
-              {/* ==================== REWARD ALGORITHM ==================== */}
-              <Section id="reward-algorithm">
-                <SectionHeader
-                  number="05"
-                  icon={Calculator}
-                  title="Reward Algorithm"
-                  color="yellow"
-                />
-
-                <ContentCard>
-                  <LeadText>
-                    The reward calculation combines four independent multipliers to produce 
-                    fair, transparent, and incentive-aligned token distribution.
-                  </LeadText>
-
-                  <FormulaDisplay title="Master Reward Formula" color="yellow">
-                    Reward = BaseReward × EAM × NEM × LPM × (1 - LatePenalty)
-                  </FormulaDisplay>
-                </ContentCard>
-
-                <ContentCard className="mt-8">
-                  <SubsectionTitle icon={Binary} color="purple">
-                    Component 1: Dampened Base Reward
-                  </SubsectionTitle>
-
-                  <Paragraph>
-                    Unlike simple exponential decay, MAXXPAINN uses a "dampened" inverse square root decay.
-                    This ensures early participants get high rewards, but the drop-off is smoothed
-                    by the dampener constant $K$, keeping rewards meaningful even at high ranks.
-                  </Paragraph>
-
-                  <FormulaDisplay title="Dampened Base Reward Formula" color="purple">
-                    BaseReward = BASE × K / (√(rank) + K)
-                  </FormulaDisplay>
-
-                  <ConstantsTable title="Base Reward Constants">
-                    <ConstantRow name="BASE_REWARD" value="5,005,000" description="Maximum base tokens" />
-                    <ConstantRow name="DAMPENER_K" value="5,000" description="Smoothing constant" />
-                  </ConstantsTable>
-
-                  <SimulatedChart
-                    title="Base Reward Decay Curve (Live Simulation)"
-                    color="purple"
-                    data={chartData.baseRewardData}
-                    valueKey="reward"
-                    labelKey="label"
-                    formatValue={(v) => v >= 1000000 ? `${(v/1000000).toFixed(1)}M` : `${(v/1000).toFixed(0)}K`}
-                    yLabel="Base Reward"
-                    xLabel="Rank Number →"
-                  />
-                </ContentCard>
-
-                <ContentCard className="mt-8">
-                  <SubsectionTitle icon={Award} color="yellow">
-                    Component 2: Early Adopter Multiplier (EAM)
-                  </SubsectionTitle>
-
-                  <Paragraph>
-                    Rewards participants who join when the protocol is young. It linearly decays from 
-                    2.0× for Rank #1 down to 1.0× for Rank #1,000,000.
-                  </Paragraph>
-
-                  <FormulaDisplay title="EAM Formula" color="yellow">
-                    EAM = 1.0 + 2.0 × (1 - (rank - 1) / 999,999)
-                  </FormulaDisplay>
-
-                  <SimulatedChart
-                    title="Early Adopter Multiplier Curve"
-                    color="yellow"
-                    data={chartData.eamData}
-                    valueKey="multiplier"
-                    labelKey="label"
-                    formatValue={(v) => `${v.toFixed(2)}×`}
-                    yLabel="Multiplier"
-                    xLabel="Rank Number →"
-                    maxValue={3}
-                  />
-                </ContentCard>
-
-                <ContentCard className="mt-8">
-                  <SubsectionTitle icon={Network} color="blue">
-                    Component 3: Network Effect Multiplier (NEM)
-                  </SubsectionTitle>
-
-                  <Paragraph>
-                    NEM rewards patience by measuring how many users joined <i>after</i> you.
-                    The formula uses a square root curve to heavily reward the first wave of followers.
-                  </Paragraph>
-
-                  <FormulaDisplay title="NEM Formula" color="blue">
-                    NEM = min(3.0, 1.0 + 0.004 × √(GlobalRank - UserRank))
-                  </FormulaDisplay>
-
-                  <ConstantsTable title="NEM Constants">
-                    <ConstantRow name="NEM_COEFF" value="0.004" description="Growth curve coefficient" />
-                    <ConstantRow name="NEM_MAX" value="3.0×" description="Maximum network bonus cap" />
-                  </ConstantsTable>
-
-                  <SimulatedChart
-                    title="Network Effect Multiplier (User Rank: 1,000)"
-                    color="blue"
-                    data={chartData.nemData}
-                    valueKey="multiplier"
-                    labelKey="label"
-                    formatValue={(v) => `${v.toFixed(2)}×`}
-                    yLabel="Multiplier"
-                    xLabel="Global Rank →"
-                    maxValue={3}
-                  />
-                </ContentCard>
-
-                <ContentCard className="mt-8">
-                  <SubsectionTitle icon={Lock} color="pink">
-                    Component 4: Lock Period Multiplier (LPM)
-                  </SubsectionTitle>
-
-                  <Paragraph>
-                    The LPM incentivizes long-term commitment. By locking tokens for extended periods,
-                    users can multiply their rewards significantly.
-                  </Paragraph>
-
-                  <FormulaDisplay title="LPM Formula" color="pink">
-                    LPM = min(5.0, 1.0 + 0.08 × √(lockDays))
-                  </FormulaDisplay>
-
-                  <ConstantsTable title="LPM Constants">
-                    <ConstantRow name="LPM_COEFF" value="0.08" description="Duration scaling factor" />
-                    <ConstantRow name="LPM_MAX" value="5.0×" description="Maximum lock multiplier" />
-                    <ConstantRow name="MAX_LOCK" value="5 years" description="~1825 days" />
-                  </ConstantsTable>
-
-                  <SimulatedChart
-                    title="Lock Period Multiplier Curve"
-                    color="pink"
-                    data={chartData.lpmData}
-                    valueKey="multiplier"
-                    labelKey="label"
-                    formatValue={(v) => `${v.toFixed(2)}×`}
-                    yLabel="Multiplier"
-                    xLabel="Lock Duration →"
-                    maxValue={5}
-                  />
-                </ContentCard>
-
-                <ContentCard className="mt-8">
-                    <SubsectionTitle icon={Calculator} color="green">
-                        Live Simulation Table
-                    </SubsectionTitle>
-                    <Paragraph>
-                        Reward calculation assuming 30-day lock and moderate network growth.
-                    </Paragraph>
-                     <div className="overflow-x-auto rounded-xl border border-white/10">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="bg-black/40">
-                            <th className="text-left py-3 px-4 text-gray-400 font-bold">Rank</th>
-                            <th className="text-right py-3 px-4 text-gray-400 font-bold">Base</th>
-                            <th className="text-right py-3 px-4 text-gray-400 font-bold">EAM</th>
-                            <th className="text-right py-3 px-4 text-gray-400 font-bold">NEM</th>
-                            <th className="text-right py-3 px-4 text-gray-400 font-bold">LPM</th>
-                            <th className="text-right py-3 px-4 text-gray-400 font-bold">Total</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {chartData.rewardSimulation.map((item, i) => (
-                            <tr key={i} className="border-t border-white/5 hover:bg-white/5">
-                              <td className="py-3 px-4 text-white font-mono">#{item.label}</td>
-                              <td className="py-3 px-4 text-right text-purple-400 font-mono">
-                                {(item.baseReward / 1000).toFixed(0)}K
-                              </td>
-                              <td className="py-3 px-4 text-right text-yellow-400 font-mono">
-                                {item.earlyAdopterMultiplier.toFixed(2)}×
-                              </td>
-                              <td className="py-3 px-4 text-right text-blue-400 font-mono">
-                                {item.networkMultiplier.toFixed(2)}×
-                              </td>
-                              <td className="py-3 px-4 text-right text-pink-400 font-mono">
-                                {item.lockPeriodMultiplier.toFixed(2)}×
-                              </td>
-                              <td className="py-3 px-4 text-right text-green-400 font-bold font-mono">
-                                {item.finalReward >= 1000000000
-                                  ? `${(item.finalReward / 1000000000).toFixed(2)}B`
-                                  : item.finalReward >= 1000000
-                                    ? `${(item.finalReward / 1000000).toFixed(2)}M`
-                                    : `${(item.finalReward / 1000).toFixed(0)}K`
-                                }
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                {/* meta pills */}
+                <div className="flex flex-wrap justify-center gap-3 text-sm mb-10">
+                  {[
+                    { label: 'Network',   value: 'Solana', tw: 'text-maxx-violet border-maxx-violet/30 bg-maxx-violet/10' },
+                    { label: 'Framework', value: 'Anchor',  tw: 'text-blue-400   border-blue-400/30   bg-blue-400/10'     },
+                    { label: 'Token',     value: 'SPL',     tw: 'text-green-400  border-green-400/30  bg-green-400/10'    },
+                    { label: 'Decimals',  value: '1',       tw: 'text-maxx-pink  border-maxx-pink/30  bg-maxx-pink/10'    },
+                    { label: 'Launch',    value: 'Fair',    tw: 'text-yellow-400 border-yellow-400/30 bg-yellow-400/10'   },
+                  ].map(({ label, value, tw }) => (
+                    <div key={label} className={`px-4 py-2 rounded-lg border font-mono text-sm ${tw}`}>
+                      <span className="text-maxx-white/40 mr-1">{label}:</span>
+                      <span className="font-bold">{value}</span>
                     </div>
-                </ContentCard>
-              </Section>
+                  ))}
+                </div>
 
-              {/* ==================== DIFFICULTY SYSTEM ==================== */}
-              <Section id="difficulty-system">
-                <SectionHeader
-                  number="06"
-                  icon={Gauge}
-                  title="Rank-Based Difficulty System"
-                  color="red"
-                />
+                {/* quick stats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto">
+                  {[
+                    { Icon: Coins,   label: 'Mint Cost',     value: 'Free + Storage' },
+                    { Icon: Percent, label: 'Staking Yield', value: 'Up to 100%'     },
+                    { Icon: Lock,    label: 'Min Lock',      value: '1 Day'          },
+                    { Icon: Timer,   label: 'Max Lock',      value: '5 Years'        },
+                  ].map(({ Icon, label, value }) => (
+                    <div key={label} className="p-4 rounded-lg bg-maxx-bg1/80 border border-maxx-violet/20 text-center">
+                      <Icon className="w-5 h-5 text-maxx-violet mx-auto mb-2" />
+                      <p className="text-lg font-bold text-maxx-white">{value}</p>
+                      <p className="text-sm text-maxx-sub uppercase tracking-wider mt-1 font-mono">{label}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </header>
 
-                <ContentCard>
-                  <LeadText>
-                    The Difficulty System leverages Solana’s native rent mechanism to introduce a storage cost barrier that scales with the eighth root of the rank.
-                    This helps prevent protocol abuse and serves as an effective anti-bot mechanism.
-                  </LeadText>
+          {/* ── MAIN CONTENT ── */}
+          <main className="relative py-16">
+            <div className="max-w-7xl mx-auto px-4 md:px-6">
+              <div className="flex flex-col xl:flex-row gap-10">
 
-                  <FormulaDisplay title="Storage Fee Formula" color="red">
-                    Fee = 0.003 SOL × 3 × ⁸√rank
-                  </FormulaDisplay>
+                {/* ── SIDEBAR ── */}
+                <aside className="xl:w-72 flex-shrink-0">
+                  <div className="xl:sticky xl:top-24">
+                    <div className="bg-maxx-bg1/80 border border-maxx-violet/20 rounded-lg p-5 mb-4 shadow-2xl">
+                      <div className="flex items-center gap-2 mb-5 pb-4 border-b border-maxx-violet/15">
+                        <BookOpen className="w-4 h-4 text-maxx-violet" />
+                        <h3 className="text-sm font-bold text-maxx-white uppercase tracking-widest font-mono">Contents</h3>
+                      </div>
+                      <nav className="space-y-0.5 max-h-[60vh] overflow-y-auto pr-1">
+                        {TABLE_OF_CONTENTS.map((item, i) => (
+                          <button
+                            key={item.id}
+                            onClick={() => scrollTo(item.id)}
+                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all duration-200 group ${
+                              activeSection === item.id
+                                ? 'bg-maxx-violet/15 border border-maxx-violet/30'
+                                : 'hover:bg-maxx-violet/5 border border-transparent'
+                            }`}
+                          >
+                            <span className="text-[0.6rem] font-mono text-maxx-dim group-hover:text-maxx-sub w-4">
+                              {String(i + 1).padStart(2, '0')}
+                            </span>
+                            <item.icon className={`w-3.5 h-3.5 flex-shrink-0 ${activeSection === item.id ? item.color : 'text-maxx-sub'}`} />
+                            <span className={`text-sm font-medium font-mono ${activeSection === item.id ? 'text-maxx-violetLt' : 'text-maxx-sub group-hover:text-maxx-white'}`}>
+                              {item.label}
+                            </span>
+                          </button>
+                        ))}
+                      </nav>
+                    </div>
 
-                  <Paragraph>
-                    The base fee is 0.003 SOL. The scaler is 3. The 8th root ensures that cost doubles 
-                    only after extremely large jumps in rank (256x rank increase = 2x cost), allowing 
-                    the protocol to remain accessible while deterring massive bot swarms.
-                  </Paragraph>
-                  
-                  <PseudoCode title="get_storage_fee(rank)">
-{`// Native Rust Implementation (No Floats)
+                    <a href="/MaxxPainn.pdf" target="_blank" rel="noopener noreferrer">
+                      <button className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-maxx-bg1/80 border border-maxx-violet/20 text-maxx-bright text-sm font-semibold hover:bg-maxx-violet/10 hover:border-maxx-violet/40 transition-all font-mono">
+                        <FileCode className="w-4 h-4 text-maxx-violet" />
+                        Download PDF
+                      </button>
+                    </a>
+                  </div>
+                </aside>
+
+                {/* ── CONTENT ── */}
+                <div className="flex-1 min-w-0 space-y-16">
+
+                  {/* ── 01 ABSTRACT ── */}
+                  <Section id="abstract">
+                    <SectionHeader number="01" Icon={BookOpen} title="Abstract" badge="bg-maxx-violet/10 border-maxx-violet/30 text-maxx-violet" />
+                    <Card>
+                      <Lead>
+                        MAXXPAINN is a decentralized SocialFi protocol on Solana introducing
+                        <span className="text-maxx-violet font-semibold"> Proof-of-Patience (PoP)</span> —
+                        a fair distribution model that rewards time over capital. Crypto trench
+                        survivors share their stories, demonstrate patience, and mint liquid $MAXX
+                        tokens 100% free.
+                      </Lead>
+                      <Para>
+                        Built natively on Solana using the Anchor framework, MAXXPAINN implements a sophisticated
+                        reward algorithm that dynamically calculates token distribution based on four independent
+                        variables: participant rank, early adopter status, network growth contribution, and lock
+                        duration commitment.
+                      </Para>
+                      <Para>
+                        The protocol introduces a novel{' '}
+                        <span className="text-maxx-violet font-semibold">Rank-Based Difficulty Adjustment</span>{' '}
+                        system that progressively increases the cost of minting via account storage rent as
+                        participation grows. This creates natural economic pressure that transitions the ecosystem
+                        from mint-dominated to market-dominated token acquisition over time.
+                      </Para>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+                        <MetricCard label="Mint Cost"      value="FREE"  footnote="*Gas + Dynamic Storage Rent" border="border-green-500/30"      bg="bg-green-950/20"       text="text-green-400"      />
+                        <MetricCard label="Standard" value="SPL"  footnote="SPL token Standard"    border="border-maxx-violet/30"     bg="bg-maxx-violet/10"     text="text-maxx-violetLt"  />
+                        <MetricCard label="Decimals"       value="1"     footnote="Minimal fragmentation"       border="border-blue-500/30"        bg="bg-blue-950/20"        text="text-blue-400"       />
+                      </div>
+                    </Card>
+                  </Section>
+
+                  {/* ── 02 INTRODUCTION ── */}
+                  <Section id="introduction">
+                    <SectionHeader number="02" Icon={Sparkles} title="Introduction" badge="bg-maxx-pink/10 border-maxx-pink/30 text-maxx-pink" />
+                    <Card>
+                      <SubTitle Icon={AlertTriangle} iconClass="text-red-400">The Problem with Traditional Token Launches</SubTitle>
+                      <Para>
+                        The cryptocurrency ecosystem has long struggled with fundamental fairness issues.
+                        VC allocation, insider trading, and bot sniping often leave retail users as exit liquidity.
+                        Most launches reward speed and capital, not conviction.
+                      </Para>
+                      <div className="my-6 p-6 rounded-lg border border-maxx-violet/25 bg-maxx-violet/5">
+                        <div className="eyebrow mb-3">
+                          <span className="eyebrow-dot" />
+                          The Core Thesis
+                        </div>
+                        <BlockQuote color="border-l-maxx-violet bg-maxx-violet/5">
+                          "The longer you're willing to wait, the more you deserve to receive."
+                        </BlockQuote>
+                      </div>
+                    </Card>
+                  </Section>
+
+                  {/* ── 03 ARCHITECTURE ── */}
+                  <Section id="architecture">
+                    <SectionHeader number="03" Icon={Boxes} title="Protocol Architecture" badge="bg-blue-500/10 border-blue-500/30 text-blue-400" />
+                    <Card>
+                      <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-5 rounded-lg bg-maxx-bg0/60 border border-maxx-violet/15 mb-6">
+                        {[
+                          { Icon: Server,   label: 'Solana',  tw: 'bg-maxx-violet/10 border-maxx-violet/30 text-maxx-violet' },
+                          { Icon: Cpu,      label: 'Program', tw: 'bg-blue-500/10    border-blue-500/30    text-blue-400'    },
+                          { Icon: Database, label: 'PDAs',    tw: 'bg-green-500/10   border-green-500/30   text-green-400'   },
+                        ].map(({ Icon, label, tw }, i, arr) => (
+                          <React.Fragment key={label}>
+                            <div className={`p-5 rounded-lg border text-center w-full md:w-auto flex-1 ${tw}`}>
+                              <Icon className="w-8 h-8 mx-auto mb-2" />
+                              <p className="text-maxx-white font-bold font-mono">{label}</p>
+                            </div>
+                            {i < arr.length - 1 && (
+                              <ArrowRight className="w-5 h-5 text-maxx-dim rotate-90 md:rotate-0 flex-shrink-0" />
+                            )}
+                          </React.Fragment>
+                        ))}
+                      </div>
+                      <Para>
+                        The system is comprised of the core Program, PDA states for user Ranks and Difficulty
+                        adjustments, and a centralized Treasury (managed via on-chain governance/authority) for
+                        collecting storage fees.
+                      </Para>
+                    </Card>
+                  </Section>
+
+                  {/* ── 04 MINTING PROCESS ── */}
+                  <Section id="minting-process">
+                    <SectionHeader number="04" Icon={Workflow} title="The Minting Process" badge="bg-green-500/10 border-green-500/30 text-green-400" />
+                    <Card>
+                      <Lead>
+                        Minting is a three-step process involving an initial commitment (Rank Claim) and a
+                        delayed realization (Token Claim).
+                      </Lead>
+                      <div className="relative mt-6">
+                        <div className="absolute left-6 top-0 bottom-0 w-px bg-grad-accent" />
+                        <div className="space-y-6">
+                          {[
+                            { phase: '1', title: 'Claim Rank',   duration: 'Instant',         cost: 'Dynamic SOL', desc: 'The user begins the mint process by claiming their rank, choosing a lock duration, and committing to the protocol.' },
+                            { phase: '2', title: 'Wait Period',  duration: '1 day – 5 years',  cost: 'None',        desc: 'The Proof-of-Patience phase. Users cannot access tokens until lock expires.' },
+                            { phase: '3', title: 'Claim Tokens', duration: 'Instant',          cost: 'Gas Only',    desc: 'User mints tokens to their wallet. Must be done within 7 days of expiry to avoid penalty.' },
+                          ].map(({ phase, title, duration, cost, desc }) => (
+                            <div key={phase} className="relative pl-16">
+                              <div className="absolute left-0 w-12 h-12 rounded-lg bg-maxx-bg1 border border-maxx-violet/30 flex items-center justify-center">
+                                <span className="text-sm font-black text-maxx-white font-mono">{phase}</span>
+                              </div>
+                              <div className="p-5 rounded-lg bg-maxx-bg0/60 border border-maxx-violet/20">
+                                <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                                  <h4 className="text-base font-bold text-maxx-white">{title}</h4>
+                                  <div className="flex gap-2">
+                                    <span className="pill">{duration}</span>
+                                    <span className="pill text-green-400 border-green-500/25">{cost}</span>
+                                  </div>
+                                </div>
+                                <p className="text-sm text-maxx-mid">{desc}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </Card>
+                  </Section>
+
+                  {/* ── 05 REWARD ALGORITHM ── */}
+                  <Section id="reward-algorithm">
+                    <SectionHeader number="05" Icon={Calculator} title="Reward Algorithm" badge="bg-yellow-500/10 border-yellow-500/30 text-yellow-400" />
+
+                    <Card>
+                      <Lead>
+                        The reward calculation combines four independent multipliers to produce fair,
+                        transparent, and incentive-aligned token distribution.
+                      </Lead>
+                      <Formula title="Master Reward Formula" border="border-yellow-500/30" bg="bg-yellow-950/20" text="text-yellow-400">
+                        Reward = BaseReward × EAM × NEM × LPM × (1 − LatePenalty)
+                      </Formula>
+                    </Card>
+
+                    <Card className="mt-6">
+                      <SubTitle Icon={Binary} iconClass="text-maxx-violet">Component 1: Dampened Base Reward</SubTitle>
+                      <Para>
+                        Unlike simple exponential decay, MAXXPAINN uses a dampened inverse square root decay.
+                        Early participants receive high rewards, but the drop-off is smoothed by the dampener
+                        constant K, keeping rewards meaningful even at high ranks.
+                      </Para>
+                      <Formula title="Dampened Base Reward Formula" border="border-maxx-violet/30" bg="bg-maxx-violet/5" text="text-maxx-violetLt">
+                        BaseReward = BASE × K / (√(rank) + K)
+                      </Formula>
+                      <ConstantsTable rows={[
+                        { name: 'BASE_REWARD', value: '5,005,000', desc: 'Maximum base tokens' },
+                        { name: 'DAMPENER_K',  value: '5,000',     desc: 'Smoothing constant'  },
+                      ]} />
+                      <BarChart
+                        title="Base Reward Decay Curve"
+                        badge="bg-maxx-violet/20 text-maxx-violetLt"
+                        data={chartData.baseRewardData}
+                        valueKey="reward"
+                        labelKey="label"
+                        formatValue={v => v >= 1e6 ? `${(v/1e6).toFixed(1)}M` : `${(v/1000).toFixed(0)}K`}
+                        xLabel="Rank Number →"
+                        barClass="bg-gradient-to-t from-maxx-violetDk to-maxx-violet group-hover:from-maxx-violet group-hover:to-maxx-violetLt"
+                      />
+                    </Card>
+
+                    <Card className="mt-6">
+                      <SubTitle Icon={Award} iconClass="text-yellow-400">Component 2: Early Adopter Multiplier (EAM)</SubTitle>
+                      <Para>
+                        Rewards participants who join when the protocol is young. Linearly decays from
+                        3.0× for Rank #1 down to 1.0× for Rank #1,000,000.
+                      </Para>
+                      <Formula title="EAM Formula" border="border-yellow-500/30" bg="bg-yellow-950/20" text="text-yellow-400">
+                        EAM = 1.0 + 2.0 × (1 − (rank − 1) / 999,999)
+                      </Formula>
+                      <BarChart
+                        title="Early Adopter Multiplier Curve"
+                        badge="bg-yellow-500/20 text-yellow-400"
+                        data={chartData.eamData}
+                        valueKey="multiplier"
+                        labelKey="label"
+                        formatValue={v => `${v.toFixed(2)}×`}
+                        xLabel="Rank Number →"
+                        barClass="bg-gradient-to-t from-yellow-600 to-yellow-400 group-hover:from-yellow-500 group-hover:to-yellow-300"
+                        maxOverride={3}
+                      />
+                    </Card>
+
+                    <Card className="mt-6">
+                      <SubTitle Icon={Network} iconClass="text-blue-400">Component 3: Network Effect Multiplier (NEM)</SubTitle>
+                      <Para>
+                        NEM rewards patience by measuring how many users joined <em>after</em> you.
+                        Uses a square root curve to heavily reward the first wave of followers.
+                      </Para>
+                      <Formula title="NEM Formula" border="border-blue-500/30" bg="bg-blue-950/20" text="text-blue-400">
+                        NEM = min(3.0, 1.0 + 0.004 × √(GlobalRank − UserRank))
+                      </Formula>
+                      <ConstantsTable rows={[
+                        { name: 'NEM_COEFF', value: '0.004', desc: 'Growth curve coefficient'  },
+                        { name: 'NEM_MAX',   value: '3.0×',  desc: 'Maximum network bonus cap' },
+                      ]} />
+                      <BarChart
+                        title="Network Effect Multiplier (User Rank: 1,000)"
+                        badge="bg-blue-500/20 text-blue-400"
+                        data={chartData.nemData}
+                        valueKey="multiplier"
+                        labelKey="label"
+                        formatValue={v => `${v.toFixed(2)}×`}
+                        xLabel="Global Rank →"
+                        barClass="bg-gradient-to-t from-blue-600 to-blue-400 group-hover:from-blue-500 group-hover:to-blue-300"
+                        maxOverride={3}
+                      />
+                    </Card>
+
+                    <Card className="mt-6">
+                      <SubTitle Icon={Lock} iconClass="text-maxx-pink">Component 4: Lock Period Multiplier (LPM)</SubTitle>
+                      <Para>
+                        The LPM incentivizes long-term commitment. By locking tokens for extended periods,
+                        users can multiply their rewards significantly.
+                      </Para>
+                      <Formula title="LPM Formula" border="border-maxx-pink/30" bg="bg-maxx-pink/5" text="text-maxx-pinkLt">
+                        LPM = min(5.0, 1.0 + 0.08 × √(lockDays))
+                      </Formula>
+                      <ConstantsTable rows={[
+                        { name: 'LPM_COEFF', value: '0.08',    desc: 'Duration scaling factor' },
+                        { name: 'LPM_MAX',   value: '5.0×',    desc: 'Maximum lock multiplier'  },
+                        { name: 'MAX_LOCK',  value: '5 years', desc: '~1825 days'               },
+                      ]} />
+                      <BarChart
+                        title="Lock Period Multiplier Curve"
+                        badge="bg-maxx-pink/20 text-maxx-pinkLt"
+                        data={chartData.lpmData}
+                        valueKey="multiplier"
+                        labelKey="label"
+                        formatValue={v => `${v.toFixed(2)}×`}
+                        xLabel="Lock Duration →"
+                        barClass="bg-gradient-to-t from-maxx-pinkDk to-maxx-pink group-hover:from-maxx-pink group-hover:to-maxx-pinkLt"
+                        maxOverride={5}
+                      />
+                    </Card>
+
+                    {/* simulation table */}
+                    <Card className="mt-6">
+                      <SubTitle Icon={Calculator} iconClass="text-green-400">Live Simulation Table</SubTitle>
+                      <Para>Reward calculation assuming 30-day lock and moderate network growth.</Para>
+                      <div className="overflow-x-auto rounded-lg border border-maxx-violet/15">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-maxx-bg0/60">
+                              {['Rank','Base','EAM','NEM','LPM','Total'].map(h => (
+                                <th key={h} className={`py-3 px-4 text-maxx-sub font-bold font-mono ${h === 'Rank' ? 'text-left' : 'text-right'}`}>{h}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {chartData.rewardSimulation.map((item, i) => (
+                              <tr key={i} className="border-t border-maxx-violet/10 hover:bg-maxx-violet/5">
+                                <td className="py-3 px-4 text-maxx-white font-mono">#{item.label}</td>
+                                <td className="py-3 px-4 text-right text-maxx-violetLt font-mono">{(item.base/1000).toFixed(0)}K</td>
+                                <td className="py-3 px-4 text-right text-yellow-400 font-mono">{item.eam.toFixed(2)}×</td>
+                                <td className="py-3 px-4 text-right text-blue-400 font-mono">{item.nem.toFixed(2)}×</td>
+                                <td className="py-3 px-4 text-right text-maxx-pinkLt font-mono">{item.lpm.toFixed(2)}×</td>
+                                <td className="py-3 px-4 text-right text-green-400 font-bold font-mono">
+                                  {item.final >= 1e9 ? `${(item.final/1e9).toFixed(2)}B` : item.final >= 1e6 ? `${(item.final/1e6).toFixed(2)}M` : `${(item.final/1000).toFixed(0)}K`}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </Card>
+                  </Section>
+
+                  {/* ── 06 DIFFICULTY SYSTEM ── */}
+                  <Section id="difficulty-system">
+                    <SectionHeader number="06" Icon={Gauge} title="Rank-Based Difficulty System" badge="bg-red-500/10 border-red-500/30 text-red-400" />
+                    <Card>
+                      <Lead>
+                        The Difficulty System leverages Solana's native rent mechanism to introduce a storage
+                        cost barrier that scales with the eighth root of the rank, preventing protocol abuse
+                        and acting as an anti-bot mechanism.
+                      </Lead>
+                      <Formula title="Storage Fee Formula" border="border-red-500/30" bg="bg-red-950/20" text="text-red-400">
+                        Fee = 0.003 SOL × 3 × ⁸√rank
+                      </Formula>
+                      <Para>
+                        The base fee is 0.003 SOL. The scaler is 3. The 8th root ensures that cost doubles only
+                        after extremely large jumps in rank — keeping the protocol accessible while deterring
+                        massive bot swarms.
+                      </Para>
+                      <CodeBlock title="get_storage_fee(rank)">{`// Native Rust Implementation (No Floats)
 fn get_storage_fee(rank_no: u64) -> u64 {
     let base = 3_000_000; // 0.003 SOL in lamports
     let scale = 3;
@@ -655,729 +680,298 @@ fn get_storage_fee(rank_no: u64) -> u64 {
     let root = rank_no.isqrt().isqrt().isqrt();
     
     return base * root * scale;
-}`}
-                  </PseudoCode>
+}`}</CodeBlock>
+                      <div className="my-4 p-5 rounded-lg bg-maxx-bg0/60 border border-maxx-violet/15">
+                        <h4 className="text-sm font-bold text-maxx-sub uppercase tracking-wider mb-4 font-mono">Difficulty (Storage Fee) Growth</h4>
+                        <div className="h-32 flex items-end justify-between gap-2">
+                          {[{rank:1,label:'1'},{rank:256,label:'256'},{rank:65536,label:'65K'},{rank:16777216,label:'16M'},{rank:4294967296,label:'4B'}].map((item, i) => {
+                            const root = Math.pow(item.rank, 1/8);
+                            const max  = Math.pow(4294967296, 1/8);
+                            const h    = (root / max) * 100;
+                            return (
+                              <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
+                                <div className="w-full relative h-24 flex items-end">
+                                  <div className="w-full bg-gradient-to-t from-red-700 to-red-400 rounded-t group-hover:from-red-600 group-hover:to-red-300 transition-all"
+                                       style={{ height: `${h}%`, minHeight: 4 }} />
+                                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-maxx-bg0 border border-maxx-violet/20 rounded text-sm text-maxx-white opacity-0 group-hover:opacity-100 whitespace-nowrap z-10">
+                                    {root.toFixed(2)}× base
+                                  </div>
+                                </div>
+                                <span className="text-sm text-maxx-sub font-mono">{item.label}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <p className="text-sm text-maxx-sub text-center mt-3 font-mono">Rank Number (Log Scale)</p>
+                      </div>
+                    </Card>
+                  </Section>
 
-                  <DifficultyChart />
-                </ContentCard>
-              </Section>
+                  {/* ── 07 LOCK TIERS ── */}
+                  <Section id="lock-tiers">
+                    <SectionHeader number="07" Icon={Timer} title="Lock Period Tiers" badge="bg-cyan-500/10 border-cyan-500/30 text-cyan-400" />
+                    <Card>
+                      <Lead>Max lock durations are gated by rank to prevent extreme multipliers early on.</Lead>
+                      <div className="overflow-x-auto rounded-lg border border-maxx-violet/15">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-maxx-bg0/60">
+                              <th className="text-left py-3 px-4 text-maxx-sub font-bold uppercase tracking-wider font-mono">Rank Range</th>
+                              <th className="text-left py-3 px-4 text-maxx-sub font-bold uppercase tracking-wider font-mono">Max Lock</th>
+                              <th className="text-left py-3 px-4 text-maxx-sub font-bold uppercase tracking-wider font-mono">Max LPM</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              { range: '0 – 100,000',  lock: 30   },
+                              { range: '100K – 1M',    lock: 90   },
+                              { range: '1M – 5M',      lock: 180  },
+                              { range: '5M – 10M',     lock: 360  },
+                              { range: '10M – 100M',   lock: 480  },
+                              { range: '100M – 400M',  lock: 540  },
+                              { range: '400M – 1B',    lock: 720  },
+                              { range: '1B+',          lock: 1825 },
+                            ].map((row, i) => (
+                              <tr key={i} className="border-t border-maxx-violet/10 hover:bg-maxx-violet/5">
+                                <td className="py-3 px-4 font-mono text-maxx-white">{row.range}</td>
+                                <td className="py-3 px-4 font-bold text-cyan-400 font-mono">{row.lock} days</td>
+                                <td className="py-3 px-4 font-mono text-maxx-pinkLt">~{getLPMForDays(row.lock)}×</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </Card>
+                  </Section>
 
-              {/* ==================== LOCK TIERS ==================== */}
-              <Section id="lock-tiers">
-                <SectionHeader
-                  number="07"
-                  icon={Timer}
-                  title="Lock Period Tiers"
-                  color="cyan"
-                />
-                <ContentCard>
-                    <LeadText>
-                        Max lock durations are gated by rank to prevent extreme multipliers early on.
-                    </LeadText>
-                    <LockTierTable lpmData={chartData.lpmData} />
-                </ContentCard>
-              </Section>
+                  {/* ── 08 LATE PENALTY ── */}
+                  <Section id="late-penalty">
+                    <SectionHeader number="08" Icon={AlertTriangle} title="Late Mint Penalty" badge="bg-orange-500/10 border-orange-500/30 text-orange-400" />
+                    <Card>
+                      <Para>
+                        Claiming must occur within 7 days of lock expiry. The penalty curve is aggressive
+                        (exponential). Miss the window entirely and you lose nearly all rewards.
+                      </Para>
+                      <div className="my-4 p-5 rounded-lg bg-maxx-bg0/60 border border-maxx-violet/15">
+                        <h4 className="text-sm font-bold text-maxx-sub uppercase tracking-wider mb-4 font-mono">Late Claim Penalty Schedule</h4>
+                        <div className="grid grid-cols-8 gap-2">
+                          {[{day:0,p:0},{day:1,p:1},{day:2,p:3},{day:3,p:8},{day:4,p:17},{day:5,p:35},{day:6,p:72},{day:'7+',p:99}].map((item, i) => (
+                            <div key={i} className="text-center group">
+                              <div className="h-24 flex items-end justify-center mb-2">
+                                <div
+                                  className="w-full bg-gradient-to-t from-red-700 to-red-400 rounded-t group-hover:from-red-600 group-hover:to-red-300 transition-all"
+                                  style={{ height: `${item.p}%`, minHeight: item.p > 0 ? 4 : 0 }}
+                                />
+                              </div>
+                              <p className="text-sm text-maxx-sub font-mono">Day {item.day}</p>
+                              <p className="text-sm font-bold text-red-400 font-mono">{item.p}%</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </Card>
+                  </Section>
 
-              {/* ==================== LATE PENALTY ==================== */}
-              <Section id="late-penalty">
-                 <SectionHeader number="08" icon={AlertTriangle} title="Late Mint Penalty" color="orange" />
-                 <ContentCard>
-                    <Paragraph>
-                        Claiming must occur within 7 days of lock expiry. The penalty curve is aggressive (Exponential).
-                    </Paragraph>
-                    <PenaltyChart />
-                 </ContentCard>
-              </Section>
+                  {/* ── 09 CLAN SYSTEM ── */}
+                  <Section id="clan-system">
+                    <SectionHeader number="09" Icon={Users} title="Clan System" badge="bg-maxx-violet/10 border-maxx-violet/30 text-maxx-violet" />
+                    <Card>
+                      <Lead>Clans drive organic growth via instant on-chain referral rewards.</Lead>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
+                        {[
+                          { Icon: Users,   tw: 'bg-maxx-violet/10 border-maxx-violet/30 text-maxx-violet', title: 'Create or Join', desc: 'Join an existing clan or create your own to start earning referral rewards.' },
+                          { Icon: Network, tw: 'bg-blue-500/10    border-blue-500/30    text-blue-400',    title: 'Share & Grow',   desc: 'Share your clan link. Every new mint through your referral earns SOL.' },
+                          { Icon: Coins,   tw: 'bg-green-500/10   border-green-500/30   text-green-400',   title: 'Earn Forever',   desc: `Referral rewards are paid instantly on-chain: ${mintConfig.mintRewardUsd} USD equivalent.` },
+                        ].map(({ Icon, tw, title, desc }) => (
+                          <div key={title} className="p-5 rounded-lg bg-maxx-bg0/60 border border-maxx-violet/20 text-center card-hover">
+                            <div className={`w-14 h-14 rounded-lg border flex items-center justify-center mx-auto mb-4 ${tw}`}>
+                              <Icon className="w-7 h-7" />
+                            </div>
+                            <h4 className="font-bold text-maxx-white mb-2">{title}</h4>
+                            <p className="text-sm text-maxx-mid">{desc}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+                  </Section>
 
-              {/* ==================== CLAN SYSTEM ==================== */}
-              <Section id="clan-system">
-                <SectionHeader number="09" icon={Users} title="Clan System" color="purple" />
-                <ContentCard>
-                    <LeadText>Clans drive organic growth via instant on-chain referral rewards.</LeadText>
-                    <ClanMechanics />
-                </ContentCard>
-              </Section>
-
-              {/* ==================== STAKING PROTOCOL ==================== */}
-              <Section id="staking">
-                <SectionHeader
-                  number="10"
-                  icon={Gem}
-                  title="Staking Protocol"
-                  color="emerald"
-                />
-
-                <ContentCard>
-                  <LeadText>
-                    Beyond the initial distribution, MAXXPAINN offers a robust staking mechanism
-                    allowing holders to earn yield by re-locking their claimed tokens.
-                  </LeadText>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
-                     <div className="p-6 rounded-2xl bg-emerald-950/20 border border-emerald-500/20">
-                        <h4 className="text-lg font-bold text-emerald-400 mb-4">Staking Parameters</h4>
-                        <ul className="space-y-4">
-                            <li className="flex justify-between items-center border-b border-white/5 pb-2">
-                                <span className="text-gray-400">Min Lock</span>
-                                <span className="text-white font-mono">1 Day</span>
-                            </li>
-                            <li className="flex justify-between items-center border-b border-white/5 pb-2">
-                                <span className="text-gray-400">Max Lock</span>
-                                <span className="text-white font-mono">3 Years (1095 Days)</span>
-                            </li>
-                            <li className="flex justify-between items-center border-b border-white/5 pb-2">
-                                <span className="text-gray-400">Max APY</span>
-                                <span className="text-white font-mono">100%</span>
-                            </li>
-                            <li className="flex justify-between items-center">
-                                <span className="text-gray-400">Early Unstake</span>
-                                <span className="text-red-400 font-mono">25% Penalty</span>
-                            </li>
-                        </ul>
-                     </div>
-                     <div className="p-6 rounded-2xl bg-gray-900/60 border border-white/10 flex flex-col justify-center">
-                        <p className="text-gray-300 mb-4">
+                  {/* ── 10 STAKING ── */}
+                  <Section id="staking">
+                    <SectionHeader number="10" Icon={Gem} title="Staking Protocol" badge="bg-emerald-500/10 border-emerald-500/30 text-emerald-400" />
+                    <Card>
+                      <Lead>
+                        Beyond the initial distribution, MAXXPAINN offers a robust staking mechanism allowing
+                        holders to earn yield by re-locking their claimed tokens.
+                      </Lead>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+                        <div className="p-5 rounded-lg bg-emerald-950/20 border border-emerald-500/20">
+                          <h4 className="font-bold text-emerald-400 mb-4 font-mono uppercase tracking-wider text-sm">Staking Parameters</h4>
+                          <ul className="space-y-3">
+                            {[
+                              { k: 'Min Lock',      v: '1 Day',                tw: 'text-maxx-white'  },
+                              { k: 'Max Lock',      v: '3 Years (1095 Days)',   tw: 'text-maxx-white'  },
+                              { k: 'Max APY',       v: '100%',                  tw: 'text-maxx-white'  },
+                              { k: 'Early Unstake', v: '25% Penalty',           tw: 'text-red-400'     },
+                            ].map(({ k, v, tw }) => (
+                              <li key={k} className="flex justify-between items-center border-b border-maxx-violet/10 pb-3 last:border-0 last:pb-0">
+                                <span className="text-maxx-sub text-sm">{k}</span>
+                                <span className={`font-mono font-semibold text-sm ${tw}`}>{v}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="flex flex-col gap-4">
+                          <Para className="mb-0">
                             The staking protocol is designed to reduce circulating supply after the mint phase.
                             Yield is derived from protocol revenue and allocated treasury funds.
-                        </p>
-                        <div className="p-4 rounded-xl bg-red-950/20 border border-red-500/20">
-                            <h5 className="flex items-center gap-2 text-red-400 font-bold mb-2">
-                                <AlertTriangle className="w-4 h-4"/> Penalty Warning
+                          </Para>
+                          <div className="p-4 rounded-lg bg-red-950/20 border border-red-500/20">
+                            <h5 className="flex items-center gap-2 text-red-400 font-bold text-sm mb-2">
+                              <AlertTriangle className="w-4 h-4" />
+                              Penalty Warning
                             </h5>
-                            <p className="text-xs text-gray-400">
-                                Unstaking before your term ends results in a flat 25% penalty on the principal. 
-                                Patience is enforced strictly.
+                            <p className="text-sm text-maxx-mid">
+                              Unstaking before your term ends results in a flat 25% penalty on the principal.
+                              Patience is enforced strictly.
                             </p>
+                          </div>
                         </div>
-                     </div>
-                  </div>
-                </ContentCard>
-              </Section>
+                      </div>
+                    </Card>
+                  </Section>
 
+                  {/* ── 11 ON-CHAIN STATE ── */}
+                  <Section id="on-chain-state">
+                    <SectionHeader number="11" Icon={Database} title="On-Chain State" badge="bg-indigo-500/10 border-indigo-500/30 text-indigo-400" />
+                    <Card>
+                      <div className="space-y-5 mt-4">
+                        {[
+                          { name: 'MainConfig',     seeds: ['main_config'],           color: 'text-maxx-violet', fields: [{ n:'authority', t:'Pubkey', d:'Admin address' },{ n:'treasury', t:'Pubkey', d:'Fee recipient' },{ n:'difficulty_base_fee', t:'u64', d:'0.003 SOL' },{ n:'difficulty_scale', t:'[u64; 2]', d:'[3, 1]' }] },
+                          { name: 'GlobalRank',     seeds: ['global_rank'],           color: 'text-blue-400',    fields: [{ n:'value', t:'u64', d:'Current global rank counter' }] },
+                          { name: 'RankInfo',       seeds: ['rank_info','owner'],     color: 'text-green-400',   fields: [{ n:'owner', t:'Pubkey', d:'Participant address' },{ n:'rank_no', t:'u64', d:'Assigned rank number' },{ n:'wait_period_secs', t:'u64', d:'Lock duration' },{ n:'has_minted', t:'bool', d:'Claim status' }] },
+                          { name: 'RankDifficulty', seeds: ['rank_difficulty','owner'],color: 'text-red-400',    fields: [{ n:'raw_data', t:'bytes', d:'Variable size buffer' }] },
+                        ].map((acc) => (
+                          <div key={acc.name} className="p-5 rounded-lg bg-maxx-bg0/60 border border-maxx-violet/15">
+                            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                              <h4 className={`font-bold font-mono text-base ${acc.color}`}>{acc.name}</h4>
+                              <div className="flex gap-2 flex-wrap">
+                                {acc.seeds.map(s => (
+                                  <span key={s} className="pill">{s}</span>
+                                ))}
+                              </div>
+                            </div>
+                            <table className="w-full text-sm">
+                              <tbody>
+                                {acc.fields.map(f => (
+                                  <tr key={f.n} className="border-t border-maxx-violet/10">
+                                    <td className="py-2 font-mono text-cyan-400 w-40 pr-4">{f.n}</td>
+                                    <td className="py-2 font-mono text-maxx-sub w-24 pr-4">{f.t}</td>
+                                    <td className="py-2 text-maxx-mid">{f.d}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+                  </Section>
 
-              {/* ==================== ON-CHAIN STATE ==================== */}
-              <Section id="on-chain-state">
-                <SectionHeader number="11" icon={Database} title="On-Chain State" color="indigo" />
-                <ContentCard>
-                    <AccountSchemas />
-                </ContentCard>
-              </Section>
+                  {/* ── 12 SECURITY ── */}
+                  <Section id="security">
+                    <SectionHeader number="12" Icon={Shield} title="Security Model" badge="bg-green-500/10 border-green-500/30 text-green-400" />
+                    <Card>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        {[
+                          { Icon: Key,    title: 'PDA Validation',     desc: 'Deterministic account derivation ensures secure state management.'    },
+                          { Icon: Shield, title: 'Reentrancy Guard',   desc: 'Checks-Effects-Interactions pattern strictly enforced.'                },
+                          { Icon: Siren,  title: 'Checked Arithmetic', desc: 'Overflow/Underflow protection on all math operations.'                 },
+                          { Icon: Lock,   title: 'Treasury Safety',    desc: 'Fee destination hardcoded to config authority.'                        },
+                        ].map(({ Icon, title, desc }) => (
+                          <div key={title} className="flex gap-4 p-5 rounded-lg bg-maxx-bg0/60 border border-green-500/20">
+                            <div className="p-2.5 rounded-lg bg-green-500/10 border border-green-500/20 h-fit">
+                              <Icon className="w-4 h-4 text-green-400" />
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-maxx-white mb-1">{title}</h4>
+                              <p className="text-sm text-maxx-mid">{desc}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+                  </Section>
 
-              {/* ==================== SECURITY ==================== */}
-              <Section id="security">
-                <SectionHeader number="12" icon={Shield} title="Security Model" color="green" />
-                <ContentCard>
-                    <SecurityGrid />
-                </ContentCard>
-              </Section>
+                  {/* ── 13 ECONOMICS ── */}
+                  <Section id="economics">
+                    <SectionHeader number="13" Icon={BarChart3} title="Economic Analysis" badge="bg-emerald-500/10 border-emerald-500/30 text-emerald-400" />
+                    <Card>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-4">
+                        <div className="p-5 rounded-lg bg-emerald-950/20 border border-emerald-500/20">
+                          <h4 className="font-bold text-emerald-400 mb-4 font-mono uppercase tracking-wider text-sm">Supply Dynamics</h4>
+                          <ul className="space-y-3">
+                            {['Smooth dampened decay curve', 'High precision (1 decimal) reduces dust'].map(t => (
+                              <li key={t} className="flex items-start gap-2 text-sm text-maxx-mid">
+                                <ChevronRight className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />{t}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="p-5 rounded-lg bg-blue-950/20 border border-blue-500/20">
+                          <h4 className="font-bold text-blue-400 mb-4 font-mono uppercase tracking-wider text-sm">Equilibrium</h4>
+                          <ul className="space-y-3">
+                            {['Difficulty rises with rank^0.125', 'Staking removes supply from circulation'].map(t => (
+                              <li key={t} className="flex items-start gap-2 text-sm text-maxx-mid">
+                                <ChevronRight className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />{t}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </Card>
+                  </Section>
 
-               {/* ==================== ECONOMICS ==================== */}
-               <Section id="economics">
-                <SectionHeader number="13" icon={BarChart3} title="Economic Analysis" color="emerald" />
-                <ContentCard>
-                   <EconomicModel />
-                </ContentCard>
-              </Section>
+                  {/* ── 14 CONCLUSION ── */}
+                  <Section id="conclusion">
+                    <SectionHeader number="14" Icon={Rocket} title="Conclusion" badge="bg-maxx-pink/10 border-maxx-pink/30 text-maxx-pink" />
+                    <div className="bg-maxx-bg1/80 border-2 border-maxx-violet/30 rounded-lg p-10 md:p-14 shadow-2xl shadow-maxx-violet/10 text-center relative overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-maxx-violet/50 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-maxx-pink/30 to-transparent" />
 
-              {/* ==================== CONCLUSION ==================== */}
-              <Section id="conclusion">
-                <SectionHeader
-                  number="14"
-                  icon={Rocket}
-                  title="Conclusion"
-                  color="pink"
-                />
+                      <Flame className="w-14 h-14 text-maxx-violet mx-auto mb-8" />
 
-                <div className="relative bg-gradient-to-b from-purple-950/30 via-pink-950/20 to-black/50 rounded-3xl p-10 md:p-14 border border-purple-500/20 overflow-hidden">
-                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-pink-500/30 to-transparent" />
+                      <h2 className="text-4xl md:text-5xl font-black text-maxx-white mb-5 tracking-tight">
+                        The Future is{' '}
+                        <span className="bg-grad-accent bg-clip-text text-transparent">
+                          Awesome
+                        </span>
+                      </h2>
 
-                  <div className="text-center max-w-3xl mx-auto relative z-10">
-                    <Flame className="w-16 h-16 text-purple-400 mx-auto mb-8" />
+                      <p className="text-xl text-maxx-bright mb-8 leading-relaxed max-w-2xl mx-auto">
+                        MAXXPAINN represents a paradigm shift in fair token distribution.
+                        The math is updated. The difficulty is set. The timer starts now.
+                      </p>
 
-                    <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight">
-                      The Future is <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-red-400">Awesome</span>
-                    </h2>
-
-                    <p className="text-xl text-gray-300 mb-6 leading-relaxed">
-                      MAXXPAINN represents a paradigm shift in fair token distribution.
-                      The math is updated. The difficulty is set. The timer starts now.
-                    </p>
-
-                    <div className="flex flex-wrap justify-center gap-4">
-                      <a href="/mint">
-                        <Button className="inline-flex items-center gap-2 px-10 py-5 h-auto rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-lg uppercase tracking-wider shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all hover:scale-105">
-                          Start Your Journey <ArrowRight className="w-5 h-5" />
+                      <Link to="/mint">
+                        <Button variant="primary" skewed className="shadow-[0_0_30px_rgba(255,45,120,0.25)]">
+                          <Flame size={16} />
+                          START YOUR JOURNEY
+                          <ArrowRight size={16} />
                         </Button>
-                      </a>
+                      </Link>
                     </div>
-                  </div>
-                </div>
-              </Section>
+                  </Section>
 
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <Footer />
-    </div>
-  );
-};
-
-// ============================================================
-// SUB-COMPONENTS
-// ============================================================
-
-const SimulatedChart = ({ title, color, data, valueKey, labelKey, formatValue, yLabel, xLabel, maxValue }) => {
-  const colors = {
-    purple: { bar: 'from-purple-600 to-purple-400', hover: 'from-purple-500 to-purple-300' },
-    yellow: { bar: 'from-yellow-600 to-yellow-400', hover: 'from-yellow-500 to-yellow-300' },
-    blue: { bar: 'from-blue-600 to-blue-400', hover: 'from-blue-500 to-blue-300' },
-    pink: { bar: 'from-pink-600 to-pink-400', hover: 'from-pink-500 to-pink-300' },
-    green: { bar: 'from-green-600 to-green-400', hover: 'from-green-500 to-green-300' },
-    red: { bar: 'from-red-600 to-orange-400', hover: 'from-red-500 to-orange-300' },
-  };
-
-  const max = maxValue || Math.max(...data.map(d => d[valueKey]));
-
-  return (
-    <div className="my-8 p-6 rounded-2xl bg-gray-900/60 border border-white/10">
-      <div className="flex items-center justify-between mb-4">
-        <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider">{title}</h4>
-        <span className={`text-xs px-2 py-1 rounded-full bg-${color}-500/20 text-${color}-400`}>
-          Live Data
-        </span>
-      </div>
-
-      <div className="h-40 flex items-end justify-between gap-1 px-2">
-        {data.map((item, i) => {
-          const height = Math.max((item[valueKey] / max) * 100, 2);
-          return (
-            <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
-              <div className="w-full relative h-32 flex items-end">
-                <div
-                  className={`w-full bg-gradient-to-t ${colors[color].bar} group-hover:${colors[color].hover} rounded-t transition-all cursor-pointer`}
-                  style={{ height: `${height}%`, minHeight: '4px' }}
-                />
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black/90 rounded text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
-                  {formatValue(item[valueKey])}
-                </div>
-              </div>
-              <span className="text-xs text-gray-500 truncate max-w-full">{item[labelKey]}</span>
-            </div>
-          );
-        })}
-      </div>
-      <p className="text-xs text-gray-500 text-center mt-4">{xLabel}</p>
-    </div>
-  );
-};
-
-const Section = ({ id, children }) => (
-  <section id={id} className="scroll-mt-24">
-    {children}
-  </section>
-);
-
-const SectionHeader = ({ number, icon: Icon, title, color }) => {
-  const colors = {
-    purple: 'text-purple-400 border-purple-500/30 bg-purple-500/10',
-    pink: 'text-pink-400 border-pink-500/30 bg-pink-500/10',
-    blue: 'text-blue-400 border-blue-500/30 bg-blue-500/10',
-    green: 'text-green-400 border-green-500/30 bg-green-500/10',
-    red: 'text-red-400 border-red-500/30 bg-red-500/10',
-    cyan: 'text-cyan-400 border-cyan-500/30 bg-cyan-500/10',
-    orange: 'text-orange-400 border-orange-500/30 bg-orange-500/10',
-    yellow: 'text-yellow-400 border-yellow-500/30 bg-yellow-500/10',
-    indigo: 'text-indigo-400 border-indigo-500/30 bg-indigo-500/10',
-    emerald: 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10',
-  };
-
-  return (
-    <div className="flex items-center gap-4 mb-8">
-      <span className="text-4xl font-black text-gray-800 font-mono">{number}</span>
-      <div className={`p-2 sm:p-3 rounded-xl border ${colors[color]}`}>
-        <Icon className="w-4 h-4 sm:w-6 sm:h-6" />
-      </div>
-      <h2 className="text-xl sm:text-3xl md:text-4xl font-black text-white uppercase tracking-tight">{title}</h2>
-    </div>
-  );
-};
-
-const ContentCard = ({ children, className = '' }) => (
-  <div className={`bg-gray-900/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-10 ${className}`}>
-    {children}
-  </div>
-);
-
-const LeadText = ({ children }) => (
-  <p className="text-lg md:text-xl text-gray-300 leading-relaxed mb-8 font-light">
-    {children}
-  </p>
-);
-
-const Paragraph = ({ children }) => (
-  <p className="text-gray-400 leading-relaxed mb-6">
-    {children}
-  </p>
-);
-
-const Highlight = ({ children }) => (
-  <span className="text-purple-400 font-semibold">{children}</span>
-);
-
-const SubsectionTitle = ({ icon: Icon, color, children }) => {
-  const colors = {
-    purple: 'text-purple-400',
-    pink: 'text-pink-400',
-    blue: 'text-blue-400',
-    green: 'text-green-400',
-    red: 'text-red-400',
-    cyan: 'text-cyan-400',
-    orange: 'text-orange-400',
-    yellow: 'text-yellow-400',
-  };
-
-  return (
-    <h3 className="flex items-center gap-3 text-lg sm:text-xl md:text-2xl font-bold text-white mb-6">
-      <Icon className={`w-4 w-h sm:w-6 sm:h-6 ${colors[color]}`} />
-      {children}
-    </h3>
-  );
-};
-
-const QuickStat = ({ icon: Icon, label, value }) => (
-  <div className="p-4 rounded-2xl bg-gray-900/60 border border-white/10 text-center">
-    <Icon className="w-5 h-5 text-purple-400 mx-auto mb-2" />
-    <p className="text-xl font-bold text-white">{value}</p>
-    <p className="text-xs text-gray-500 uppercase tracking-wider">{label}</p>
-  </div>
-);
-
-const MetricCard = ({ label, value, footnote, color }) => {
-  const colors = {
-    green: 'border-green-500/30 bg-green-950/30',
-    purple: 'border-purple-500/30 bg-purple-950/30',
-    blue: 'border-blue-500/30 bg-blue-950/30',
-    pink: 'border-pink-500/30 bg-pink-950/30',
-  };
-  const textColors = {
-    green: 'text-green-400',
-    purple: 'text-purple-400',
-    blue: 'text-blue-400',
-    pink: 'text-pink-400',
-  };
-
-  return (
-    <div className={`p-6 rounded-2xl border text-center ${colors[color]}`}>
-      <p className="text-gray-400 text-sm uppercase tracking-wider mb-2">{label}</p>
-      <p className={`text-3xl font-black ${textColors[color]}`}>{value}</p>
-      <p className="text-gray-600 text-xs mt-1">{footnote}</p>
-    </div>
-  );
-};
-
-const ConceptBox = ({ title, color, children }) => {
-  const colors = {
-    purple: 'border-purple-500/30 bg-purple-950/20',
-    red: 'border-red-500/30 bg-red-950/20',
-    cyan: 'border-cyan-500/30 bg-cyan-950/20',
-  };
-  const titleColors = {
-    purple: 'text-purple-400',
-    red: 'text-red-400',
-    cyan: 'text-cyan-400',
-  };
-
-  return (
-    <div className={`my-8 p-6 rounded-2xl border ${colors[color]}`}>
-      <h4 className={`text-lg font-bold mb-3 ${titleColors[color]}`}>{title}</h4>
-      {children}
-    </div>
-  );
-};
-
-const ProcessTimeline = ({ children }) => (
-  <div className="relative my-8">
-    <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-green-500 via-blue-500 to-purple-500" />
-    <div className="space-y-8">
-      {children}
-    </div>
-  </div>
-);
-
-const TimelineStep = ({ phase, title, description, duration, cost }) => (
-  <div className="relative pl-16">
-    <div className="absolute left-0 w-12 h-12 rounded-xl bg-gray-900 border border-white/20 flex items-center justify-center">
-      <span className="text-xs font-bold text-white">{phase.split(' ')[1]}</span>
-    </div>
-    <div className="p-5 rounded-2xl bg-gray-900/60 border border-white/10">
-      <div className="flex items-center justify-between mb-2">
-        <h4 className="text-lg font-bold text-white">{title}</h4>
-        <div className="flex gap-2">
-          <span className="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-400">{duration}</span>
-          <span className="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-400">{cost}</span>
-        </div>
-      </div>
-      <p className="text-gray-400 text-sm">{description}</p>
-    </div>
-  </div>
-);
-
-const PseudoCode = ({ title, children }) => (
-  <div className="my-8 rounded-2xl overflow-hidden border border-white/10">
-    <div className="bg-gray-900 px-4 py-3 border-b border-white/10 flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <div className="flex gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/50" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/50" />
-          <span className="w-3 h-3 rounded-full bg-green-500/50" />
-        </div>
-        <span className="text-sm font-mono text-gray-400">{title}</span>
-      </div>
-      <Terminal className="w-4 h-4 text-gray-600" />
-    </div>
-    <pre className="bg-black/60 p-6 overflow-x-auto">
-      <code className="text-sm font-mono text-gray-300 leading-relaxed whitespace-pre">
-        {children}
-      </code>
-    </pre>
-  </div>
-);
-
-const FormulaDisplay = ({ title, color, children }) => {
-  const colors = {
-    yellow: 'border-yellow-500/30 bg-yellow-950/30 text-yellow-400',
-    purple: 'border-purple-500/30 bg-purple-950/30 text-purple-400',
-    blue: 'border-blue-500/30 bg-blue-950/30 text-blue-400',
-    pink: 'border-pink-500/30 bg-pink-950/30 text-pink-400',
-    red: 'border-red-500/30 bg-red-950/30 text-red-400',
-  };
-
-  return (
-    <div className={`my-8 p-6 rounded-2xl border text-center ${colors[color]}`}>
-      <p className="text-xs uppercase tracking-widest mb-3 opacity-60">{title}</p>
-      <p className="text-xl md:text-2xl font-mono font-bold">{children}</p>
-    </div>
-  );
-};
-
-const ConstantsTable = ({ title, children }) => (
-  <div className="my-6">
-    <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">{title}</h4>
-    <div className="overflow-x-auto rounded-xl border border-white/10">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="bg-gray-900/60">
-            <th className="text-left py-2 px-4 text-gray-400 font-medium">Constant</th>
-            <th className="text-left py-2 px-4 text-gray-400 font-medium">Value</th>
-            <th className="text-left py-2 px-4 text-gray-400 font-medium">Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          {children}
-        </tbody>
-      </table>
-    </div>
-  </div>
-);
-
-const ConstantRow = ({ name, value, description }) => (
-  <tr className="border-t border-white/5">
-    <td className="py-2 px-4 font-mono text-purple-400">{name}</td>
-    <td className="py-2 px-4 font-mono text-white">{value}</td>
-    <td className="py-2 px-4 text-gray-400">{description}</td>
-  </tr>
-);
-
-const DifficultyChart = () => (
-  <div className="my-8 p-6 rounded-2xl bg-gray-900/60 border border-white/10">
-    <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Difficulty (Storage Fee) Growth</h4>
-    <div className="h-32 flex items-end justify-between gap-1">
-      {[
-        { rank: 1, label: '1' },
-        { rank: 256, label: '256' },
-        { rank: 65536, label: '65K' },
-        { rank: 16777216, label: '16M' },
-        { rank: 4294967296, label: '4B' },
-      ].map((item, i) => {
-        const eighthRoot = Math.pow(item.rank, 1/8);
-        const maxRoot = Math.pow(4294967296, 1/8);
-        const height = (eighthRoot / maxRoot) * 100;
-        return (
-          <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
-            <div className="w-full relative h-28 flex items-end">
-              <div
-                className="w-full bg-gradient-to-t from-red-600 to-orange-400 rounded-t transition-all group-hover:from-red-500 group-hover:to-orange-300"
-                style={{ height: `${height}%`, minHeight: '4px' }}
-              />
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black/90 rounded text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                {eighthRoot.toFixed(2)}× base
+                </div>{/* end content */}
               </div>
             </div>
-            <span className="text-xs text-gray-500">{item.label}</span>
-          </div>
-        );
-      })}
-    </div>
-    <p className="text-xs text-gray-500 text-center mt-4">Rank Number (Log Scale)</p>
-  </div>
-);
-
-const PenaltyChart = () => (
-  <div className="my-8 p-6 rounded-2xl bg-gray-900/60 border border-white/10">
-    <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Late Claim Penalty Schedule</h4>
-    <div className="grid grid-cols-8 gap-2">
-      {[
-        { day: 0, penalty: 0 },
-        { day: 1, penalty: 1 },
-        { day: 2, penalty: 3 },
-        { day: 3, penalty: 8 },
-        { day: 4, penalty: 17 },
-        { day: 5, penalty: 35 },
-        { day: 6, penalty: 72 },
-        { day: '7+', penalty: 99 },
-      ].map((item, i) => (
-        <div key={i} className="text-center group">
-          <div className="h-24 flex items-end justify-center mb-2">
-            <div
-              className="w-full bg-gradient-to-t from-red-600 to-red-400 rounded-t transition-all group-hover:from-red-500 group-hover:to-red-300"
-              style={{ height: `${item.penalty}%`, minHeight: item.penalty > 0 ? '4px' : '0' }}
-            />
-          </div>
-          <p className="text-xs text-gray-500">Day {item.day}</p>
-          <p className="text-sm font-bold text-red-400">{item.penalty}%</p>
+          </main>
         </div>
-      ))}
-    </div>
-  </div>
-);
 
-const LockTierTable = ({ lpmData }) => {
-  const getLPMForDays = (days) => {
-    // 1 + 0.08 * sqrt(days), max 5
-    const lpm = Math.min(5.0, 1.0 + (0.08 * Math.sqrt(days)));
-    return lpm.toFixed(2);
-  };
-
-  return (
-    <div className="overflow-x-auto my-8 rounded-2xl border border-white/10">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="bg-gray-900/60">
-            <th className="text-left py-3 px-4 text-gray-400 font-bold uppercase tracking-wider">Rank Range</th>
-            <th className="text-left py-3 px-4 text-gray-400 font-bold uppercase tracking-wider">Max Lock</th>
-            <th className="text-left py-3 px-4 text-gray-400 font-bold uppercase tracking-wider">Max LPM</th>
-          </tr>
-        </thead>
-        <tbody>
-          {[
-            { range: '0 - 100,000', lock: 30 },
-            { range: '100K - 1M', lock: 90 },
-            { range: '1M - 5M', lock: 180 },
-            { range: '5M - 10M', lock: 360 },
-            { range: '10M - 100M', lock: 480 },
-            { range: '100M - 400M', lock: 540 },
-            { range: '400M - 1B', lock: 720 },
-            { range: '1B+', lock: 1825 },
-          ].map((row, i) => (
-            <tr key={i} className="border-t border-white/5 hover:bg-white/5">
-              <td className="py-3 px-4 font-mono text-white">{row.range}</td>
-              <td className="py-3 px-4 font-bold text-cyan-400">{row.lock} days</td>
-              <td className="py-3 px-4 font-mono text-pink-400">~{getLPMForDays(row.lock)}×</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+        <Footer />
+      </div>
+    </>
   );
 };
-
-const ClanMechanics = () => (
-  <div className="my-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div className="p-6 rounded-2xl bg-gray-900/60 border border-white/10 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center mx-auto mb-4">
-        <Users className="w-8 h-8 text-purple-400" />
-      </div>
-      <h4 className="font-bold text-white mb-2">Create or Join</h4>
-      <p className="text-gray-400 text-sm">Join an existing clan or create your own to start earning referral rewards.</p>
-    </div>
-    <div className="p-6 rounded-2xl bg-gray-900/60 border border-white/10 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center mx-auto mb-4">
-        <Network className="w-8 h-8 text-blue-400" />
-      </div>
-      <h4 className="font-bold text-white mb-2">Share & Grow</h4>
-      <p className="text-gray-400 text-sm">Share your clan link. Every new mint through your referral earns SOL.</p>
-    </div>
-    <div className="p-6 rounded-2xl bg-gray-900/60 border border-white/10 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-green-500/20 border border-green-500/30 flex items-center justify-center mx-auto mb-4">
-        <Coins className="w-8 h-8 text-green-400" />
-      </div>
-      <h4 className="font-bold text-white mb-2">Earn Forever</h4>
-      <p className="text-gray-400 text-sm">Referral rewards are paid instantly on-chain: {mintConfig.mintRewardUsd} USD equivalent.</p>
-    </div>
-  </div>
-);
-
-const AccountSchemas = () => (
-  <div className="space-y-6 mt-8">
-    {[
-      {
-        name: 'MainConfig',
-        seeds: ['main_config'],
-        color: 'purple',
-        fields: [
-          { name: 'authority', type: 'Pubkey', desc: 'Admin address' },
-          { name: 'treasury', type: 'Pubkey', desc: 'Fee recipient' },
-          { name: 'difficulty_base_fee', type: 'u64', desc: '0.003 SOL' },
-          { name: 'difficulty_scale', type: '[u64; 2]', desc: '[3, 1]' },
-        ]
-      },
-      {
-        name: 'GlobalRank',
-        seeds: ['global_rank'],
-        color: 'blue',
-        fields: [
-          { name: 'value', type: 'u64', desc: 'Current global rank counter' },
-        ]
-      },
-      {
-        name: 'RankInfo',
-        seeds: ['rank_info', 'owner'],
-        color: 'green',
-        fields: [
-          { name: 'owner', type: 'Pubkey', desc: 'Participant address' },
-          { name: 'rank_no', type: 'u64', desc: 'Assigned rank number' },
-          { name: 'wait_period_secs', type: 'u64', desc: 'Lock duration' },
-          { name: 'has_minted', type: 'bool', desc: 'Claim status' },
-        ]
-      },
-      {
-        name: 'RankDifficulty',
-        seeds: ['rank_difficulty', 'owner'],
-        color: 'red',
-        fields: [
-          { name: 'raw_data', type: 'bytes', desc: 'Variable size buffer' },
-        ]
-      },
-    ].map((account, i) => (
-      <div key={i} className="p-6 rounded-2xl bg-gray-900/60 border border-white/10">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="text-lg font-bold text-white font-mono">{account.name}</h4>
-          <div className="flex gap-2">
-            {account.seeds.map((seed, j) => (
-              <span key={j} className="text-xs px-2 py-1 rounded bg-purple-500/20 text-purple-400 font-mono">
-                {seed}
-              </span>
-            ))}
-          </div>
-        </div>
-        <table className="w-full text-sm">
-          <tbody>
-            {account.fields.map((field, k) => (
-              <tr key={k} className="border-t border-white/5">
-                <td className="py-2 font-mono text-cyan-400 w-40">{field.name}</td>
-                <td className="py-2 font-mono text-gray-500 w-24">{field.type}</td>
-                <td className="py-2 text-gray-400">{field.desc}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    ))}
-  </div>
-);
-
-const SecurityGrid = () => (
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-8">
-    {[
-      {
-        title: 'PDA Validation',
-        description: 'Deterministic account derivation ensures secure state management.',
-        icon: Key,
-      },
-      {
-        title: 'Reentrancy Guard',
-        description: 'Checks-Effects-Interactions pattern strictly enforced.',
-        icon: Shield,
-      },
-      {
-        title: 'Checked Arithmetic',
-        description: 'Overflow/Underflow protection on all math operations.',
-        icon: Siren,
-      },
-      {
-        title: 'Treasury Safety',
-        description: 'Fee destination hardcoded to config authority.',
-        icon: Lock,
-      },
-    ].map((item, i) => (
-      <div key={i} className="p-5 rounded-2xl bg-gray-900/60 border border-green-500/20 flex gap-4">
-        <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/20 h-fit">
-          <item.icon className="w-5 h-5 text-green-400" />
-        </div>
-        <div>
-          <h4 className="font-bold text-white mb-1">{item.title}</h4>
-          <p className="text-gray-400 text-sm">{item.description}</p>
-        </div>
-      </div>
-    ))}
-  </div>
-);
-
-const EconomicModel = () => (
-  <div className="space-y-8 mt-8">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div className="p-6 rounded-2xl bg-emerald-950/30 border border-emerald-500/20">
-        <h4 className="text-lg font-bold text-emerald-400 mb-4">Supply Dynamics</h4>
-        <ul className="space-y-2 text-gray-400 text-sm">
-          <li className="flex items-start gap-2">
-            <ChevronRight className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
-            <span>Smooth dampened decay curve</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <ChevronRight className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
-            <span>High precision (1 decimal) reduces dust</span>
-          </li>
-        </ul>
-      </div>
-      <div className="p-6 rounded-2xl bg-blue-950/30 border border-blue-500/20">
-        <h4 className="text-lg font-bold text-blue-400 mb-4">Equilibrium</h4>
-        <ul className="space-y-2 text-gray-400 text-sm">
-          <li className="flex items-start gap-2">
-            <ChevronRight className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-            <span>Difficulty rises with rank^0.125</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <ChevronRight className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-            <span>Staking removes supply from circulation</span>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </div>
-);
-
-const ArchitectureDiagram = () => (
-  <div className="my-8 p-6 rounded-2xl bg-gray-900/60 border border-white/10">
-    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-      <div className="p-4 rounded-xl bg-purple-950/40 border border-purple-500/30 text-center w-full md:w-auto">
-        <Server className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-        <p className="text-white font-bold">Solana</p>
-      </div>
-      <ArrowRight className="w-6 h-6 text-gray-600 rotate-90 md:rotate-0" />
-      <div className="p-4 rounded-xl bg-blue-950/40 border border-blue-500/30 text-center w-full md:w-auto">
-        <Cpu className="w-8 h-8 text-blue-400 mx-auto mb-2" />
-        <p className="text-white font-bold">Program</p>
-      </div>
-      <ArrowRight className="w-6 h-6 text-gray-600 rotate-90 md:rotate-0" />
-      <div className="p-4 rounded-xl bg-green-950/40 border border-green-500/30 text-center w-full md:w-auto">
-        <Database className="w-8 h-8 text-green-400 mx-auto mb-2" />
-        <p className="text-white font-bold">PDAs</p>
-      </div>
-    </div>
-  </div>
-);
 
 export default Whitepaper;

@@ -48,7 +48,7 @@ const Referral = () => {
     if (navigator.share) {
       navigator.share({
         title: 'Join MAXX PAINN - Turn Your Pain Into Power!',
-        text: 'Experience the ultimate pain-to-earn crypto platform. Use my referral code for exclusive benefits!',
+        text: 'Experience the ultimate maxx-to-earn crypto platform. Use my referral code for exclusive benefits!',
         url: referralLink,
       });
     } else {

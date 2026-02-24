@@ -67,7 +67,7 @@ const Hero = () => {
             <span>{painLevel}%</span>
             <span>GAIN</span>
           </div>
-          <div className="pain-meter">
+          <div className="maxx-meter">
             <div 
               className="h-full bg-gradient-to-r from-red-500 to-green-500 transition-all duration-75"
               style={{ width: `${painLevel}%` }}

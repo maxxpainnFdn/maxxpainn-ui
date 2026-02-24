@@ -1,0 +1,541 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================
+   CSS CUSTOM PROPERTIES
+   Radix UI / shadcn tokens (light + dark)
+   ========================================= */
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0% 3%;
+    --foreground: 210 40% 98%;
+
+    --card: 0 0% 5%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 0 0% 5%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+/* =========================================
+   BASE LAYER
+   ========================================= */
+
+@layer base {
+  :root {
+    font-size: 16px;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100% !important;
+    text-size-adjust: 100% !important;
+    scroll-behavior: smooth;
+    font-size: 16px;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    /* Force dark theme — MAXXPAINN is always dark */
+    @apply bg-maxx-bg text-maxx-bright dark;
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  body,
+  #app {
+    overflow-x: hidden;
+  }
+}
+
+/* =========================================
+   SCROLLBAR STYLING
+   Slim violet → pink gradient thumb
+   ========================================= */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0d080c;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #8b5cf6, #ff2d78);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #a855f7, #ff85ab);
+}
+
+/* Thin nav scroll container — hide until hovered */
+.nav-scroll-container::-webkit-scrollbar {
+  height: 0px;
+}
+
+.nav-scroll-container:hover::-webkit-scrollbar {
+  height: 2px;
+}
+
+.nav-scroll-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 2px !important;
+}
+
+.nav-scroll-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #8b5cf6, #db2777) !important;
+  border-radius: 2px !important;
+}
+
+@supports (scrollbar-color: auto) {
+  @supports not selector(::-webkit-scrollbar) {
+    .nav-scroll-container {
+      scrollbar-width: thin;
+      scrollbar-color: #8b5cf6 rgba(255, 255, 255, 0.05);
+    }
+  }
+}
+
+/* =========================================
+   PRINT
+   ========================================= */
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    margin: 0;
+    padding: 0;
+  }
+
+  .top-nav,
+  .footer,
+  .wp-table-of-contents,
+  .bottom-nav,
+  .scroll-progress {
+    display: none !important;
+  }
+}
+
+/* =========================================
+   COMPONENT LAYER
+   Reusable classes for MAXXPAINN patterns.
+   These extend Tailwind rather than replace it.
+   ========================================= */
+
+@layer components {
+
+  /* ── Section eyebrow label ── */
+  .maxx-eyebrow {
+    @apply inline-flex items-center gap-2
+           font-mono text-[0.7rem] font-medium
+           tracking-[0.14em] uppercase
+           text-maxx-violet mb-3.5;
+  }
+
+  .maxx-eyebrow-dot {
+    @apply w-[5px] h-[5px] bg-maxx-violet flex-shrink-0 rounded-[1px];
+  }
+
+  /* ── Primary CTA button (angled clip-path) ── */
+  .btn-maxx-primary {
+    @apply inline-flex items-center gap-2
+           bg-maxx-btn text-white
+           font-sans font-bold text-[0.95rem]
+           tracking-[0.05em] uppercase
+           px-7 py-3.5 border-0 cursor-pointer
+           no-underline whitespace-nowrap
+           transition-all duration-200
+           hover:opacity-90 hover:-translate-y-px;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 100%, 10px 100%);
+  }
+
+  /* ── Secondary ghost button ── */
+  .btn-maxx-secondary {
+    @apply inline-flex items-center gap-2
+      bg-transparent text-maxx-mid
+      font-sans font-semibold text-[0.88rem]
+      tracking-[0.05em] uppercase
+      px-[22px] py-3 cursor-pointer
+      no-underline whitespace-nowrap
+      border border-[rgba(139,92,246,0.15)]
+      transition-all duration-200
+      hover:border-maxx-violet hover:text-maxx-white
+      hover:bg-[rgba(139,92,246,0.08)];
+  }
+
+  /* ── Small mono pill/tag ── */
+  .maxx-pill {
+    @apply inline-flex items-center
+           font-mono text-[0.68rem] tracking-[0.1em] uppercase
+           px-[11px] py-[5px] rounded-[2px]
+           border border-[rgba(139,92,246,0.25)]
+           text-maxx-mid;
+  }
+
+  /* ── Generic surface card ── */
+  .maxx-card {
+    @apply bg-[rgba(139,92,246,0.05)]
+           border border-[rgba(139,92,246,0.15)]
+           rounded-[4px]
+           transition-all duration-300
+           hover:border-[rgba(255,45,120,0.5)]
+           hover:bg-[rgba(255,45,120,0.07)]
+           hover:shadow-maxx-card;
+  }
+
+  /* ── Navigation link ── */
+  .maxx-nav-link {
+    @apply font-sans font-semibold text-[0.88rem]
+           tracking-[0.03em] uppercase
+           text-maxx-bright no-underline
+           transition-colors duration-150
+           hover:text-maxx-violet;
+  }
+
+  /* ── Stat number ── */
+  .maxx-stat-num {
+    @apply font-sans font-black leading-none text-maxx-white;
+    font-size: clamp(2rem, 4vw, 3rem);
+  }
+
+  /* ── Channel card with animated left border ── */
+  .maxx-ch-card {
+    @apply relative overflow-hidden block no-underline
+           bg-[rgba(139,92,246,0.05)]
+           border border-[rgba(139,92,246,0.15)]
+           rounded-[4px] p-7
+           transition-all duration-300
+           hover:border-[rgba(255,45,120,0.5)]
+           hover:bg-[rgba(255,45,120,0.07)];
+  }
+
+  .maxx-ch-card::before {
+    content: '';
+    @apply absolute left-0 top-0 bottom-0 w-0.5 bg-maxx-accent origin-bottom;
+    transform: scaleY(0);
+    transition: transform 0.25s;
+  }
+
+  .maxx-ch-card:hover::before {
+    transform: scaleY(1);
+  }
+
+  /* ── Pain meter bar ── */
+  .maxx-meter-track {
+    @apply h-[3px] bg-[rgba(139,92,246,0.15)] overflow-hidden rounded-[2px];
+  }
+
+  .maxx-meter-fill {
+    @apply h-full bg-maxx-accent;
+    transition: width 0.08s linear;
+  }
+
+  /* ── Accordion item ── */
+  .maxx-acc-item {
+    @apply border border-[rgba(139,92,246,0.15)] rounded-[4px] mb-1.5
+           transition-colors duration-200;
+  }
+
+  .maxx-acc-item.open {
+    @apply border-[rgba(139,92,246,0.35)];
+  }
+
+  .maxx-acc-trigger {
+    @apply w-full flex items-center gap-3 px-4 py-3.5
+           bg-transparent border-0 cursor-pointer text-left
+           transition-all duration-200
+           border-l-[3px] border-l-transparent;
+  }
+
+  .maxx-acc-trigger.open {
+    @apply bg-[rgba(139,92,246,0.07)] border-l-maxx-violet;
+  }
+
+  .maxx-acc-chevron {
+    @apply transition-transform duration-300;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .maxx-acc-chevron.open {
+    @apply rotate-90;
+  }
+
+  .maxx-acc-body {
+    @apply overflow-hidden;
+    transition: max-height 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .maxx-acc-body-inner {
+    @apply px-3 pb-3.5 animate-acc-open;
+  }
+
+  /* ── Diagonal section divider ── */
+  .maxx-divider {
+    @apply h-[52px] pointer-events-none;
+  }
+
+  /* ── Film-grain noise overlay ── */
+  .maxx-noise::before {
+    content: '';
+    @apply absolute inset-0 pointer-events-none z-0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  }
+
+  /* ── Decorative vertical grid line ── */
+  .maxx-gridline {
+    @apply absolute pointer-events-none w-px top-0 h-full bg-maxx-gridline;
+  }
+
+  /* ── Carousel dot ── */
+  .maxx-dot {
+    @apply h-[6px] border-0 cursor-pointer rounded-[3px]
+           bg-[rgba(139,92,246,0.15)]
+           transition-all duration-300;
+  }
+
+  .maxx-dot.active {
+    @apply bg-maxx-pink;
+    width: 22px !important;
+  }
+}
+
+/* =========================================
+   UTILITY LAYER
+   One-off helpers that didn't fit components.
+   ========================================= */
+
+@layer utilities {
+
+  /* Gradient text (animated cycling) */
+  .gradient-text {
+    background: linear-gradient(135deg, #ff0040, #8b5cf6, #06b6d4, #10b981, #f59e0b);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-shift 4s ease infinite;
+  }
+
+  /* Static violet → pink gradient text */
+  .maxx-text-grad {
+    background: linear-gradient(135deg, #8b5cf6 0%, #ff2d78 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Pain meter shine sweep */
+  .maxx-meter {
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(31, 41, 55, 0.2);
+  }
+
+  .maxx-meter::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    background: linear-gradient(90deg, transparent 0%, rgba(69, 77, 89, 0.2) 50%, transparent 100%);
+    animation: shine 3s ease-in-out infinite;
+  }
+
+  /* Neon glow box-shadow */
+  .neon-glow2 {
+    animation: neon-pulse 2s ease-in-out infinite alternate;
+  }
+
+  /* Float bob */
+  .float-animation {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  /* Glitch on hover */
+  .glitch-effect:hover {
+    animation: glitch 0.5s ease-in-out;
+  }
+
+  /* Rage shake on hover */
+  .rage-effect:hover {
+    animation: rage-shake 0.1s ease-in-out infinite;
+  }
+
+  /* Blood drip pseudo-element */
+  .blood-effect {
+    position: relative;
+  }
+
+  .blood-effect::after {
+    content: '🩸';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: blood-drip 3s ease-in infinite;
+    pointer-events: none;
+  }
+
+  /* GPU acceleration */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    will-change: transform, opacity;
+  }
+
+  /* Lazy rendering for off-screen sections */
+  .content-visibility-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 1000px;
+  }
+
+  .contain-paint   { contain: paint; }
+  .contain-layout  { contain: layout; }
+  .contain-strict  { contain: strict; }
+
+  .text-optimize-speed {
+    text-rendering: optimizeSpeed;
+  }
+
+  /* Override: no background (some Radix components need this) */
+  .bg-none {
+    background: none !important;
+  }
+
+  /* Animate pulse performance fix */
+  .animate-pulse {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+}
+
+/* =========================================
+   INPUT RESETS
+   ========================================= */
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield !important;
+}
+
+/* =========================================
+   SLIDER STYLING
+   ========================================= */
+
+.slider-thumb::-webkit-slider-thumb {
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b5cf6, #ef4444);
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+  transition: all 0.3s ease;
+}
+
+.slider-thumb::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.8);
+}
+
+.slider-thumb::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b5cf6, #ef4444);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+/* =========================================
+   REDUCED MOTION
+   ========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* =========================================
+   IMAGE OPTIMISATION
+   ========================================= */
+
+img {
+  content-visibility: auto;
+}

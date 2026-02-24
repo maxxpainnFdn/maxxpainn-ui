@@ -17,5 +17,10 @@
     "strictNullChecks": false,
     "resolveJsonModule": true,
     "esModuleInterop": true
-  }
+  },
+  // Inside your theme.extend.colors:
+  "colors": {
+    "base":    "#0F0F14",
+    "surface": "#111827",
+  },
 }
