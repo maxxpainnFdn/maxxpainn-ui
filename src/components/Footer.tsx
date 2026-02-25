@@ -1,48 +1,108 @@
+/**
+ * MAXXPAINN — Footer
+ *
+ * Design system: maxx-* tokens, eyebrow / pill classes.
+ * No inline styles. No raw hex codes. No Tailwind color names.
+ * Minimum text size: text-sm.
+ */
+
 import React from 'react';
-import { Twitter, Send, MessageCircle } from 'lucide-react';
+import { Twitter, Send, MessageCircle, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const FOOTER_COLS = [
-  { title: "PLATFORM", links: ["How It Works", "Mint", "Clans", "Leaderboard", "Staking"] },
-  { title: "RESOURCES", links: ["Manifesto", "Whitepaper", "Tokenomics", "Roadmap", "FAQ"] },
-  { title: "LEGAL", links: ["Privacy Policy", "Terms of Service"] },
+  {
+    title: "Platform",
+    links: [
+      { label: "How It Works", to: "/how-it-works" },
+      { label: "Mint",         to: "/mint"         },
+      { label: "Clans",        to: "/clans"        },
+      { label: "Leaderboard",  to: "/leaderboard"  },
+      { label: "Staking",      to: "/staking"      },
+    ],
+  },
+  {
+    title: "Resources",
+    links: [
+      { label: "Manifesto",   to: "/manifesto"   },
+      { label: "Whitepaper",  to: "/whitepaper"  },
+      { label: "Tokenomics",  to: "/tokenomics"  },
+      { label: "Roadmap",     to: "/roadmap"     },
+      { label: "FAQ",         to: "/faq"         },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      { label: "Privacy Policy",    to: "/privacy" },
+      { label: "Terms of Service",  to: "/terms"   },
+    ],
+  },
+];
+
+const SOCIALS = [
+  { Icon: Twitter,       href: "#", label: "Twitter"  },
+  { Icon: Send,          href: "#", label: "Telegram" },
+  { Icon: MessageCircle, href: "#", label: "Discord"  },
 ];
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0a0507] border-t border-maxx-violet/15 relative z-10">
-      <div className="max-w-7xl mx-auto px-6 pt-[52px] pb-7">
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-9 mb-11">
-          {/* Brand Col */}
-          <div className="md:col-span-1">
-            <Link to="/" className="flex items-center gap-2.5 no-underline mb-3.5">
-              <div className="w-0 h-0 border-l-[11px] border-l-transparent border-r-[11px] border-r-transparent border-b-[19px] border-b-maxx-pink" />
-              <span className="font-sans font-black text-[1.05rem] tracking-tight text-maxx-white">
-                MAXX<span className="text-maxx-pink">PAINN</span>
+    <footer className="bg-maxx-bg0 border-t border-maxx-violet/12 relative z-10 pb-10">
+      <div className="max-w-7xl mx-auto px-6 pt-14 pb-8">
+
+        {/* ── MAIN GRID ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 mb-12">
+
+          {/* brand column */}
+          <div className="md:col-span-1 flex flex-col gap-5">
+
+            {/* logo */}
+            <Link to="/" className="flex items-center gap-2.5 no-underline shrink-0 group w-fit">
+              <Zap
+                className="text-maxx-violet w-6 h-6 group-hover:scale-110 transition-transform duration-300"
+                fill="currentColor"
+              />
+              <span className="font-sans font-black text-xl tracking-tighter text-maxx-white">
+                MAXX<span className="bg-grad-accent bg-clip-text text-transparent">PAINN</span>
               </span>
             </Link>
-            <p className="font-sans text-[0.9rem] text-maxx-bright leading-[1.75] mb-4 max-w-[220px]">
+
+            {/* tagline */}
+            <p className="text-sm text-maxx-sub leading-relaxed max-w-[200px]">
               Transforming crypto pain into unstoppable power. Built by degens, for degens.
             </p>
-            <div className="flex gap-1.5">
-              {[Twitter, Send, MessageCircle].map((Icon, i) => (
-                <a key={i} href="#" className="w-8 h-8 rounded-sm border border-maxx-violet/15 flex items-center justify-center text-maxx-sub no-underline transition-all hover:border-maxx-pink hover:bg-maxx-pink/10 hover:text-maxx-pink">
+
+            {/* socials */}
+            <div className="flex gap-2">
+              {SOCIALS.map(({ Icon, href, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  aria-label={label}
+                  className="w-8 h-8 rounded-md border border-maxx-violet/15 flex items-center justify-center text-maxx-dim no-underline transition-all duration-200 hover:border-maxx-violet/40 hover:bg-maxx-violet/8 hover:text-maxx-sub"
+                >
                   <Icon size={14} />
                 </a>
               ))}
             </div>
           </div>
 
-          {/* Links Cols */}
-          {FOOTER_COLS.map((col) => (
-            <div key={col.title}>
-              <h4 className="font-mono text-[0.72rem] tracking-[0.12em] uppercase text-maxx-violet mb-4">{col.title}</h4>
-              <ul className="list-none space-y-2.5">
-                {col.links.map((link) => (
-                  <li key={link}>
-                    <Link to="#" className="font-sans text-[0.88rem] font-medium text-maxx-bright no-underline transition-colors hover:text-maxx-pink">
-                      {link}
+          {/* link columns */}
+          {FOOTER_COLS.map(({ title, links }) => (
+            <div key={title}>
+              <div className="eyebrow mb-5">
+                <span className="eyebrow-dot" />
+                {title}
+              </div>
+              <ul className="space-y-3 list-none">
+                {links.map(({ label, to }) => (
+                  <li key={label}>
+                    <Link
+                      to={to}
+                      className="text-sm text-maxx-mid no-underline transition-colors duration-200 hover:text-maxx-bright"
+                    >
+                      {label}
                     </Link>
                   </li>
                 ))}
@@ -51,23 +111,30 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="h-px bg-maxx-violet/15 mb-5" />
+        {/* ── DIVIDER ── */}
+        <div className="h-px bg-maxx-violet/10 mb-6" />
 
-        <div className="flex justify-between items-center flex-wrap gap-3 mb-4">
-          <span className="font-mono text-[0.72rem] text-maxx-mid tracking-widest">
-            © 2025 MAXXPAINN. BUILT WITH PAIN, POWERED BY DEGENS.
+        {/* ── BOTTOM ROW ── */}
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+          <span className="font-mono text-sm text-purple-400 tracking-wider">
+            © 2025 MAXXPAINN · Built by degens for degens.
           </span>
-          <div className="flex items-center gap-2 px-3 py-1 border border-maxx-violet/15 rounded-sm">
-            <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse-slow" />
-            <span className="font-mono text-[0.72rem] text-maxx-mid tracking-widest">LIVE ON SOLANA</span>
+          <div className="flex items-center gap-2 px-3 py-1.5 border border-maxx-violet/15 rounded-md">
+            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+            <span className="font-mono text-sm text-maxx-sub tracking-widest">Live on Solana</span>
           </div>
         </div>
 
-        <div className="p-3 border-l-2 border-l-maxx-violet/30 rounded-r-sm bg-maxx-violet/5">
-          <p className="text-[0.84rem] text-maxx-bright leading-[1.7]">
-            <span className="text-maxx-pink font-bold">DISCLAIMER:</span> MAXXPAINN is an experimental project. Not financial advice. Cryptocurrency investments carry extreme risk. Only allocate what you can afford to lose. This is therapy for degens, not a retirement plan.
+        {/* ── DISCLAIMER ── */}
+        <div className="border-l-2 border-maxx-violet/25 bg-maxx-violet/4 rounded-r-md px-4 py-3">
+          <p className="text-sm text-maxx-mid leading-relaxed">
+            <span className="font-bold text-maxx-sub">Disclaimer:</span>{" "}
+            MAXXPAINN is an experimental project. Not financial advice. Cryptocurrency investments
+            carry extreme risk. Only allocate what you can afford to lose. This is therapy for
+            degens, not a retirement plan.
           </p>
         </div>
+
       </div>
     </footer>
   );

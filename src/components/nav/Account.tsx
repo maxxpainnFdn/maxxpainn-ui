@@ -53,10 +53,10 @@ export default function Account({ btnProps = {} }) {
           className="h-12 !px-2 sm:!px-4 justify-center"
         >
           {/* avatar badge */}
-          <div className="w-[22px] h-[22px] flex-shrink-0 overflow-hidden border border-pink-500/50 bg-pink-500/10 clip-edges">
+          <div className="w-[22px] h-[22px] flex-shrink-0 overflow-hidden shadow-lg">
             <ImageAvatar
               seed={address}
-              radius={0}
+              radius={22}
               className="w-full h-full"
               avatarType={botttsNeutral}
             />

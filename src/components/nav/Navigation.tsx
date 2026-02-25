@@ -75,7 +75,7 @@ export default function Navigation() {
               />
               <span className="hidden sm:inline-block font-sans font-black text-xl sm:text-2xl tracking-tighter text-maxx-white">
                 <span className="text-maxx-white">MAXX</span>
-                <span className="bg-gradient-to-r from-purple-400 via-pink-600 to-rose-500 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
                   PAINN
                 </span>
               </span>

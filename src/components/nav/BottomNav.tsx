@@ -39,7 +39,7 @@ export default function BottomNav() {
                 className="w-full h-12 justify-center"
                 skewed
               >
-                <ShoppingCart size={14} />
+                <span className='hidden sm:inline'><ShoppingCart size={14} /></span>
                 <span>BUY</span>
               </Button>
             </a>
@@ -51,8 +51,8 @@ export default function BottomNav() {
                 skewed
                 className="w-full h-12 justify-center text-[0.9rem]"
               >
-                <Zap size={15} fill="currentColor" />
-                <span>MINT FREE</span>
+                <span className='hidden sm:inline'><Zap size={15} fill="currentColor" /></span>
+                <span>MINT {" "}<span className='hidden sm:inline'>FREE</span></span>
               </Button>
             </Link>
 
