@@ -53,7 +53,7 @@ const Button: React.FC<ButtonProps> = ({
 }) => {
   // Map variants to your global index.css abstractions where applicable
   const variantStyles: Record<ButtonVariant, string> = {
-    primary: 'btn-p bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 text-white',
+    primary: 'btn-p',
     primary2: 'btn-p', // Redirect to main primary for new design consistency
     secondary: 'btn-s text-white',
     outline: 'btn-s', // Outline is essentially the secondary design now
