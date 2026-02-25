@@ -79,7 +79,7 @@ export default function Hero() {
 
         {/* Headline */}
         <div className="mb-7 animate-fade-up [animation-delay:120ms]">
-          <h1 className="font-sans font-black text-[clamp(3rem,11vw,9rem)] leading-[0.94] tracking-tight text-maxx-white uppercase">
+          <h1 className="font-sans font-black text-[clamp(2rem,11vw,9rem)] leading-[0.94] tracking-tight text-maxx-white uppercase">
             FORGE YOUR<br />
             <span className="text-transparent" style={{ WebkitTextStroke: '1.5px #ff2d78' }}>PAIN</span>
             <span className="text-[0.5em] align-middle text-maxx-sub font-normal tracking-normal mx-2">INTO</span>
