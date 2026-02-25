@@ -119,8 +119,8 @@
 
 @layer components {
   .btn-p {
-    @apply inline-flex items-center gap-2 bg-grad-btn text-white font-sans font-bold text-[0.95rem] tracking-wider uppercase px-7 py-3 border-none cursor-pointer no-underline transition-all hover:opacity-90 hover:-translate-y-px whitespace-nowrap justify-center sm:justify-start w-full sm:w-auto;
-    @apply rounded-lg;
+    @apply inline-flex items-center gap-2  font-sans font-bold text-[0.95rem] tracking-wider uppercase px-7 py-3 border-none cursor-pointer no-underline transition-all hover:opacity-90 hover:-translate-y-px whitespace-nowrap justify-center sm:justify-start w-full sm:w-auto;
+    @apply rounded-lg  bg-gradient-to-r from-purple-500 via-pink-500 to-pink-600 text-white;
   }
 
   .btn-skewed {

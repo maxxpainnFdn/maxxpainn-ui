@@ -50,7 +50,6 @@ export default function BottomNav() {
                 variant="primary"
                 skewed
                 className="w-full h-12 justify-center text-[0.9rem]"
-                skewed
               >
                 <Zap size={15} fill="currentColor" />
                 <span>MINT FREE</span>
