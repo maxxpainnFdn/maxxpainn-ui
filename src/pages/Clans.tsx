@@ -108,7 +108,7 @@ const Clans = () => {
                     <CreateClan />
                   </div>
                 ) : (
-                  <div className="flex flex-wrap justify-center gap-4">
+                  <div className="flex flex-wrap justify-center gap-2">
                     {clans.map(clan => (
                       <div key={clan.id} className="flex-shrink-0 basis-[240px]">
                         <ClanCard clan={clan} />

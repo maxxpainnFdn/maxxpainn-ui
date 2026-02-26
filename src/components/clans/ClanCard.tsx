@@ -60,18 +60,18 @@ const ClanCard = memo(({
       className="block group w-[240px] relative no-underline"
     >
       {/* card */}
-      <div className="relative bg-maxx-bg1/80 border border-maxx-violet/15 rounded-lg overflow-hidden hover:border-maxx-violet/35 transition-all duration-300 hover:-translate-y-1">
+      <div className="relative bg-maxx-bg1/30 border border-maxx-violet/15 rounded-lg overflow-hidden hover:border-maxx-violet/35 transition-all duration-300 hover:-translate-y-1">
 
         {/* top accent — gradient on hover */}
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-maxx-violet/60 via-maxx-pink/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
 
         {/* image */}
-        <div className="relative h-[200px] overflow-hidden bg-maxx-bg0 rounded-none">
+        <div className="relative h-[200px] overflow-hidden rounded-none">
           <ImageAvatar
             src={utils.getServerImage(clan.image, "clans", "normal")}
             fallbackText={clan.name}
             className="w-full h-full object-cover text-6xl font-black rounded-none"
-            fallbackTextClass="bg-maxx-bg text-maxx-white rounded-none"
+            fallbackTextClass="bg-maxx-bg/50 text-maxx-white rounded-none"
           />
 
           {/* dynamic accent bar from API data — only inline style in this component */}
