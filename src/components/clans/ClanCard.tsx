@@ -84,8 +84,9 @@ const ClanCard = memo(({
             style={{ background: `linear-gradient(90deg, transparent, ${accentColor1}, ${accentColor2}, transparent)` }}
           />
 
-          {/* subtle dark overlay at bottom for legibility */}
+          {/* subtle dark overlay at bottom for legibility 
           <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-maxx-bg1/80 to-transparent" />
+          */}
         </div>
 
         {/* content */}
