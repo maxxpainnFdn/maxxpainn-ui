@@ -14,9 +14,10 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, error, hint, success, label, ...props }, ref) => {
     return (
       <div className="w-full">
+
         {/* Label */}
         {label && (
-          <label className="block text-sm font-bold text-gray-300 mb-2 uppercase tracking-wider">
+          <label className="text-sm font-semibold tracking-wider uppercase text-maxx-mid block mb-2.5">
             {label}
           </label>
         )}
@@ -25,80 +26,83 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         <div className="relative group">
           <textarea
             className={cn(
-              // Base styles
-              "flex min-h-[120px] w-full rounded-xl px-4 py-3 text-base transition-all duration-300",
-              "bg-background border-2 text-foreground placeholder:text-muted-foreground",
-              "resize-y",
-
-              // Focus states
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-
-              // Default border
-              "border-input",
-
-              // Hover state
-              "hover:border-gray-700/70",
-
-              // Focus state (default)
-              !error && !success && "focus-visible:border-purple-500/60 focus-visible:ring-purple-500/30",
-
-              // Success state
-              success && !error && "border-emerald-500/50 focus-visible:border-emerald-500/70 focus-visible:ring-emerald-500/30",
-
-              // Error state
-              error && "border-red-500/50 focus-visible:border-red-500/70 focus-visible:ring-red-500/30",
-
-              // Disabled state
+              // Base
+              "flex min-h-[120px] w-full rounded-md px-4 py-3.5 text-base leading-relaxed transition-colors duration-200",
+              "bg-maxx-bg0/60 text-maxx-bright placeholder:text-maxx-dim",
+              "border resize-y",
+              // Disabled
               "disabled:cursor-not-allowed disabled:opacity-50",
-
+              // Focus
+              "focus-visible:outline-none",
+              // Default border + focus
+              !error && !success && [
+                "border-maxx-violet/20",
+                "hover:border-maxx-violet/35",
+                "focus-visible:border-maxx-violet/55",
+              ],
+              // Success state
+              success && !error && [
+                "border-emerald-500/40",
+                "hover:border-emerald-500/60",
+                "focus-visible:border-emerald-500/70",
+              ],
+              // Error state
+              error && [
+                "border-maxx-pink/40",
+                "hover:border-maxx-pink/60",
+                "focus-visible:border-maxx-pink/70",
+              ],
+              // Extra right padding when icon is shown
+              (error || success) && "pr-11",
               className
             )}
             ref={ref}
             {...props}
           />
 
-          {/* Success Icon */}
+          {/* Success icon */}
           {success && !error && (
-            <div className="absolute right-4 top-4 pointer-events-none">
-              <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+            <div className="absolute right-3.5 top-3.5 pointer-events-none">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
             </div>
           )}
 
-          {/* Error Icon */}
+          {/* Error icon */}
           {error && (
-            <div className="absolute right-4 top-4 pointer-events-none">
-              <AlertCircle className="w-5 h-5 text-red-500" />
+            <div className="absolute right-3.5 top-3.5 pointer-events-none">
+              <AlertCircle className="w-4 h-4 text-maxx-pink" />
             </div>
           )}
         </div>
 
-        {/* Hint Text */}
+        {/* Hint */}
         {hint && !error && (
-          <p className="mt-2 text-xs text-muted-foreground flex items-start gap-1.5">
-            <span className="inline-block w-1 h-1 rounded-full bg-gray-600 mt-1.5" />
+          <p className="mt-2 text-sm text-maxx-sub flex items-start gap-1.5">
+            <span className="inline-block w-1 h-1 rounded-sm bg-maxx-dim mt-[7px] shrink-0" />
             <span>{hint}</span>
           </p>
         )}
 
-        {/* Error Message */}
+        {/* Error message */}
         {error && (
-          <div className="mt-2 flex items-start gap-2 text-sm text-red-400">
-            <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+          <div className="mt-2 flex items-start gap-2 text-sm text-maxx-pink">
+            <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
             <span className="font-medium">{error}</span>
           </div>
         )}
 
-        {/* Success Message */}
+        {/* Success message */}
         {success && !error && !hint && (
           <div className="mt-2 flex items-start gap-2 text-sm text-emerald-400">
-            <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
             <span className="font-medium">Looks good!</span>
           </div>
         )}
+
       </div>
     )
   }
 )
-Textarea.displayName = "Textarea"
 
+Textarea.displayName = "Textarea"
 export { Textarea }

@@ -511,7 +511,7 @@ export default function Mint() {
           .mint-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 18px;
+            width: 30px;
             height: 30px;
             border-radius: 4px;
             background: linear-gradient(180deg, #c4b5fd 0%, #8b5cf6 45%, #ff2d78 100%);
