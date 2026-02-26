@@ -119,57 +119,52 @@
 
 @layer components {
   .btn-p {
-    @apply inline-flex items-center gap-2 font-sans font-bold text-[0.95rem] tracking-wider uppercase
-           px-7 py-3 border-none cursor-pointer no-underline
-           transition-all hover:opacity-90 hover:-translate-y-px
-           whitespace-nowrap justify-center sm:justify-start w-full sm:w-auto
-           rounded-lg bg-grad-btn text-maxx-white;
+    @apply inline-flex items-center gap-2  font-sans font-bold text-[0.95rem] tracking-wider uppercase px-7 py-3 border-none cursor-pointer no-underline transition-all hover:opacity-90 hover:-translate-y-px whitespace-nowrap justify-center sm:justify-start w-full sm:w-auto;
+    @apply rounded-lg  bg-gradient-to-r from-purple-600  to-pink-500 text-white;
   }
 
-  /* Skewed variant — applied alongside btn-p */
   .btn-skewed {
     clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 100%, 10px 100%);
     border-radius: 2px !important;
   }
 
-  /* ── Secondary button ── */
+  /*
+  @media (max-width: 600px) {
+    .btn-skewed {
+      clip-path: none;
+      @apply rounded-lg;
+    }
+  }*/
+
+  /* FIX 2: was bg-[#08050d]/80 — replaced with bg-maxx-bg0/80 */
   .btn-s {
-    @apply inline-flex items-center gap-2
-           bg-maxx-bg0/80 backdrop-blur-md
-           text-maxx-mid font-sans font-semibold text-[0.88rem] tracking-wider uppercase
-           px-5 py-3
-           border border-maxx-violet/30
-           cursor-pointer no-underline rounded-lg
-           transition-all duration-300
-           hover:border-maxx-violet hover:text-maxx-white
-           hover:bg-maxx-violet/15 hover:shadow-[0_0_15px_rgba(139,92,246,0.2)]
-           whitespace-nowrap justify-center w-full sm:w-auto;
+    @apply inline-flex items-center gap-2 bg-maxx-bg0/80 backdrop-blur-md text-maxx-mid font-sans font-semibold text-[0.88rem] tracking-wider uppercase px-5 py-3 border border-maxx-violet/30 cursor-pointer no-underline transition-all duration-300 hover:border-maxx-violet hover:text-white hover:bg-maxx-violet/15 hover:shadow-[0_0_15px_rgba(139,92,246,0.2)] whitespace-nowrap justify-center w-full sm:w-auto;
     box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
+    @apply rounded-lg;
   }
 
-
   .eyebrow {
-    @apply inline-flex items-center gap-2 font-mono text-[0.7rem] font-medium tracking-[0.14em] uppercase text-purple-500 mb-3.5;
+    @apply inline-flex items-center gap-2 font-mono text-[0.7rem] font-medium tracking-[0.14em] uppercase text-maxx-violet mb-3.5;
   }
 
   .eyebrow-dot {
-    @apply w-1.5 h-1.5 bg-purple-500 shrink-0 rounded-[1px];
+    @apply w-1.5 h-1.5 bg-maxx-violet shrink-0 rounded-[1px];
   }
 
   .pill {
-    @apply inline-flex items-center font-mono text-[0.68rem] tracking-widest uppercase px-3 py-1.5 border border-purple-500/25 text-gray-300 rounded-sm;
+    @apply inline-flex items-center font-mono text-[0.68rem] tracking-widest uppercase px-3 py-1.5 border border-maxx-violet/25 text-maxx-mid rounded-sm;
   }
 
   .card-hover {
-    @apply transition-all duration-300 hover:border-pink-600/50 hover:bg-pink-600/5 hover:shadow-[0_8px_32px_rgba(255,45,120,0.08)];
+    @apply transition-all duration-300 hover:border-maxx-pink/50 hover:bg-maxx-pink/5 hover:shadow-[0_8px_32px_rgba(255,45,120,0.08)];
   }
 
-  .pain-track {
-    @apply h-[3px] bg-purple-500/15 overflow-hidden rounded-sm;
+  .maxx-track {
+    @apply h-[3px] bg-maxx-violet/15 overflow-hidden rounded-sm;
   }
 
-  .pain-fill {
-    @apply h-full bg-gradient-to-r from-purple-500 to-pink-600 transition-[width] duration-75 ease-linear;
+  .maxx-fill {
+    @apply h-full bg-grad-accent transition-[width] duration-75 ease-linear;
   }
 }
 
@@ -261,13 +256,13 @@ body, #app { overflow-x: hidden; }
   animation: gradient-shift 4s ease infinite;
 }
 
-.pain-meter {
+.maxx-meter {
   position: relative;
   overflow: hidden;
   box-shadow: inset 0 2px 4px rgba(31, 41, 55, 0.2);
 }
 
-.pain-meter::before {
+.maxx-meter::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
