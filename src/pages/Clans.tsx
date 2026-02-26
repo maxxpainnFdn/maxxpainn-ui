@@ -60,7 +60,14 @@ const Clans = () => {
           "description": "Communities that earn per mint when selected during token minting."
         })}
       </script>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-maxx-bg0 overflow-x-hidden">
+        {/* Noise layer */}
+        <div className="fixed inset-0 pointer-events-none z-0 bg-noise-pattern opacity-100" />
+
+        {/* Ambient glows */}
+        <div className="fixed -top-32 -right-32 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(255,45,120,0.07)_0%,transparent_65%)] pointer-events-none z-0" />
+        <div className="fixed top-[30%] -left-24 w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(139,92,246,0.06)_0%,transparent_70%)] pointer-events-none z-0" />
+
         <Navigation />
   
         <main className="pt-32 pb-20">
