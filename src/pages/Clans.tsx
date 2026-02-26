@@ -47,7 +47,7 @@ const Clans = () => {
         <meta name="twitter:image"       content="https://maxxpainn.com/images/pages/clans.jpg" />
       </Helmet>
 
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-maxx-mainBg">
         <Navigation />
 
         <div className="relative overflow-hidden">

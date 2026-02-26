@@ -17,11 +17,11 @@
     ──────────────────────────────────────────────────────── */
 
     /* Background — main page surface (bg0) */
-    --background: 320 24% 5%;             /* #0d080c */
+    --background: 318, 23%, 8%; /*320 24% 5%;             /* #0d080c */
     --foreground: 290 80% 97%;            /* #fdf4ff */
 
     /* Card surface */
-    --card: 320 24% 6%;                   /* #120a10 */
+    --card: 318, 22%, 13%;                   /* #120a10 */
     --card-foreground: 290 80% 97%;
 
     /* Popover / dropdown */

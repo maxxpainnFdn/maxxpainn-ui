@@ -22,7 +22,7 @@ export const StatsCard = ({
 
     <div
       className={`
-        group relative  bg-maxx-bg1/10 backdrop-blur-md rounded-xl
+        group relative  bg-maxx-bg1 backdrop-blur-md rounded-xl
         p-4 md:p-6 border border-purple-500/10 hover:border-${color}-600/20
         transition-all duration-300 ease-out cursor-default overflow-hidden
       `}
