@@ -93,24 +93,24 @@ const ClanCard = memo(({
         <div className="p-4 pb-3">
 
           {/* name + tagline */}
-          <h3 className="font-black text-base text-maxx-white tracking-tight truncate mb-1">
+          <h3 className="font-black text-lg text-white/80 tracking-tight truncate mb-1">
             {clan.name}
           </h3>
-          <p className="text-sm text-maxx-sub truncate mb-4 leading-relaxed">
+          <p className="text-md text-maxx-sub truncate mb-4 font-medium">
             {clan.tagline || "Join this clan today!"}
           </p>
 
           {/* stats row */}
           <div className="flex items-center justify-evenly h-10 mb-4 bg-maxx-bg0/60 border border-maxx-violet/15 rounded-md">
             <div className="flex items-center gap-1.5">
-              <Users className="w-3.5 h-3.5 text-violet-400" />
+              <Users className="w-4 h-4 text-violet-500" />
               <span className="text-sm font-bold text-maxx-bright">
                 {clan.totalMembers.toLocaleString()}
               </span>
             </div>
             <div className="w-px h-5 bg-maxx-violet/15" />
             <div className="flex items-center gap-1.5">
-              <Gem className="w-3.5 h-3.5 text-pink-500" />
+              <Gem className="w-4 h-4 text-pink-500" />
               <span className="font-mono text-sm font-bold text-maxx-bright">
                 {clan.totalMints.toLocaleString()}
               </span>

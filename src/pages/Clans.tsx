@@ -89,7 +89,9 @@ const Clans = () => {
   
             {/* Filter & Sort Bar */}
             <div className="flex flex-col xs:flex-row justify-between items-stretch lg:items-center gap-4 mb-10">
-              <ClansSearch onChange={(v) => setSearchKeyword(v)} />
+              <div className='max-width-[100%] md:max-w-[280px]'>
+                <ClansSearch onChange={(v) => setSearchKeyword(v)} />
+              </div>
               <ClansSorter onChange={(value) => setSortBy(value)} />
             </div>
   
