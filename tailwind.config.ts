@@ -85,7 +85,7 @@ export default {
 					bg2: "#0f0810",
 					bg3: "#120a10",
           bg4: "#0d080c",
-					mainBg: "#1a1017",
+					mainBg: "#181426",
 					pink: "#ff2d78",
 					pinkDk: "#c0003c",
 					pinkLt: "#ff85ab",

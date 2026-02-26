@@ -60,7 +60,7 @@ const ClanCard = memo(({
       className="block group w-[240px] relative no-underline"
     >
       {/* card */}
-      <div className="relative bg-maxx-bg1/90 border rounded-lg  overflow-hidden border-maxx-violet/10 hover:border-maxx-violet/30 shadow shadow-maxx-violet/10 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+      <div className="relative bg-maxx-bg2/10 border rounded-lg  overflow-hidden border-maxx-violet/10 hover:border-maxx-violet/30 shadow shadow-maxx-violet/10 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
 
         {/* top accent — gradient on hover */}
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-maxx-violet/60 via-maxx-pink/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
@@ -99,14 +99,14 @@ const ClanCard = memo(({
           <div className="flex items-center justify-evenly h-10 mb-4 bg-maxx-bg0/60 border border-maxx-violet/15 rounded-md">
             <div className="flex items-center gap-1.5">
               <Users className="w-3.5 h-3.5 text-violet-400" />
-              <span className="font-mono text-xs font-bold text-maxx-bright">
+              <span className="font-mono text-sm font-bold text-maxx-bright">
                 {clan.totalMembers.toLocaleString()}
               </span>
             </div>
             <div className="w-px h-5 bg-maxx-violet/15" />
             <div className="flex items-center gap-1.5">
-              <Gem className="w-3.5 h-3.5 text-pink-400" />
-              <span className="font-mono text-xs font-bold text-maxx-bright">
+              <Gem className="w-3.5 h-3.5 text-pink-500" />
+              <span className="font-mono text-sm font-bold text-maxx-bright">
                 {clan.totalMints.toLocaleString()}
               </span>
             </div>

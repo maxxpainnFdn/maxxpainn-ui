@@ -28,7 +28,7 @@ const ClansSorter: React.FC<{ onChange: (value: string) => void }> = ({ onChange
     <div className="relative w-full xs:w-[180px] sm:w-[220px]">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full h-14 px-4 bg-maxx-bg1/80 border-2 border-maxx-violet/20 backdrop-blur-sm rounded-xl text-white font-medium hover:border-purple-500/20 transition-all duration-300 flex items-center justify-between"
+        className="w-full h-14 px-4 bg-maxx-bg1/10 rounded-lg  overflow-hidden border-2 border-maxx-violet/10 text-maxx-sub font-medium hover:border-purple-500/20 transition-all duration-300 flex items-center justify-between"
       >
         <span>{sortTypes[selected]}</span>
         <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
@@ -40,7 +40,7 @@ const ClansSorter: React.FC<{ onChange: (value: string) => void }> = ({ onChange
             className="fixed inset-0 z-10" 
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute top-full mt-2 w-full bg-maxx-bg1 backdrop-blur-xl border-2 border-purple-500/30 rounded-lg  max-h-[250px] shadow-2xl z-20 overflow-x-hidden">
+          <div className="absolute top-full mt-2 w-full bg-maxx-bg1 shadow-2xl shadow-maxx-violet/10  backdrop-blur-xl border-2 border-purple-500/30 rounded-lg max-h-[250px]  z-20 overflow-x-hidden">
             {Object.entries(sortTypes).map(([key, label]) => (
               <button
                 key={key}
