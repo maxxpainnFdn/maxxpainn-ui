@@ -104,7 +104,7 @@ const ClanCard = memo(({
           <div className="flex items-center justify-evenly h-10 mb-4 bg-maxx-bg0/60 border border-maxx-violet/15 rounded-md">
             <div className="flex items-center gap-1.5">
               <Users className="w-3.5 h-3.5 text-violet-400" />
-              <span className="font-mono text-sm font-bold text-maxx-bright">
+              <span className="text-sm font-bold text-maxx-bright">
                 {clan.totalMembers.toLocaleString()}
               </span>
             </div>
