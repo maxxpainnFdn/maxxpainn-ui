@@ -59,7 +59,7 @@ export const MobileNav = ({ navItems }) => {
 
       <button
         onClick={onClick}
-        className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-900 border border-gray-800 shadow-xl text-purple-400 hover:border-purple-500/50 hover:text-purple-300 hover:bg-purple-800 active:scale-95 transition-all duration-200"
+        className="w-7 h-7 flex items-center justify-center rounded-full bg-maxx-bg0/10 border border-purple-500/60 hover:border-purple-500/90 shadow-xl text-purple-400  hover:text-purple-300 active:scale-95 transition-all duration-200"
       >
         {direction === 'left'
           ? <ChevronLeft className="w-4 h-4" />
