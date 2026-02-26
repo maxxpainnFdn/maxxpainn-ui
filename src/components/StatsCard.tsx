@@ -19,10 +19,11 @@ export const StatsCard = ({
   const glow = `bg-${color}-500/10`
   
   return (
+
     <div
       className={`
-        group relative bg-gray-900/40 backdrop-blur-md rounded-xl
-        p-4 md:p-6 hover:border-purple/10 border border-purple-500/10
+        group relative  bg-maxx-bg1/10 backdrop-blur-md rounded-xl
+        p-4 md:p-6 border border-purple-500/10 hover:border-${color}-600/20
         transition-all duration-300 ease-out cursor-default overflow-hidden
       `}
     >

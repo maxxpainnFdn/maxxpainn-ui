@@ -1,152 +1,142 @@
+/**
+ * MAXXPAINN — ClanCard
+ *
+ * Design system: maxx-* tokens, eyebrow / pill / btn-p / btn-s classes.
+ * No raw Tailwind color names. No hex codes in JSX.
+ *
+ * Note: accentColor props from the API are dynamic hex values and are
+ * only used for the single decorative gradient-bar element — unavoidable
+ * since they're runtime data. All structural chrome uses maxx-* tokens.
+ */
+
 import { ClanData } from "@/types/ClanData";
-import { Coins, Diamond, Users } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import { Button } from "../ui/button";
-import ImageAvatar from "../ImageAvatar";
+import { Users, Gem } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import ImageAvatar from "@/components/ImageAvatar";
 import utils from "@/lib/utils";
 import { memo, useState } from "react";
-import JoinClanBtn from "../joinClanBtn/JoinClanBtn";
+import JoinClanBtn from "@/components/joinClanBtn/JoinClanBtn";
+import Button from "@/components/button/Button";
 
 export interface ClanCardProps {
-    clan: ClanData;
-    onItemClick?: (clan: ClanData) => void,
-    showJoinBtn?: boolean;
-    showSelectBtn?: boolean; 
+  clan: ClanData;
+  onItemClick?: (clan: ClanData) => void;
+  showJoinBtn?: boolean;
+  showSelectBtn?: boolean;
 }
 
-const ClanCard = memo(({ 
-    clan: _clan, 
-    onItemClick = null,
-    showJoinBtn = true,
-    showSelectBtn = false
+const ClanCard = memo(({
+  clan: _clan,
+  onItemClick = null,
+  showJoinBtn = true,
+  showSelectBtn = false,
 }: ClanCardProps) => {
+  const navigate  = useNavigate();
+  const [clan, setClan]       = useState(_clan);
+  const [isMember, setIsMemeber] = useState(_clan.isMember);
 
-    const navigate = useNavigate()
+  const accentColor1 = clan.accentColor[0];
+  const accentColor2 = clan.accentColor[1];
+  const clanUrl      = `/clans/${clan.slug}-${clan.id}`;
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (onItemClick) { onItemClick(clan); return; }
+    const cl = (e.target as HTMLElement).classList;
+    if (cl.contains("join-leave-btn")) return;
+    navigate(clanUrl);
+  };
   
-    const [clan, setClan] = useState(_clan)
-   
-    const accentColor1 = clan.accentColor[0];
-    const accentColor2 = clan.accentColor[1];
+  const joinSelectBtnClass = "w-full h-[40px] rounded-lg text-white bg-purple-700 hover:bg-purple-600 font-semibold hover:shadow-xl border-0"
+  const joinSelectBtnStyle = {
+      //background: `linear-gradient(135deg, ${accentColor1}, ${accentColor2})`,
+      //boxShadow: `0 4px 14px ${accentColor1}40`
+  }
 
-    const clanUrl = `/clans/${clan.slug}-${clan.id}`
+  return (
+    <a
+      href={clanUrl}
+      onClick={handleClick}
+      className="block group w-[240px] relative no-underline"
+    >
+      {/* card */}
+      <div className="relative bg-maxx-bg1/80 border border-maxx-violet/15 rounded-lg overflow-hidden hover:border-maxx-violet/35 transition-all duration-300 hover:-translate-y-1">
 
-    const [isMember, setIsMemeber] = useState(clan.isMember)
+        {/* top accent — gradient on hover */}
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-maxx-violet/60 via-maxx-pink/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
 
-    const handleOnclick = (e: any) => {
-        
-        e.preventDefault();
+        {/* image */}
+        <div className="relative h-[200px] overflow-hidden bg-maxx-bg0 rounded-none">
+          <ImageAvatar
+            src={utils.getServerImage(clan.image, "clans", "normal")}
+            fallbackText={clan.name}
+            className="w-full h-full object-cover text-6xl font-black rounded-none"
+            fallbackTextClass="bg-maxx-bg text-maxx-white rounded-none"
+          />
 
-        const cl = e.target.classList;
+          {/* dynamic accent bar from API data — only inline style in this component */}
+          <div
+            className="absolute bottom-0 left-0 right-0 h-[2px] opacity-80"
+            style={{ background: `linear-gradient(90deg, transparent, ${accentColor1}, ${accentColor2}, transparent)` }}
+          />
 
-        if(onItemClick){
-            onItemClick(clan)
-            return;
-        }
-
-        if(cl.contains("join-leave-btn")){
-            return false;
-        }
-
-        navigate(clanUrl)
-    }
-
-    const joinSelectBtnClass = "w-full h-[40px] rounded-xl text-white font-semibold hover:shadow-xl border-0"
-    const joinSelectBtnStyle = {
-        background: `linear-gradient(135deg, ${accentColor1}, ${accentColor2})`,
-        boxShadow: `0 4px 14px ${accentColor1}40`
-    }
-
-    return (
-        <a  href={clanUrl}  
-          className="block group w-[240px] relative"
-          onClick={handleOnclick}
-        >
-            <div 
-              className="absolute left-1/2 -translate-x-1/2 top-[120px] w-[240px] h-[240px] blur-3xl opacity-40 pointer-events-none group-hover:opacity-70 transition-opacity duration-500"
-              style={{
-                background: `radial-gradient(circle, ${accentColor1}, transparent 70%)`
-              }}
-            />
-        
-            <div 
-              className="relative bg-gray-900/80 backdrop-blur-sm border-2 border-purple-400/5 rounded-2xl overflow-hidden hover:shadow-2xl hover:border-purple-500/20 hover:transform hover:translate-y-[-4px] transition-all duration-300"
-            >
-                {/* Image Section */}
-                <div className="relative h-[240px] overflow-hidden">
-                  <div 
-                      className="w-full h-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-6xl font-black"
-                  >
-                    <ImageAvatar
-                      src={utils.getServerImage(clan.image, "clans", "normal")}
-                      fallbackText={clan.name}
-                      className="w-full h-full object-cover text-7xl font-bold rounded-none"
-                      fallbackTextClass="bg-none" 
-                    />   
-                  </div>
-                
-                {/* Bottom gradient border */}
-                <div className="absolute bottom-0 left-0 right-0 h-1 opacity-90"
-                  style={{
-                    background: `linear-gradient(90deg, transparent, ${accentColor1}, ${accentColor2}, transparent)`
-                  }}
-                />
-            </div>
-            
-            {/* Content */}
-            <div className="relative p-5 pb-3">
-              <h3 className="text-xl font-bold text-white mb-2 truncate">
-                {clan.name}
-              </h3>
-              <p className="text-sm text-gray-400 mb-4 p-0 truncate">
-                {clan.tagline || "Join this clan today!"}
-              </p>
-
-              {/* Stats */}
-              <div className="flex items-center justify-evenly text-sm mb-5 px-4 h-[40px] rounded-xl bg-black/40 backdrop-blur-sm border"
-                style={{ borderColor: `${accentColor1}40` }}
-              >
-                <div className="flex items-center gap-1">
-                  <div className="p-1.5 rounded-lg" style={{ backgroundColor: `${accentColor1}30` }}>
-                    <Users className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="font-medium text-sm text-white">{clan.totalMembers.toLocaleString()}</span>
-                </div>
-                <div className="w-px h-6 bg-gray-700" />
-                <div className="flex items-center justify-center gap-1">
-                  <div className="p-1.5 rounded-lg" style={{ backgroundColor: `${accentColor1}30` }}>
-                    <Diamond className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="font-medium text-xsm text-white">{clan.totalMints}</span>
-                </div>
-              </div>
-                
-              { showJoinBtn && (
-                <JoinClanBtn 
-                  clanId={clan.id}
-                  clanName={clan.name}
-                  isMember={ isMember }
-                  onSuccess={ (newClan) => {
-                    setClan(newClan)
-                    setIsMemeber(newClan.isMember) 
-                  }}
-                  size="sm"
-                  className={`join-leave-btn ${joinSelectBtnClass}`}
-                  style={joinSelectBtnStyle}
-                >
-                  Join Clan
-                </JoinClanBtn>
-              )}
-
-              {showSelectBtn && (
-                <Button
-                  className={joinSelectBtnClass}
-                  style={joinSelectBtnStyle}
-                >
-                  Select Clan
-                </Button>
-              )}
-            </div>
+          {/* subtle dark overlay at bottom for legibility */}
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-maxx-bg1/80 to-transparent" />
         </div>
+
+        {/* content */}
+        <div className="p-4 pb-3">
+
+          {/* name + tagline */}
+          <h3 className="font-black text-base text-maxx-white tracking-tight truncate mb-1">
+            {clan.name}
+          </h3>
+          <p className="text-sm text-maxx-sub truncate mb-4 leading-relaxed">
+            {clan.tagline || "Join this clan today!"}
+          </p>
+
+          {/* stats row */}
+          <div className="flex items-center justify-evenly h-10 mb-4 bg-maxx-bg0/60 border border-maxx-violet/15 rounded-md">
+            <div className="flex items-center gap-1.5">
+              <Users className="w-3.5 h-3.5 text-violet-400" />
+              <span className="font-mono text-xs font-bold text-maxx-bright">
+                {clan.totalMembers.toLocaleString()}
+              </span>
+            </div>
+            <div className="w-px h-5 bg-maxx-violet/15" />
+            <div className="flex items-center gap-1.5">
+              <Gem className="w-3.5 h-3.5 text-pink-400" />
+              <span className="font-mono text-xs font-bold text-maxx-bright">
+                {clan.totalMints.toLocaleString()}
+              </span>
+            </div>
+          </div>
+
+          {/* join / select button */}
+          {showJoinBtn && (
+            <JoinClanBtn 
+              clanId={clan.id}
+              clanName={clan.name}
+              isMember={ isMember }
+              onSuccess={ (newClan) => {
+                setClan(newClan)
+                setIsMemeber(newClan.isMember) 
+              }}
+              size="sm"
+              className={`join-leave-btn rounded-lg ${joinSelectBtnClass}`}
+              style={joinSelectBtnStyle}
+            >
+              Join Clan
+            </JoinClanBtn>
+          )}
+
+          {showSelectBtn && (
+            <Button variant="primary" skewed fullWidth className="text-xs">
+              Select Clan
+            </Button>
+          )}
+        </div>
+      </div>
     </a>
   );
 });

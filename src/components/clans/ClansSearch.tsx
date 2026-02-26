@@ -34,9 +34,9 @@ export default function ClansSearch({ onChange }) {
                 <input
                     placeholder="Search clans by name..."
                     onChange={handleOnSearch}
-                    className="w-full h-14 pl-5 pr-14 bg-gray-800/60 backdrop-blur-sm border-2 border-purple-500/10 rounded-xl text-white placeholder:text-gray-500 focus:border-purple-500/60 focus:outline-none transition-all duration-300"
+                    className="w-full h-14 pl-5 pr-14 bg-maxx-bg1/80 border-2 border-maxx-violet/20 backdrop-blur-sm  rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-maxx-violet/45 transition-colors duration-300"
                 />
-                <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white p-2 rounded-lg transition-all duration-300 hover:scale-110">
+                <button className="absolute right-2 top-1/2 -translate-y-1/2 text-maxx-violet/90 p-2 rounded-lg transition-all duration-300 hover:scale-110">
                     <Search className="w-5 h-5" />
                 </button>
             </div>

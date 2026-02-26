@@ -20,7 +20,12 @@ import {
   Trophy, Sparkles, Swords,
 } from "lucide-react";
 import Button from "@/components/button/Button";
-import PostCard from "@/components/posts/PostCard";
+import PostCard from "@/components/feeds/PostCard";
+import FeedsSideStats from "@/components/feeds/FeedSideStats";
+import FeedFilter from "@/components/feeds/FeedFilter";
+import TrendingHashTags from "@/components/feeds/TrendingHashTags";
+import TopDegens from "@/components/feeds/TopDegens";
+import FeedTopMenu from "@/components/feeds/FeedTopMenu";
 
 /* ═══════════════════════════════════════════════════════════════
    CLANS
@@ -152,155 +157,6 @@ const Avatar = ({ initials, verified, clan }) => (
   </div>
 );
 
-/* ── Post card ── */
-
-/* ── Compose modal ── */
-const ComposeModal = ({ onClose, onSubmit }) => {
-  const [text, setText]     = useState("");
-  const [clan, setClan]     = useState(CLANS[0]);
-  const [type, setType]     = useState("post");
-  const [amount, setAmount] = useState("");
-  const [waitDays, setWait] = useState("");
-  const [clanOpen, setOpen] = useState(false);
-  const taRef = useRef(null);
-  useEffect(() => taRef.current?.focus(), []);
-
-  const chars  = text.length;
-  const submit = () => {
-    if (!text.trim() || chars > 280) return;
-    onSubmit({ text, clan, type, mint: type === "pain" && amount ? { amount, waitDays: parseInt(waitDays) || 0 } : null });
-    onClose();
-  };
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-maxx-bg0/85 backdrop-blur-sm"
-      onClick={e => e.target === e.currentTarget && onClose()}
-    >
-      <div className="w-full max-w-lg bg-maxx-bg1 border border-maxx-violet/25 rounded-lg shadow-2xl shadow-maxx-violet/10 relative overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-maxx-violet via-maxx-pink to-transparent" />
-
-        {/* header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-maxx-violet/15">
-          <span className="eyebrow"><span className="eyebrow-dot" />New Post</span>
-          <button onClick={onClose} className="text-maxx-sub hover:text-maxx-white transition-colors">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="p-5 flex gap-3">
-          <Avatar initials="ME" verified={false} />
-
-          <div className="flex-1 min-w-0 flex flex-col gap-3">
-
-            {/* clan picker */}
-            <div className="relative">
-              <button
-                onClick={() => setOpen(o => !o)}
-                className={`inline-flex items-center gap-1.5 font-mono text-xs tracking-wider uppercase px-3 py-1.5 rounded-full border font-bold transition-colors cursor-pointer ${clan.tw.text} ${clan.tw.border} ${clan.tw.bg}`}
-              >
-                <Shield className="w-3 h-3" />
-                {clan.name}
-                <ChevronDown className="w-3 h-3 opacity-60" />
-              </button>
-              {clanOpen && (
-                <div className="absolute top-full mt-1.5 left-0 z-10 bg-maxx-bg1 border border-maxx-violet/25 rounded-lg min-w-[220px] overflow-hidden shadow-xl shadow-maxx-violet/10">
-                  {CLANS.map(c => (
-                    <button
-                      key={c.id}
-                      onClick={() => { setClan(c); setOpen(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-maxx-violet/8 transition-colors"
-                    >
-                      <div className={`w-2 h-2 rounded-full ${c.tw.bg} border ${c.tw.border}`} />
-                      <span className={`font-mono text-xs font-bold ${c.tw.text}`}>{c.name}</span>
-                      <span className="font-mono text-xs text-maxx-sub ml-auto">{c.members}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* type toggle */}
-            <div className="flex gap-2">
-              {[["post", "Post", Zap], ["pain", "Pain Story", Skull]].map(([id, label, Icon]) => (
-                <button
-                  key={id}
-                  onClick={() => setType(id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-mono text-xs tracking-wider uppercase border transition-all ${
-                    type === id
-                      ? "bg-maxx-violet/15 border-maxx-violet/40 text-maxx-violetLt"
-                      : "border-maxx-violet/15 text-maxx-sub hover:text-maxx-bright hover:border-maxx-violet/30"
-                  }`}
-                >
-                  <Icon className="w-3 h-3" />{label}
-                </button>
-              ))}
-            </div>
-
-            {/* textarea */}
-            <textarea
-              ref={taRef}
-              rows={5}
-              placeholder={type === "pain" ? "Tell your pain story…" : "What's happening in the degen world?"}
-              value={text}
-              onChange={e => setText(e.target.value)}
-              className="w-full bg-transparent border-none outline-none text-maxx-bright text-sm leading-relaxed placeholder:text-maxx-sub/40 resize-none font-sans"
-            />
-
-            {/* pain story fields */}
-            {type === "pain" && (
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Coins className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-maxx-pink pointer-events-none" />
-                  <input
-                    className="w-full pl-8 pr-3 py-2 bg-maxx-bg0/60 border border-maxx-violet/15 rounded-md font-mono text-xs text-maxx-bright placeholder:text-maxx-sub/40 outline-none focus:border-maxx-violet/40 transition-colors"
-                    placeholder="Minted (e.g. 17.6M)"
-                    value={amount}
-                    onChange={e => setAmount(e.target.value)}
-                  />
-                </div>
-                <div className="relative flex-1">
-                  <Timer className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-maxx-violet pointer-events-none" />
-                  <input
-                    type="number" min={1}
-                    className="w-full pl-8 pr-3 py-2 bg-maxx-bg0/60 border border-maxx-violet/15 rounded-md font-mono text-xs text-maxx-bright placeholder:text-maxx-sub/40 outline-none focus:border-maxx-violet/40 transition-colors"
-                    placeholder="Wait days"
-                    value={waitDays}
-                    onChange={e => setWait(e.target.value)}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* footer */}
-            <div className="flex items-center justify-between pt-3 border-t border-maxx-violet/10">
-              <span className={`font-mono text-xs ${chars > 260 ? "text-maxx-pink" : "text-maxx-sub"}`}>
-                {chars}/280
-              </span>
-              <Button variant="primary" skewed onClick={submit} className="text-xs"
-                disabled={!text.trim() || chars > 280}>
-                <Send size={12} /> Post
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-/* ── Sidebar stat ── */
-const SideStat = ({ label, value, pct, gradientCls }) => (
-  <div>
-    <div className="flex justify-between items-baseline mb-1.5">
-      <span className="font-mono text-xs text-maxx-sub">{label}</span>
-      <span className="font-mono font-bold text-sm text-maxx-bright">{value}</span>
-    </div>
-    <div className="h-[3px] w-full bg-maxx-violet/10 rounded-full overflow-hidden">
-      <div className={`h-full bg-gradient-to-r ${gradientCls} transition-all duration-700`} style={{ width: `${pct}%` }} />
-    </div>
-  </div>
-);
 
 /* ═══════════════════════════════════════════════════════════════
    PAGE
@@ -313,30 +169,10 @@ const Feed = () => {
   const [sortBy, setSort]     = useState("hot");
   const [compose, setCompose] = useState(false);
 
-  const toggle = key => id =>
-    setPosts(ps => ps.map(p => p.id === id ? { ...p, [key]: !p[key] } : p));
-
-  const addPost = ({ text, clan, type, mint }) =>
-    setPosts(ps => [{
-      id: Date.now(), type, clan,
-      author: { handle: "you", verified: false, rank: 99999, initials: "ME" },
-      ts: "now", timeRaw: 0, text, mint,
-      stats: { likes: 0, reposts: 0, comments: 0, bookmarks: 0 },
-      liked: false, reposted: false, bookmarked: false,
-    }, ...ps]);
+  const toggle = key => id => setPosts(ps => ps.map(p => p.id === id ? { ...p, [key]: !p[key] } : p));
 
   const filtered = [...posts]
-    .filter(p =>
-      (activeClan === "all" || p.clan.id === activeClan) &&
-      (activeType === "all" || p.type === activeType) &&
-      (!search || p.text.toLowerCase().includes(search.toLowerCase()) ||
-        p.author.handle.toLowerCase().includes(search.toLowerCase()))
-    )
-    .sort((a, b) => {
-      if (sortBy === "new") return a.timeRaw - b.timeRaw;
-      if (sortBy === "top") return (b.stats.likes + b.stats.reposts) - (a.stats.likes + a.stats.reposts);
-      return 0;
-    });
+
 
   return (
     <>
@@ -344,8 +180,6 @@ const Feed = () => {
         <title>Pain Feed — MAXXPAINN</title>
         <meta name="description" content="Community posts, pain stories, and degen dispatches from the MAXXPAINN protocol." />
       </Helmet>
-
-      {compose && <ComposeModal onClose={() => setCompose(false)} onSubmit={addPost} />}
 
       <div className="min-h-screen bg-background">
         <Navigation />
@@ -359,98 +193,29 @@ const Feed = () => {
 
           <main className="relative pt-28 pb-20">
             <div className="max-w-7xl mx-auto px-4 md:px-6">
+              
+              {/* header */}
+              <div className="mb-6">
+                <div className="eyebrow mb-3"><span className="eyebrow-dot" />Community Stories</div>
+                <div className="flex items-middle justify-between gap-4">
+                  <h1 className="text-2xl sm:text-4xl md:text-6xl font-black tracking-tighter leading-none">
+                    <span className="text-maxx-white">THE </span>
+                    <span className="bg-grad-accent bg-clip-text text-transparent">PAIN FEED</span>
+                  </h1>
+                  
+                  <div>
+                    <Button variant="primary" skewed className="shadow-[0_0_24px_rgba(255,45,120,0.2)] w-auto">
+                      <Flame size={14} /> Post
+                    </Button>
+                  </div>
+                </div>
+              </div>
+                            
               <div className="flex gap-8">
 
                 {/* ── FEED COLUMN ── */}
                 <div className="flex-1 min-w-0">
-
-                  {/* header */}
-                  <div className="mb-6">
-                    <div className="eyebrow mb-3"><span className="eyebrow-dot" />Community · Dispatches from the Battlefield</div>
-                    <div className="flex items-end justify-between gap-4">
-                      <h1 className="text-4xl md:text-6xl font-black tracking-tighter leading-none">
-                        <span className="text-maxx-white">THE </span>
-                        <span className="bg-grad-accent bg-clip-text text-transparent">PAIN FEED</span>
-                      </h1>
-                      <Button variant="primary" skewed onClick={() => setCompose(true)}
-                        className="shrink-0 shadow-[0_0_24px_rgba(255,45,120,0.2)]">
-                        <Flame size={14} /> Post
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* search */}
-                  <div className="relative mb-4">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-maxx-sub pointer-events-none" />
-                    <input
-                      placeholder="Search posts…"
-                      value={search}
-                      onChange={e => setSearch(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2.5 bg-maxx-bg1/80 border border-maxx-violet/20 rounded-lg text-sm text-maxx-bright placeholder:text-maxx-sub font-mono focus:outline-none focus:border-maxx-violet/45 transition-colors"
-                    />
-                  </div>
-
-                  {/* clan filter */}
-                  <div className="flex items-center gap-2 overflow-x-auto nav-scroll-container pb-0.5 mb-4">
-                    <button
-                      onClick={() => setClan("all")}
-                      className={`flex items-center gap-1.5 shrink-0 px-3.5 py-2 rounded-full font-mono text-xs tracking-wider uppercase border transition-all ${
-                        activeClan === "all"
-                          ? "bg-maxx-violet/20 border-maxx-violet/50 text-maxx-white"
-                          : "border-maxx-violet/20 text-maxx-sub hover:border-maxx-violet/40 hover:text-maxx-bright"
-                      }`}
-                    >
-                      <Users className="w-3 h-3" /> All Clans
-                    </button>
-                    {CLANS.map(c => (
-                      <button
-                        key={c.id}
-                        onClick={() => setClan(c.id)}
-                        className={`flex items-center gap-1.5 shrink-0 px-3.5 py-2 rounded-full font-mono text-xs tracking-wider uppercase border font-bold transition-all ${
-                          activeClan === c.id
-                            ? `${c.tw.bg} ${c.tw.border} ${c.tw.text}`
-                            : "border-maxx-violet/20 text-maxx-sub hover:border-maxx-violet/40 hover:text-maxx-bright"
-                        }`}
-                      >
-                        <Shield className="w-3 h-3" />{c.name}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* type + sort row */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      {[["all","All",Flame],["post","Posts",Zap],["pain","Pain Stories",Skull]].map(([id,label,Icon]) => (
-                        <button
-                          key={id}
-                          onClick={() => setType(id)}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-mono text-xs tracking-wider uppercase border transition-all ${
-                            activeType === id
-                              ? "bg-maxx-violet/15 border-maxx-violet/40 text-maxx-violetLt"
-                              : "border-maxx-violet/15 text-maxx-sub hover:text-maxx-bright hover:border-maxx-violet/30"
-                          }`}
-                        >
-                          <Icon className="w-3 h-3" />{label}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="flex items-center gap-0.5 bg-maxx-bg1/80 border border-maxx-violet/15 rounded-lg p-1">
-                      {[["hot","Hot",Flame],["new","New",Sparkles],["top","Top",Trophy]].map(([id,label,Icon]) => (
-                        <button
-                          key={id}
-                          onClick={() => setSort(id)}
-                          className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md font-mono text-xs uppercase tracking-wider transition-all ${
-                            sortBy === id
-                              ? "bg-maxx-violet/20 text-maxx-white"
-                              : "text-maxx-sub hover:text-maxx-bright"
-                          }`}
-                        >
-                          <Icon className="w-3 h-3" />{label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
+                  
                   {/* posts */}
                   <div className="space-y-3">
                     {filtered.length === 0 ? (
@@ -482,95 +247,10 @@ const Feed = () => {
                 </div>
 
                 {/* ── SIDEBAR ── */}
-                <aside className="hidden xl:flex xl:w-64 flex-shrink-0 flex-col gap-4 sticky top-24 self-start max-h-[calc(100vh-7rem)] overflow-y-auto pb-4">
-
-                  {/* clan leaderboard */}
-                  <div className="bg-maxx-bg1/80 border border-maxx-violet/20 rounded-lg p-5 relative overflow-hidden">
-                    <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-maxx-violet/60 to-transparent" />
-                    <div className="eyebrow mb-4"><span className="eyebrow-dot" />Clan Leaderboard</div>
-                    <div className="space-y-3">
-                      {[...CLANS].sort((a, b) => b.members - a.members).map((c, i) => (
-                        <div key={c.id} className="flex items-center gap-2.5">
-                          <span className="font-mono text-xs text-maxx-sub w-5 text-right">#{i + 1}</span>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex justify-between items-baseline mb-1.5">
-                              <span className={`font-mono text-xs font-bold ${c.tw.text}`}>{c.name}</span>
-                              <span className="font-mono text-xs text-maxx-sub">{c.members}</span>
-                            </div>
-                            <div className="h-[3px] bg-maxx-violet/10 rounded-full overflow-hidden">
-                              <div
-                                className={`h-full ${c.tw.bg} border-0`}
-                                style={{ width: `${(c.members / 841) * 100}%` }}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* stats */}
-                  <div className="bg-maxx-bg1/80 border border-maxx-violet/20 rounded-lg p-5 relative overflow-hidden">
-                    <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-maxx-pink/50 to-transparent" />
-                    <div className="eyebrow mb-4"><span className="eyebrow-dot" />War Room</div>
-                    <div className="space-y-4">
-                      <SideStat label="Total Posts"   value="12,841" pct={82} gradientCls="from-maxx-violet to-maxx-violetLt" />
-                      <SideStat label="Pain Stories"  value="4,201"  pct={55} gradientCls="from-maxx-pink to-maxx-pinkLt"    />
-                      <SideStat label="Active Degens" value="3,204"  pct={47} gradientCls="from-maxx-violet to-maxx-pink"    />
-                      <SideStat label="Tokens Shared" value="847B"   pct={91} gradientCls="from-maxx-pink to-maxx-pinkDk"   />
-                    </div>
-                  </div>
-
-                  {/* trending */}
-                  <div className="bg-maxx-bg1/80 border border-maxx-violet/20 rounded-lg p-5 relative overflow-hidden">
-                    <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-maxx-violet/40 via-maxx-pink/25 to-transparent" />
-                    <div className="eyebrow mb-3"><span className="eyebrow-dot" />Trending</div>
-                    {[
-                      ["5year","2.1K"],["diamondhands","1.8K"],["nem","1.4K"],
-                      ["clanwars","987"],["freemint","854"],["rugsurvivors","712"],
-                    ].map(([tag, count], i) => (
-                      <div
-                        key={tag}
-                        className="flex items-center justify-between py-2.5 border-b border-maxx-violet/10 last:border-0 cursor-pointer group hover:translate-x-0.5 transition-transform"
-                      >
-                        <div>
-                          <p className="font-mono text-xs text-maxx-dim">#{i + 1} trending</p>
-                          <p className="font-mono text-sm font-bold text-maxx-bright group-hover:text-maxx-violetLt transition-colors">#{tag}</p>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-mono text-xs text-maxx-sub">{count}</span>
-                          <ChevronRight className="w-3 h-3 text-maxx-sub group-hover:text-maxx-violet transition-colors" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* top degens */}
-                  <div className="bg-maxx-bg1/80 border border-maxx-violet/20 rounded-lg p-5 relative overflow-hidden">
-                    <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-maxx-violet/50 via-maxx-pink/20 to-transparent" />
-                    <div className="eyebrow mb-4"><span className="eyebrow-dot" />Top Degens</div>
-                    <div className="space-y-3">
-                      {[
-                        { h: "0xwhisper",       rank: 7,    tw: "text-maxx-pink"    },
-                        { h: "clan_voidwalker",  rank: 88,   tw: "text-maxx-violet"  },
-                        { h: "degen_rex",        rank: 420,  tw: "text-maxx-violetLt"},
-                        { h: "patience_maxi",    rank: 1337, tw: "text-maxx-mid"     },
-                      ].map(({ h, rank, tw }) => (
-                        <div key={h} className="flex items-center gap-2.5 group cursor-pointer hover:translate-x-0.5 transition-transform">
-                          <div className="w-8 h-8 rounded-lg bg-grad-btn flex items-center justify-center font-mono font-black text-xs text-maxx-white clip-edges flex-shrink-0">
-                            {h.slice(0, 2).toUpperCase()}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-mono text-sm font-bold text-maxx-bright truncate group-hover:text-maxx-violetLt transition-colors">
-                              @{h}
-                            </p>
-                            <p className={`font-mono text-xs ${tw}`}>Rank #{rank}</p>
-                          </div>
-                          <BadgeCheck className="w-3.5 h-3.5 text-maxx-pink flex-shrink-0" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                <aside className="hidden md:flex md:w-64 flex-shrink-0 flex-col gap-4 sticky top-24 self-start max-h-[calc(100vh-7rem)] overflow-y-auto pb-4">
+                  
+                  <TopDegens />
+                  <TrendingHashTags />                 
 
                   {/* CTA */}
                   <div className="bg-maxx-bg1/80 border border-maxx-pink/25 rounded-lg p-5 text-center relative overflow-hidden">
