@@ -83,7 +83,7 @@ const Clans = () => {
 
               {/* ── FILTER BAR ── */}
               <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mb-8 mt-8">
-                <div className='max-w-[300px]'>
+                <div className='max-w-[100%] sm:max-w-[300px]'>
                   <ClansSearch onChange={v => setSearchKeyword(v)} />
                 </div>
                 
