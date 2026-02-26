@@ -75,20 +75,20 @@ export default {
         },
 
         /* ── MAXXPAINN Design Tokens ─────────────────────────────
-           Background scale — each step is meaningfully lighter
-           so cards, modals, and surfaces are visually distinct.
+           Background scale — deep purple-tinted darks, each step
+           visually distinct so layering is obvious on screen.
 
-           bg0  #0d080c  page canvas           (darkest)
-           bg1  #130d14  card / section base
-           bg2  #1a1020  elevated card / modal
-           bg3  #221530  nav / tooltip surface
-           bg4  #2d1d40  highest surface / popover  (lightest)
+           bg0  #110818  page canvas           (darkest)
+           bg1  #1a0f22  card / section base
+           bg2  #22142e  elevated card / modal
+           bg3  #2c1a3e  nav / tooltip surface
+           bg4  #38224f  highest surface / popover  (lightest)
         ─────────────────────────────────────────────────────── */
-        "maxx-bg0":      "#0d080c",
-        "maxx-bg1":      "#130d14",
-        "maxx-bg2":      "#1a1020",
-        "maxx-bg3":      "#221530",
-        "maxx-bg4":      "#2d1d40",
+        "maxx-bg0":      "#110818",
+        "maxx-bg1":      "#1a0f22",
+        "maxx-bg2":      "#22142e",
+        "maxx-bg3":      "#2c1a3e",
+        "maxx-bg4":      "#38224f",
 
         /* Pink (cerise) — CTAs, energy, pain */
         "maxx-pink":     "#ff2d78",

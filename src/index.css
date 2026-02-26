@@ -21,15 +21,15 @@
     ──────────────────────────────────────────────────────── */
 
     /* Background */
-    --background: 320 24% 5%;             /* #0d080c */
+    --background: 277 36% 6%;             /* #110818 */
     --foreground: 290 80% 97%;            /* #fdf4ff */
 
     /* Card surface */
-    --card: 320 24% 6%;                   /* #120a10 */
+    --card: 277 36% 9%;                   /* #1a0f22 */
     --card-foreground: 290 80% 97%;
 
     /* Popover / dropdown */
-    --popover: 320 24% 6%;
+    --popover: 277 36% 9%;
     --popover-foreground: 290 80% 97%;
 
     /* Primary — Cerise pink (#ff2d78) — CTA buttons */
@@ -331,7 +331,7 @@
 
 /* Scrollbar (full) */
 ::-webkit-scrollbar       { width: 5px; }
-::-webkit-scrollbar-track { background: #0d080c; }
+::-webkit-scrollbar-track { background: #110818; }
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(135deg, #8b5cf6, #ff2d78);
   border-radius: 4px;
