@@ -49,8 +49,8 @@ const ClanCard = memo(({
   
   const joinSelectBtnClass = "w-full h-[40px] rounded-lg text-white bg-purple-700 hover:bg-purple-600 font-semibold hover:shadow-xl border-0"
   const joinSelectBtnStyle = {
-      //background: `linear-gradient(135deg, ${accentColor1}, ${accentColor2})`,
-      //boxShadow: `0 4px 14px ${accentColor1}40`
+      background: `linear-gradient(135deg, ${accentColor1}, ${accentColor2})`,
+      boxShadow: `0 4px 14px ${accentColor1}40`
   }
 
   return (
@@ -60,7 +60,7 @@ const ClanCard = memo(({
       className="block group w-[240px] relative no-underline"
     >
       {/* card */}
-      <div className="relative bg-maxx-bg2/10 border rounded-lg  overflow-hidden border-maxx-violet/10 hover:border-maxx-violet/30 shadow shadow-maxx-violet/10 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+      <div className="relative bg-[rgba(255,255,255,0.03)] border rounded-lg  overflow-hidden border-maxx-violet/10 hover:border-maxx-violet/30 shadow shadow-maxx-violet/10 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
 
         {/* top accent — gradient on hover */}
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-maxx-violet/60 via-maxx-pink/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
