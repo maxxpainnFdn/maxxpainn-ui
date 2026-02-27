@@ -50,8 +50,8 @@ export const StatsCard = ({
         style={{ borderColor: `rgba(${c.rgb}, 0.1)` }}
       />
 
-      {/* ── Inner card ── */}
-      <div className="relative rounded-2xl bg-[#08080f] overflow-hidden">
+      {/* ── Inner card ──bg-[#08080f] */}
+      <div className="relative rounded-2xl bg-maxx-bg4 overflow-hidden">
 
         {/* ▸ Dot-matrix texture */}
         <div
@@ -153,7 +153,7 @@ export const StatsCard = ({
           </div>
 
           {/* Label */}
-          <p className="font-mono text-[0.6rem] md:text-[0.68rem] font-semibold text-white/35 uppercase tracking-[0.2em] group-hover:text-white/55 transition-colors duration-300">
+          <p className="font-mono text-[0.6rem] md:text-[0.68rem] font-semibold text-white/60 uppercase tracking-[0.2em] group-hover:text-white/55 transition-colors duration-300">
             {title}
           </p>
         </div>
