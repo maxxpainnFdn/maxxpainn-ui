@@ -29,35 +29,30 @@ function Dropzone({
   className,
   helperText,
   enableCrop = false,
-  cropAspectRatio = 1
+  cropAspectRatio = 1,
 }: DropzoneProps) {
-  const [imageToCrop, setImageToCrop] = useState<string | null>(null)
+  const [imageToCrop, setImageToCrop]   = useState<string | null>(null)
   const [originalFile, setOriginalFile] = useState<File | null>(null)
 
-  const {
-    getRootProps,
-    getInputProps,
-    isDragActive,
-    isDragReject,
-    fileRejections
-  } = useDropzone({
-    onDrop: (acceptedFiles) => {
-      if (enableCrop && acceptedFiles.length > 0 && acceptedFiles[0].type.startsWith('image/')) {
-        const reader = new FileReader()
-        reader.onload = () => {
-          setImageToCrop(reader.result as string)
-          setOriginalFile(acceptedFiles[0])
+  const { getRootProps, getInputProps, isDragActive, isDragReject, fileRejections } =
+    useDropzone({
+      onDrop: (acceptedFiles) => {
+        if (enableCrop && acceptedFiles.length > 0 && acceptedFiles[0].type.startsWith("image/")) {
+          const reader = new FileReader()
+          reader.onload = () => {
+            setImageToCrop(reader.result as string)
+            setOriginalFile(acceptedFiles[0])
+          }
+          reader.readAsDataURL(acceptedFiles[0])
+        } else {
+          onChange(acceptedFiles)
         }
-        reader.readAsDataURL(acceptedFiles[0])
-      } else {
-        onChange(acceptedFiles)
-      }
-    },
-    maxFiles,
-    maxSize,
-    accept,
-    disabled
-  })
+      },
+      maxFiles,
+      maxSize,
+      accept,
+      disabled,
+    })
 
   const handleCropComplete = (croppedFile: File) => {
     onChange([croppedFile])
@@ -71,73 +66,85 @@ function Dropzone({
   }
 
   const removeFile = (index: number) => {
-    const newFiles = value.filter((_, i) => i !== index)
-    onChange(newFiles)
+    onChange(value.filter((_, i) => i !== index))
   }
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes'
-    const k = 1024
-    const sizes = ['Bytes', 'KB', 'MB', 'GB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
+    if (bytes === 0) return "0 Bytes"
+    const k     = 1024
+    const sizes = ["Bytes", "KB", "MB", "GB"]
+    const i     = Math.floor(Math.log(bytes) / Math.log(k))
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i]
   }
 
   const getAcceptedFileTypes = () => {
-    if (!accept) return "All file types"
-    const extensions = Object.values(accept).flat()
-    return extensions.map(ext => ext.toUpperCase()).join(', ')
+    if (!accept) return "All types"
+    return Object.values(accept).flat().map((e) => e.toUpperCase()).join(", ")
   }
 
   return (
     <>
       <div className={cn("w-full", className)}>
+
+        {/* ── Drop zone ── */}
         <div
           {...getRootProps()}
           className={cn(
-            "relative flex flex-col items-center justify-center w-full min-h-48 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-300 overflow-hidden group",
-            isDragActive && !isDragReject && "border-purple-500 bg-purple-500/10",
-            isDragReject && "border-red-500 bg-red-500/10",
-            !isDragActive && !error && "border-gray-700/50 bg-gray-800/40 hover:border-purple-500/50 hover:bg-gray-800/60",
-            error && "border-red-500/50 bg-red-500/5",
-            disabled && "opacity-50 cursor-not-allowed"
+            "relative flex flex-col items-center justify-center w-full min-h-[160px]",
+            "border border-dashed rounded-lg cursor-pointer",
+            "transition-all duration-200 overflow-hidden group",
+            // Default
+            !isDragActive && !error && !isDragReject &&
+              "border-maxx-violet/25 bg-maxx-bg0/50 hover:border-maxx-violet/50 hover:bg-maxx-violet/5",
+            // Drag active
+            isDragActive && !isDragReject &&
+              "border-maxx-violet/60 bg-maxx-violet/8 scale-[1.01]",
+            // Drag reject
+            isDragReject &&
+              "border-maxx-pink/50 bg-maxx-pink/5",
+            // Validation error
+            error && !isDragActive &&
+              "border-maxx-pink/30 bg-maxx-pink/5",
+            // Disabled
+            disabled && "opacity-50 cursor-not-allowed",
           )}
         >
-          <input {...getInputProps()}  />
+          <input {...getInputProps()} />
 
-          {/* Background gradient on hover */}
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          {/* Hover shimmer */}
+          <div className="absolute inset-0 bg-gradient-to-br from-maxx-violet/5 via-transparent to-maxx-pink/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-          <div className="relative text-center p-8">
+          <div className="relative text-center px-6 py-8">
             {value.length > 0 ? (
-              <div className="flex flex-col items-center gap-4">
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 shadow-lg shadow-purple-500/50">
-                  <ImageIcon className="w-8 h-8 text-white" />
+              /* ── Has file ── */
+              <div className="flex flex-col items-center gap-3">
+                <div className="p-3 rounded-md bg-gradient-to-br from-maxx-violet to-maxx-pink shadow-[0_0_20px_color-mix(in_srgb,var(--maxx-violet)_30%,transparent)]">
+                  <ImageIcon className="w-6 h-6 text-maxx-white" />
                 </div>
                 <div>
-                  <p className="text-base font-bold text-white mb-1">
-                    {value.length} file selected
+                  <p className="text-sm font-bold text-maxx-white mb-0.5">
+                    {value.length} file{value.length > 1 ? "s" : ""} selected
                   </p>
-                  <p className="text-sm text-gray-400">
-                    Click to change or drag to replace
-                  </p>
+                  <p className="text-xs text-maxx-sub">Click to change or drag to replace</p>
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-4">
+              /* ── Empty ── */
+              <div className="flex flex-col items-center gap-3">
                 <div className={cn(
-                  "p-4 rounded-2xl transition-all duration-300",
+                  "p-3 rounded-md transition-all duration-200",
                   isDragActive
-                    ? "bg-gradient-to-br from-purple-600 to-pink-600 shadow-lg shadow-purple-500/50 scale-110"
-                    : "bg-gray-700/50 group-hover:bg-gradient-to-br group-hover:from-purple-600 group-hover:to-pink-600 group-hover:shadow-lg group-hover:shadow-purple-500/50"
+                    ? "bg-gradient-to-br from-maxx-violet to-maxx-pink shadow-[0_0_20px_color-mix(in_srgb,var(--maxx-violet)_30%,transparent)] scale-110"
+                    : "bg-maxx-violet/10 border border-maxx-violet/20 group-hover:bg-gradient-to-br group-hover:from-maxx-violet group-hover:to-maxx-pink group-hover:border-transparent group-hover:shadow-[0_0_20px_color-mix(in_srgb,var(--maxx-violet)_25%,transparent)]"
                 )}>
                   <Upload className={cn(
-                    "w-8 h-8 transition-colors",
-                    isDragActive ? "text-white" : "text-gray-400 group-hover:text-white"
+                    "w-6 h-6 transition-colors duration-200",
+                    isDragActive ? "text-maxx-white" : "text-maxx-violet group-hover:text-maxx-white"
                   )} />
                 </div>
+
                 <div>
-                  <p className="text-base font-bold text-gray-200 group-hover:text-white transition-colors mb-2">
+                  <p className="text-sm font-semibold text-maxx-mid group-hover:text-maxx-bright transition-colors mb-2">
                     {isDragActive
                       ? isDragReject
                         ? "File type not accepted"
@@ -145,17 +152,17 @@ function Dropzone({
                       : "Drag & drop or click to upload"}
                   </p>
 
-                  {/* File Type and Size Info */}
-                  <div className="flex items-center justify-center gap-4 mt-3">
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-800/80 rounded-lg border border-gray-700/50">
-                      <FileType className="w-3.5 h-3.5 text-purple-400" />
-                      <span className="text-xs font-semibold text-gray-300">
+                  {/* File type + size pills */}
+                  <div className="flex items-center justify-center gap-2 mt-2">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-maxx-bg0/80 rounded border border-maxx-violet/15">
+                      <FileType className="w-3 h-3 text-maxx-violet" />
+                      <span className="text-[0.65rem] font-mono font-semibold text-maxx-sub tracking-wide">
                         {getAcceptedFileTypes()}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-800/80 rounded-lg border border-gray-700/50">
-                      <HardDrive className="w-3.5 h-3.5 text-pink-400" />
-                      <span className="text-xs font-semibold text-gray-300">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-maxx-bg0/80 rounded border border-maxx-pink/15">
+                      <HardDrive className="w-3 h-3 text-maxx-pink" />
+                      <span className="text-[0.65rem] font-mono font-semibold text-maxx-sub tracking-wide">
                         Max {formatFileSize(maxSize)}
                       </span>
                     </div>
@@ -166,71 +173,73 @@ function Dropzone({
           </div>
         </div>
 
-        {/* Helper Text */}
+        {/* ── Helper text ── */}
         {helperText && !error && (
-          <div className="mt-3 flex items-start gap-2 px-1">
-            <span className="inline-block w-1 h-1 rounded-full bg-purple-500 mt-1.5" />
-            <p className="text-xs text-gray-400 leading-relaxed">{helperText}</p>
-          </div>
+          <p className="mt-2 text-xs text-maxx-sub flex items-start gap-1.5">
+            <span className="inline-block w-1 h-1 rounded-sm bg-maxx-violet mt-[5px] shrink-0" />
+            <span>{helperText}</span>
+          </p>
         )}
 
-        {/* File Rejection Errors */}
+        {/* ── File rejection errors ── */}
         {fileRejections.length > 0 && (
           <div className="mt-3 space-y-2">
-            {fileRejections.map(({ file, errors }, index) => (
-              <div key={index} className="flex items-start gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg p-3">
-                <X className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            {fileRejections.map(({ file, errors: errs }, index) => (
+              <div
+                key={index}
+                className="flex items-start gap-2 text-xs text-maxx-pink bg-maxx-pink/5 border border-maxx-pink/20 rounded-md p-3"
+              >
+                <X className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold block mb-0.5">{file.name}</span>
-                  <span className="text-red-300/80">{errors.map(e => e.message).join(", ")}</span>
+                  <span className="font-semibold block mb-0.5">{file.name}</span>
+                  <span className="text-maxx-pink/70">{errs.map((e) => e.message).join(", ")}</span>
                 </div>
               </div>
             ))}
           </div>
         )}
 
-        {/* Selected Files List */}
+        {/* ── Selected files list ── */}
         {value.length > 0 && (
-          <div className="mt-4 space-y-3">
+          <div className="mt-3 space-y-2">
             {value.map((file, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between gap-3 p-4 bg-gray-800/60 backdrop-blur-sm rounded-2xl border-2 border-gray-700/50 hover:border-purple-500/50 transition-all duration-300 group"
+                className="flex items-center gap-3 p-3 bg-maxx-bg0/60 rounded-md border border-maxx-violet/15 hover:border-maxx-violet/30 transition-all duration-200 group"
               >
-                <div className="flex items-center gap-3 flex-1 overflow-hidden">
-                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 shadow-lg flex-shrink-0">
-                    {file.type.startsWith('image/') ? (
-                      <ImageIcon className="w-5 h-5 text-white" />
-                    ) : (
-                      <File className="w-5 h-5 text-white" />
-                    )}
-                  </div>
-                  <div className="flex-1 overflow-hidden">
-                    <p className="text-sm font-bold text-white truncate mb-1" title={file.name}>
-                      {file.name}
-                    </p>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs text-gray-400 font-semibold flex items-center gap-1">
-                        <HardDrive className="w-3 h-3" />
-                        {formatFileSize(file.size)}
-                      </span>
-                      <span className="text-xs text-gray-500">•</span>
-                      <span className="text-xs text-gray-400 font-semibold uppercase">
-                        {file.type.split('/')[1] || 'file'}
-                      </span>
-                    </div>
+                {/* Icon */}
+                <div className="p-2 rounded bg-gradient-to-br from-maxx-violet to-maxx-pink shrink-0">
+                  {file.type.startsWith("image/")
+                    ? <ImageIcon className="w-4 h-4 text-maxx-white" />
+                    : <File className="w-4 h-4 text-maxx-white" />
+                  }
+                </div>
+
+                {/* File info */}
+                <div className="flex-1 overflow-hidden">
+                  <p className="text-sm font-semibold text-maxx-bright truncate" title={file.name}>
+                    {file.name}
+                  </p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-[0.65rem] font-mono text-maxx-sub flex items-center gap-1">
+                      <HardDrive className="w-2.5 h-2.5" />
+                      {formatFileSize(file.size)}
+                    </span>
+                    <span className="text-maxx-dim text-xs">·</span>
+                    <span className="text-[0.65rem] font-mono text-maxx-sub uppercase">
+                      {file.type.split("/")[1] || "file"}
+                    </span>
                   </div>
                 </div>
+
+                {/* Remove button */}
                 {!disabled && (
                   <button
                     type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      removeFile(index)
-                    }}
-                    className="p-2 rounded-lg bg-gray-700/50 hover:bg-red-500/20 border border-gray-600/50 hover:border-red-500/50 transition-all duration-300 flex-shrink-0 group/btn"
+                    onClick={(e) => { e.stopPropagation(); removeFile(index) }}
+                    className="p-1.5 rounded border border-maxx-violet/15 bg-maxx-bg0/50 hover:bg-maxx-pink/10 hover:border-maxx-pink/30 transition-all duration-200 shrink-0"
                   >
-                    <X className="w-4 h-4 text-gray-400 group-hover/btn:text-red-400 transition-colors" />
+                    <X className="w-3.5 h-3.5 text-maxx-sub hover:text-maxx-pink transition-colors" />
                   </button>
                 )}
               </div>
@@ -238,16 +247,17 @@ function Dropzone({
           </div>
         )}
 
-        {/* Validation Error */}
+        {/* ── Validation error ── */}
         {error && (
-          <div className="mt-3 flex items-start gap-2 text-sm text-red-400 font-medium bg-red-500/10 border border-red-500/30 rounded-lg p-3">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse mt-1.5 flex-shrink-0" />
-            <span>{error}</span>
+          <div className="mt-2 flex items-center gap-1.5 text-xs text-maxx-pink">
+            <span className="w-1 h-1 rounded-sm bg-maxx-pink animate-pulse shrink-0" />
+            <span className="font-medium">{error}</span>
           </div>
         )}
+
       </div>
 
-      {/* Image Cropper Modal */}
+      {/* ── Image cropper modal ── */}
       {imageToCrop && (
         <ImageCropper
           image={imageToCrop}

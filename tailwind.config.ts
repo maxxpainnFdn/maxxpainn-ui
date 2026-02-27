@@ -96,7 +96,7 @@ export default {
 					mid: "#b89fd4",
 					sub: "#9d7fba",
           dim: "#3d2b5c",
-					statsCard: "#0c080b"
+					statsCard: "#0f0810"
 				}
 			},
 			borderRadius: {
