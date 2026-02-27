@@ -112,6 +112,7 @@ export default function Navigation() {
                   opacity-0 invisible translate-y-2
                   group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
                   transition-all duration-300
+                  rounded-lg
                 ">
                   {docsLinks.map((item, idx) => (
                     <Link
@@ -119,9 +120,9 @@ export default function Navigation() {
                       to={item.href}
                       className="
                         block px-4 py-2.5 no-underline
-                         font-semibold text-[0.82rem] tracking-wider uppercase
-                        text-white hover:text-maxx-white hover:bg-maxx-violet/10
-                        transition-colors
+                        font-semibold text-[0.82rem] tracking-wider uppercase
+                      text-white hover:text-maxx-white hover:bg-maxx-violet/10
+                        transition-colors rounded-lg
                       "
                     >
                       {item.name}

@@ -12,25 +12,13 @@ export default function CountDownTimer({
   progressPercent,
 }: CountDownTimerProps) {
   return (
-    <div className="flex flex-col items-center justify-center relative w-full my-10">
+    <div className="flex flex-col items-center justify-center relative w-full">
       {/* Glow Effect */}
       <div
         className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full blur-[80px] opacity-40 transition-colors duration-1000 ${isClaimable ? "bg-emerald-500" : "bg-maxx-violet"}`}
       />
 
       <div className="relative w-[320px] h-[320px] sm:w-[420px] sm:h-[420px] flex items-center justify-center">
-
-        {/* ── Aura rings ── */}
-        {/* Outer slow-pulse ring */}
-        <div className={`absolute w-[420px] h-[420px] sm:w-[540px] sm:h-[540px] rounded-full border transition-colors duration-1000 animate-ping-slow ${isClaimable ? "border-emerald-500/10" : "border-maxx-violet/10"}`} />
-        {/* Mid ring */}
-        <div className={`absolute w-[360px] h-[360px] sm:w-[470px] sm:h-[470px] rounded-full border transition-colors duration-1000 ${isClaimable ? "border-emerald-500/15" : "border-maxx-violet/15"}`} />
-        {/* Inner ring */}
-        <div className={`absolute w-[300px] h-[300px] sm:w-[395px] sm:h-[395px] rounded-full border transition-colors duration-1000 ${isClaimable ? "border-emerald-500/20" : "border-maxx-violet/20"}`} />
-        {/* Deep core glow */}
-        <div className={`absolute w-[200px] h-[200px] rounded-full blur-[60px] opacity-25 transition-colors duration-1000 ${isClaimable ? "bg-emerald-400" : "bg-maxx-pink"}`} />
-        {/* Secondary orb offset */}
-        <div className={`absolute w-[160px] h-[160px] rounded-full blur-[40px] opacity-20 translate-x-8 -translate-y-8 transition-colors duration-1000 ${isClaimable ? "bg-emerald-300" : "bg-maxx-violet"}`} />
         {/* SVG Gradient Definition */}
         <svg className="absolute w-0 h-0">
           <defs>

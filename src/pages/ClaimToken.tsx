@@ -302,7 +302,8 @@ export default function TokenClaim() {
         {/* ── Ambient glows ── */}
         <div className="fixed -top-32 -right-32 w-[600px] h-[600px] bg-[radial-gradient(circle,color-mix(in srgb, var(--maxx-pink) 7%, transparent)_0%,transparent_65%)] pointer-events-none z-0" />
         <div className="fixed top-[40%] -left-24 w-[400px] h-[400px] bg-[radial-gradient(circle,color-mix(in srgb, var(--maxx-violet) 6%, transparent)_0%,transparent_70%)] pointer-events-none z-0" />
-
+        
+        
         <Navigation />
 
         {rewardInfo && (
@@ -333,7 +334,7 @@ export default function TokenClaim() {
                         <span className="eyebrow-dot" />
                         PROOF OF PATIENCE · SOLANA
                       </div>
-                      <h1 className="font-sans font-black text-[clamp(2.8rem,9vw,7rem)] leading-[0.94] tracking-tight text-maxx-white uppercase">
+                      <h1 className="font-sans font-black text-[clamp(2.8rem,8vw,6rem)] leading-[0.94] tracking-tight text-maxx-white uppercase">
                         CLAIM{" "}
                         <span className="bg-grad-accent bg-clip-text text-transparent">
                           TOKENS

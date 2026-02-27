@@ -229,7 +229,7 @@
   /* ── Secondary button ── */
   .btn-s {
     @apply inline-flex items-center gap-2
-           bg-maxx-bg0/80 backdrop-blur-md
+           bg-maxx-violet/5 backdrop-blur-md
            text-maxx-mid font-sans font-semibold text-[0.88rem] tracking-wider uppercase
            px-5 py-3
            border border-maxx-violet/30

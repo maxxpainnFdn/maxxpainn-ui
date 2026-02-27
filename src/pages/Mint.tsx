@@ -265,8 +265,8 @@ export default function Mint() {
         <div className="fixed inset-0 pointer-events-none z-0 bg-noise-pattern opacity-100" />
 
         {/* Ambient glows */}
-        <div className="fixed -top-32 -right-32 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(255,45,120,0.07)_0%,transparent_65%)] pointer-events-none z-0" />
-        <div className="fixed top-[30%] -left-24 w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(139,92,246,0.06)_0%,transparent_70%)] pointer-events-none z-0" />
+        <div className="fixed -top-32 -right-32 w-[600px] h-[600px] bg-[radial-gradient(circle,color-mix(in srgb, var(--maxx-pink) 7%, transparent)_0%,transparent_65%)] pointer-events-none z-0" />
+        <div className="fixed top-[30%] -left-24 w-[400px] h-[400px] bg-[radial-gradient(circle,color-mix(in srgb, var(--maxx-violet) 6%, transparent)_0%,transparent_70%)] pointer-events-none z-0" />
 
         <Navigation />
 
@@ -375,7 +375,7 @@ export default function Mint() {
                                     })}
                                     className="mint-slider w-full px-0 appearance-none cursor-pointer border-0 bg-transparent"
                                     style={{
-                                      background: `linear-gradient(to right, #8b5cf6 0%, #ff2d78 ${sliderPct - 1}%, rgba(61,43,92,0.5) ${sliderPct}%, rgba(61,43,92,0.5) 100%)`,
+                                      background: `linear-gradient(to right, var(--maxx-violet) 0%, var(--maxx-pink) ${sliderPct - 1}%, color-mix(in srgb, var(--maxx-dim) 50%, transparent) ${sliderPct}%, color-mix(in srgb, var(--maxx-dim) 50%, transparent) 100%)`,
                                     }}
                                     error={errors.term?.message}
                                   />
@@ -511,22 +511,22 @@ export default function Mint() {
           .mint-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 30px;
+            width: 18px;
             height: 30px;
             border-radius: 4px;
-            background: linear-gradient(180deg, #c4b5fd 0%, #8b5cf6 45%, #ff2d78 100%);
+            background: linear-gradient(180deg, var(--maxx-violet-lt) 0%, var(--maxx-violet) 45%, var(--maxx-pink) 100%);
             cursor: pointer;
-            border: 2px solid rgba(255, 255, 255, 0.12);
+            border: 2px solid color-mix(in srgb, white 12%, transparent);
             box-shadow:
-              0 0 0 1px rgba(139, 92, 246, 0.45),
-              0 4px 14px rgba(139, 92, 246, 0.55);
+              0 0 0 1px color-mix(in srgb, var(--maxx-violet) 45%, transparent),
+              0 4px 14px color-mix(in srgb, var(--maxx-violet) 55%, transparent);
             transition: transform 0.15s ease, box-shadow 0.15s ease;
           }
           .mint-slider::-webkit-slider-thumb:hover {
             transform: scaleY(1.1);
             box-shadow:
-              0 0 0 1px rgba(255, 45, 120, 0.55),
-              0 4px 20px rgba(255, 45, 120, 0.55);
+              0 0 0 1px color-mix(in srgb, var(--maxx-pink) 55%, transparent),
+              0 4px 20px color-mix(in srgb, var(--maxx-pink) 55%, transparent);
           }
           .mint-slider::-webkit-slider-thumb:active {
             transform: scaleY(0.93);
@@ -537,19 +537,19 @@ export default function Mint() {
             width: 18px;
             height: 30px;
             border-radius: 4px;
-            background: linear-gradient(180deg, #c4b5fd 0%, #8b5cf6 45%, #ff2d78 100%);
+            background: linear-gradient(180deg, var(--maxx-violet-lt) 0%, var(--maxx-violet) 45%, var(--maxx-pink) 100%);
             cursor: pointer;
-            border: 2px solid rgba(255, 255, 255, 0.12);
+            border: 2px solid color-mix(in srgb, white 12%, transparent);
             box-shadow:
-              0 0 0 1px rgba(139, 92, 246, 0.45),
-              0 4px 14px rgba(139, 92, 246, 0.55);
+              0 0 0 1px color-mix(in srgb, var(--maxx-violet) 45%, transparent),
+              0 4px 14px color-mix(in srgb, var(--maxx-violet) 55%, transparent);
             transition: transform 0.15s ease, box-shadow 0.15s ease;
           }
           .mint-slider::-moz-range-thumb:hover {
             transform: scaleY(1.1);
             box-shadow:
-              0 0 0 1px rgba(255, 45, 120, 0.55),
-              0 4px 20px rgba(255, 45, 120, 0.55);
+              0 0 0 1px color-mix(in srgb, var(--maxx-pink) 55%, transparent),
+              0 4px 20px color-mix(in srgb, var(--maxx-pink) 55%, transparent);
           }
         `}</style>
 

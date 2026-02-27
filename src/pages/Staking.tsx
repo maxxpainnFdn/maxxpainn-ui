@@ -14,7 +14,6 @@ import EnsureConnected from "@/components/ensureConnected/EnsureConnected";
 import { TokenBalanceInfo } from "@/types/TokenBalanceInfo";
 import { StakingMath } from "@/core/StakingMath";
 import { FetchOnchainDataReturn, useStaking } from "@/hooks/useStaking";
-import Footer from "@/components/Footer copy";
 
 /* ── Tab button ────────────────────────────────────────────── */
 const TabButton = ({ active, onClick, children, icon: Icon }) => (
@@ -103,15 +102,15 @@ const Staking = () => {
       <div className="fixed inset-0 pointer-events-none z-0 bg-noise-pattern opacity-100" />
 
       {/* ── Ambient glows ── */}
-      <div className="fixed top-[-10%] left-[20%] w-[40vw] h-[40vw] bg-[radial-gradient(circle,rgba(139,92,246,0.07)_0%,transparent_65%)] pointer-events-none z-0 rounded-full" />
-      <div className="fixed bottom-[10%] right-[15%] w-[30vw] h-[30vw] bg-[radial-gradient(circle,rgba(255,45,120,0.05)_0%,transparent_65%)] pointer-events-none z-0 rounded-full" />
+      <div className="fixed top-[-10%] left-[20%] w-[40vw] h-[40vw] bg-[radial-gradient(circle,color-mix(in srgb, var(--maxx-violet) 7%, transparent)_0%,transparent_65%)] pointer-events-none z-0 rounded-full" />
+      <div className="fixed bottom-[10%] right-[15%] w-[30vw] h-[30vw] bg-[radial-gradient(circle,color-mix(in srgb, var(--maxx-pink) 5%, transparent)_0%,transparent_65%)] pointer-events-none z-0 rounded-full" />
 
       <Navigation />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-[68px] mb-20">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-[68px]">
 
         {/* ── PAGE HEADER ── */}
-        <div className="text-center w-full mb-12 pt-12 animate-fade-up ">
+        <div className="text-center w-full mb-12 pt-12 animate-fade-up">
           <div className="eyebrow justify-center mb-3">
             <span className="eyebrow-dot" />
             PROOF OF PATIENCE · SOLANA
@@ -191,7 +190,6 @@ const Staking = () => {
           </LoadingView>
         </EnsureConnected>
       </div>
-      <Footer />
     </div>
   );
 };

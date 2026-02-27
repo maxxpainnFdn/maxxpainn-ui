@@ -106,8 +106,8 @@ export default {
 			},
 			// ADDED: New fonts
 			fontFamily: {
-				//sans: ['DM Sans', 'sans-serif'],
-				//mono: ['JetBrains Mono', 'monospace'],
+				sans: ['DM Sans', 'sans-serif'],
+				mono: ['JetBrains Mono', 'monospace'],
 			},
 			// ADDED: New background gradients & noise
 			backgroundImage: {
