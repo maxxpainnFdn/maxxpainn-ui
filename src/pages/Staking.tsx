@@ -8,39 +8,49 @@ import Stake from "@/components/staking/tabs/Stake";
 import { UserStakeInfo } from "@/types/UserStakeInfo";
 import { useWalletCore } from "@/hooks/useWalletCore";
 import utils from "@/lib/utils";
-import { DecodedAccountInfo, useWeb3 } from "@/hooks/useWeb3";
+import { useWeb3 } from "@/hooks/useWeb3";
 import LoadingView from "@/components/loadingView/LoadingView";
 import EnsureConnected from "@/components/ensureConnected/EnsureConnected";
 import { TokenBalanceInfo } from "@/types/TokenBalanceInfo";
 import { StakingMath } from "@/core/StakingMath";
 import { FetchOnchainDataReturn, useStaking } from "@/hooks/useStaking";
+import Footer from "@/components/Footer copy";
 
+/* ── Tab button ────────────────────────────────────────────── */
 const TabButton = ({ active, onClick, children, icon: Icon }) => (
   <button
     onClick={onClick}
     className={`
-      flex-1 py-5 flex items-center justify-center gap-3 text-sm font-bold uppercase tracking-widest transition-all duration-300 relative overflow-hidden
-      ${
-        active
-          ? "text-white"
-          : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
+      flex-1 py-4 flex items-center justify-center gap-2.5
+      font-mono text-xs tracking-widest uppercase
+      transition-all duration-200 relative overflow-hidden
+      ${active
+        ? "text-maxx-white"
+        : "text-maxx-sub hover:text-maxx-mid hover:bg-maxx-violet/5"
       }
     `}
   >
+    {/* active background tint */}
     {active && (
-      <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-maxx-violet/10 to-transparent pointer-events-none" />
     )}
+
     <Icon
-      className={`w-5 h-5 relative z-10 ${active ? "text-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]" : ""}`}
+      size={16}
+      className={`relative z-10 transition-colors ${
+        active ? "text-maxx-violet" : "text-maxx-dim"
+      }`}
     />
     <span className="relative z-10">{children}</span>
+
+    {/* active bottom accent */}
     {active && (
-      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 shadow-[0_0_10px_rgba(219,39,119,0.8)]" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-maxx-violet via-maxx-pink to-maxx-violet" />
     )}
   </button>
 );
 
-// --- MAIN PAGE COMPONENT ---
+/* ── Main page ─────────────────────────────────────────────── */
 const Staking = () => {
   const {
     isConnected,
@@ -50,113 +60,98 @@ const Staking = () => {
 
   const stakingCore = useStaking();
 
-  const [activeTab, setActiveTab] = useState<"stake" | "unstake">("stake"); // 'stake' | 'unstake'
-  const [userStakeInfo, setUserStakeInfo] = useState<UserStakeInfo | null>(null);
-  const [totalStakedTokens, setTotalStakedTokens] = useState<{ valueRaw: bigint, valueFormatted: string}>({ valueRaw: 0n, valueFormatted: '0' })
-
-  const [pageError, setPageError] = useState<string>("");
-  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab]                   = useState<"stake" | "unstake">("stake");
+  const [userStakeInfo, setUserStakeInfo]           = useState<UserStakeInfo | null>(null);
+  const [totalStakedTokens, setTotalStakedTokens]   = useState<{ valueRaw: bigint; valueFormatted: string }>({ valueRaw: 0n, valueFormatted: "0" });
+  const [pageError, setPageError]                   = useState<string>("");
+  const [loading, setLoading]                       = useState(false);
   const [userTokenBalanceInfo, setUserTokenBalanceInfo] = useState<TokenBalanceInfo>({ valueRaw: BigInt(0), value: "" });
-  const [rewards, setRewards] = useState(0)
+  const [rewards, setRewards]                       = useState(0);
 
   const hasActiveStake = useMemo(() => userStakeInfo != null, [userStakeInfo]);
-  
-  useEffect(() => {
-    let intval;
-    
-    if (!userStakeInfo) {
-       setRewards(0)
-      return;
-    }
-    
-    setRewards(userStakeInfo?.rewards || 0)
-    
-    intval = setInterval(() => {
-      setRewards(stakingCore.getRewards(userStakeInfo))
-    }, 1_000)
-    
-    return () => {
-      if (intval) clearInterval(intval)
-    }
-  },[userStakeInfo])
 
   useEffect(() => {
-     setLoading(true);
-    fetchData()
+    let intval: NodeJS.Timeout;
+    if (!userStakeInfo) { setRewards(0); return; }
+    setRewards(userStakeInfo?.rewards || 0);
+    intval = setInterval(() => { setRewards(stakingCore.getRewards(userStakeInfo)); }, 1_000);
+    return () => { if (intval) clearInterval(intval); };
+  }, [userStakeInfo]);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchData();
   }, [isConnected, accountPublickey]);
 
   const fetchData = async () => {
-        
     if (!isConnected) return;
-    
-    setPageError("")
+    setPageError("");
     setLoading(true);
-    
-    const resultStatus = await stakingCore.fetchOnchainData(
-      networkId,
-      accountPublickey,
-    );
-    
+    const resultStatus = await stakingCore.fetchOnchainData(networkId, accountPublickey);
     setLoading(false);
-
-    if (resultStatus.isError()) {
-      setPageError(resultStatus.getMessage());
-      return;
-    }
-
+    if (resultStatus.isError()) { setPageError(resultStatus.getMessage()); return; }
     const resultData = resultStatus.getData() as FetchOnchainDataReturn;
-    
-    //console.log("resultData===>", resultData)
-    
     setUserTokenBalanceInfo(resultData.userBalanceInfo);
     setUserStakeInfo(resultData.userStakeInfo);
     setTotalStakedTokens(resultData.totalStaked);
   };
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-x-hidden pb-24 font-sans selection:bg-purple-500/30">
+    <div className="min-h-screen bg-maxx-bg0 overflow-x-hidden">
+
+      {/* ── Noise layer ── */}
+      <div className="fixed inset-0 pointer-events-none z-0 bg-noise-pattern opacity-100" />
+
+      {/* ── Ambient glows ── */}
+      <div className="fixed top-[-10%] left-[20%] w-[40vw] h-[40vw] bg-[radial-gradient(circle,rgba(139,92,246,0.07)_0%,transparent_65%)] pointer-events-none z-0 rounded-full" />
+      <div className="fixed bottom-[10%] right-[15%] w-[30vw] h-[30vw] bg-[radial-gradient(circle,rgba(255,45,120,0.05)_0%,transparent_65%)] pointer-events-none z-0 rounded-full" />
+
       <Navigation />
 
-      {/* Background Ambience */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-[20%] w-[40vw] h-[40vw] bg-purple-900/10 rounded-full blur-[100px] animate-pulse" />
-        <div className="absolute bottom-[10%] right-[20%] w-[30vw] h-[30vw] bg-pink-900/10 rounded-full blur-[80px]" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay" />
-      </div>
+      <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 pt-[68px] mb-20">
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 pt-12 md:pt-20">
-        {/* --- HEADER --- */}
-        <div className="text-center w-full mb-16 gap-6 pt-20 flex justify-center">
-          <div>
-            <h1 className="text-3xl  md:text-5xl lg:text-7xl font-black tracking-tighter text-white mb-2">
-              STAKING{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-600">
-                CONSOLE
-              </span>
-            </h1>
-            <div className="text-center  w-full text-gray-400 text-lg max-w-xl leading-relaxed">
-              {hasActiveStake
-                ? "Your position is locked and earning. Add more PAINN to compound your dominance."
-                : "Initialize your position. Longer lock periods yield significantly higher multipliers."}
-            </div>
+        {/* ── PAGE HEADER ── */}
+        <div className="text-center w-full mb-12 pt-12 animate-fade-up ">
+          <div className="eyebrow justify-center mb-3">
+            <span className="eyebrow-dot" />
+            PROOF OF PATIENCE · SOLANA
           </div>
+          <h1 className="font-sans font-black text-[clamp(2.8rem,9vw,7rem)] leading-[0.94] tracking-tight text-maxx-white uppercase">
+            STAKING{" "}
+            <span className="bg-grad-accent bg-clip-text text-transparent">
+              CONSOLE
+            </span>
+          </h1>
+          <p className="font-sans text-base md:text-lg text-maxx-mid mt-3 max-w-lg mx-auto leading-relaxed">
+            {hasActiveStake
+              ? "Your position is locked and earning. Compound your dominance by adding more $PAINN."
+              : "Initialise your position. Longer lock periods yield significantly higher multipliers."}
+          </p>
         </div>
 
         <EnsureConnected>
           <LoadingView loading={loading} error={pageError} onReload={fetchData}>
-            <StakingStats
-              data={{
-                tvl: utils.toLocaleString(totalStakedTokens.valueFormatted),
-                maxYield: stakingConfig.maxYield + "%",
-                userStake: utils.toLocaleString(userStakeInfo?.amountFormatted || 0),
-                userRewards: rewards || 0,
-              }}
-            />
 
-            {/* --- MAIN INTERFACE --- */}
-            <div className="bg-gray-900/40 backdrop-blur-2xl border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl relative">
-              {/* Tabs */}
-              <div className="flex border-b border-white/5 bg-black/20">
+            {/* ── Stats strip ── */}
+            <div className="mb-8 animate-fade-up delay-1">
+              <StakingStats
+                data={{
+                  tvl:         utils.toLocaleString(totalStakedTokens.valueFormatted),
+                  maxYield:    stakingConfig.maxYield + "%",
+                  userStake:   utils.toLocaleString(userStakeInfo?.amountFormatted || 0),
+                  userRewards: rewards || 0,
+                }}
+              />
+            </div>
+
+            {/* ── Main interface card ── */}
+            <div className="bg-maxx-bg1/80 border border-maxx-violet/20 rounded-lg overflow-hidden shadow-2xl relative animate-fade-up delay-2">
+
+              {/* top accent */}
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-maxx-violet/60 via-maxx-pink/30 to-transparent pointer-events-none" />
+
+              {/* ── Tabs ── */}
+              <div className="flex border-b border-maxx-violet/15 bg-maxx-bg0/40">
                 <TabButton
                   active={activeTab === "stake"}
                   onClick={() => setActiveTab("stake")}
@@ -173,28 +168,30 @@ const Staking = () => {
                 </TabButton>
               </div>
 
-              <div className="p-6 md:p-12 min-h-[500px]">
+              {/* ── Tab content ── */}
+              <div className="p-6 md:p-10 min-h-[500px]">
                 {activeTab === "stake" && (
                   <Stake
                     userStakeInfo={userStakeInfo}
                     tokenBalanceInfo={userTokenBalanceInfo}
-                    onStakingSuccess={ fetchData }
+                    onStakingSuccess={fetchData}
                   />
                 )}
-
                 {activeTab === "unstake" && (
                   <Unstake
                     hasActiveStake={hasActiveStake}
                     userStakeInfo={userStakeInfo}
                     rewards={rewards}
-                    onUnstakingSuccess={ fetchData }
+                    onUnstakingSuccess={fetchData}
                   />
                 )}
               </div>
             </div>
+
           </LoadingView>
         </EnsureConnected>
       </div>
+      <Footer />
     </div>
   );
 };

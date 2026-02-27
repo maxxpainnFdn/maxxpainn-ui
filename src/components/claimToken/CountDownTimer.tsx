@@ -13,98 +13,97 @@ export default function CountDownTimer({
 }: CountDownTimerProps) {
   return (
     <div className="flex flex-col items-center justify-center relative w-full">
-      {/* Glow Effect */}
+
+      {/* Ambient glow */}
       <div
-        className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full blur-[80px] opacity-40 transition-colors duration-1000 ${isClaimable ? "bg-green-500" : "bg-purple-600"}`}
+        className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] rounded-full blur-[80px] opacity-35 transition-colors duration-1000 pointer-events-none ${
+          isClaimable ? "bg-emerald-500" : "bg-maxx-violet"
+        }`}
       />
 
-      <div className="relative w-[320px] h-[320px] sm:w-[420px] sm:h-[420px] flex items-center justify-center">
-        {/* SVG Gradient Definition */}
+      <div className="relative w-[300px] h-[300px] sm:w-[380px] sm:h-[380px] flex items-center justify-center">
+
+        {/* SVG gradient defs */}
         <svg className="absolute w-0 h-0">
           <defs>
-            <linearGradient
-              id="progressGradient"
-              x1="0%"
-              y1="0%"
-              x2="100%"
-              y2="0%"
-            >
-              <stop offset="0%" stopColor="#a855f7" />
-              <stop offset="100%" stopColor="#ec4899" />
+            <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stopColor="#8b5cf6" />
+              <stop offset="100%" stopColor="#ff2d78" />
             </linearGradient>
-            <linearGradient
-              id="readyGradient"
-              x1="0%"
-              y1="0%"
-              x2="100%"
-              y2="0%"
-            >
-              <stop offset="0%" stopColor="#22c55e" />
-              <stop offset="100%" stopColor="#4ade80" />
+            <linearGradient id="readyGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stopColor="#10b981" />
+              <stop offset="100%" stopColor="#34d399" />
             </linearGradient>
           </defs>
         </svg>
 
-        {/* Background Ring */}
+        {/* Track ring */}
         <svg className="absolute inset-0 w-full h-full -rotate-90 transform">
           <circle
-            cx="50%"
-            cy="50%"
-            r="46%"
+            cx="50%" cy="50%" r="46%"
             fill="none"
-            stroke="#1f1f22"
-            strokeWidth="8"
+            stroke="rgba(61,43,92,0.5)"
+            strokeWidth="6"
           />
-          {/* Progress Ring */}
+          {/* Progress ring */}
           <circle
-            cx="50%"
-            cy="50%"
-            r="46%"
+            cx="50%" cy="50%" r="46%"
             fill="none"
-            stroke={
-              isClaimable ? "url(#readyGradient)" : "url(#progressGradient)"
-            }
-            strokeWidth="8"
+            stroke={isClaimable ? "url(#readyGradient)" : "url(#progressGradient)"}
+            strokeWidth="6"
             strokeLinecap="round"
-            strokeDasharray={2.89 * 420}
-            strokeDashoffset={1212 * (1 - progressPercent / 100)}
-            className="transition-all duration-1000 ease-out drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]"
+            className="transition-all duration-1000 ease-out"
             style={{
               strokeDasharray: 1212,
               strokeDashoffset: 1212 * (1 - progressPercent / 100),
+              filter: isClaimable
+                ? "drop-shadow(0 0 8px rgba(16,185,129,0.6))"
+                : "drop-shadow(0 0 8px rgba(139,92,246,0.5))",
             }}
           />
         </svg>
 
-        {/* Central Data */}
+        {/* Inner content */}
         <div className="relative z-10 text-center flex flex-col items-center">
           {!isClaimable ? (
             <>
-              <div className="text-purple-400 font-mono text-xs uppercase tracking-[0.3em] mb-4 animate-pulse">
+              {/* "System Locked" label */}
+              <div className="eyebrow justify-center mb-4 animate-pain-pulse">
+                <span className="eyebrow-dot" />
                 System Locked
               </div>
-              <div className="flex items-baseline gap-1 text-white">
-                <span className="text-6xl sm:text-7xl font-black tracking-tighter tabular-nums">
+
+              {/* Days */}
+              <div className="flex items-baseline gap-1">
+                <span className="font-sans font-black text-[clamp(3.5rem,12vw,5.5rem)] tracking-tighter tabular-nums leading-none text-maxx-white">
                   {timeLeft?.days}
                 </span>
-                <span className="text-lg text-gray-500 font-bold uppercase mr-3">
+                <span className="text-base text-maxx-sub font-semibold uppercase ml-1 mb-1">
                   Days
                 </span>
               </div>
-              <div className="flex items-center gap-4 mt-2 text-gray-400 font-mono text-xl">
-                {/* ... (Time components same as before) ... */}
+
+              {/* HH:MM:SS */}
+              <div className="font-mono text-lg text-maxx-mid mt-2 tracking-widest">
                 {String(timeLeft?.hours).padStart(2, "0")}h :{" "}
                 {String(timeLeft?.minutes).padStart(2, "0")}m :{" "}
                 {String(timeLeft?.seconds).padStart(2, "0")}s
               </div>
             </>
           ) : (
-            <div className="animate-in zoom-in duration-500 flex flex-col items-center">
-              <div className="w-20 h-20 rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center mb-6 shadow-[0_0_40px_rgba(34,197,94,0.2)]">
-                <Zap className="w-10 h-10 text-green-400 fill-current" />
+            <div className="flex flex-col items-center">
+              {/* Ready icon */}
+              <div className="w-16 h-16 rounded-md bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-5 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+                <Zap size={28} className="text-emerald-400 fill-current" />
               </div>
-              <h3 className="text-5xl font-black text-white uppercase italic tracking-tighter mb-2">
-                Ready
+
+              <div className="eyebrow justify-center mb-2">
+                <span className="eyebrow-dot" style={{ background: "#10b981" }} />
+                <span style={{ color: "#10b981" }}>Ready to Harvest</span>
+              </div>
+
+              <h3 className="font-sans font-black text-[clamp(2.5rem,8vw,4rem)] text-maxx-white uppercase tracking-tight leading-none">
+                Claim Now
               </h3>
             </div>
           )}

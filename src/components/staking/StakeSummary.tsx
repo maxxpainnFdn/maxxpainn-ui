@@ -1,5 +1,6 @@
 import { StakingMath } from "@/core/StakingMath";
 import utils from "@/lib/utils";
+import { TrendingUp, Zap, Clock } from "lucide-react";
 
 export interface StakeSummaryProps {
   badge: any;
@@ -16,57 +17,100 @@ export default function StakeSummary({
   stakeAmount,
   termDays,
 }: StakeSummaryProps) {
+
+  const projectedReward = StakingMath.getReward(
+    Number(stakeAmount),
+    Number(termDays),
+    utils.daysToSeconds(termDays),
+  );
+
+  const unlockDate = new Date(Date.now() + termDays * 86400_000).toLocaleDateString("en-US", {
+    year: "numeric", month: "short", day: "numeric",
+  });
+
   return (
     <div className="lg:col-span-5">
-      {/* Summary Panel */}
-      <div
-        className={`rounded-3xl border ${badge.border} bg-gradient-to-br from-black/40 to-purple-900/10 p-8  py-10 flex flex-col justify-between`}
-      >
-        <div>
-          <div className="mb-10">
-            <span className="text-xl sm:text-2xl md:text-4xl mr-2">
-              {badge.icon}
-            </span>
-            <span
-              className={`text-xl sm:text-2xl md:text-4xl font-black ${badge.color}`}
-            >
+      <div className="relative overflow-hidden bg-maxx-bg1/80 border border-maxx-violet/20 rounded-lg p-6 h-full flex flex-col">
+
+        {/* top accent */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-maxx-violet/60 via-maxx-pink/30 to-transparent" />
+
+        {/* corner glow */}
+        <div className="absolute -top-10 -right-10 w-36 h-36 bg-[radial-gradient(circle,rgba(139,92,246,0.1)_0%,transparent_70%)] pointer-events-none" />
+
+        {/* ── Badge header ── */}
+        <div className="relative z-10 mb-6">
+          <div className="eyebrow mb-2">
+            <span className="eyebrow-dot" />
+            Staking Summary
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">{badge.icon}</span>
+            <span className={`font-sans font-black text-xl uppercase tracking-tight ${badge.color}`}>
               {badge.label}
             </span>
           </div>
-          <div className="space-y-6">
-            <div className="flex justify-between">
-              <span className="text-gray-400">Yield</span>
-              <span className="text-green-400 font-bold text-lg sm:text-xl">
-                {currentYield.toFixed(2)}%
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-400">Multiplier</span>
-              <span className="text-pink-400 font-bold text-lg sm:text-xl">
-                {currentMultiplier}x
-              </span>
-            </div>
+        </div>
 
-            <div className="flex justify-between">
-              <span className="text-gray-400">Unlocks At</span>
-              <span className="text-pink-400 font-bold text-lg sm:text-xl">
-                {currentMultiplier}x
-              </span>
-            </div>
+        {/* ── Stats ── */}
+        <div className="relative z-10 space-y-3 flex-1">
 
-            <div className="h-px bg-white/10 my-5" />
-            <div className="text-lg sm:text-2xl md:text-3xl mt-10 font-black text-white">
-              {utils.toLocaleString(
-                StakingMath.getReward(
-                  Number(stakeAmount),
-                  Number(termDays),
-                  utils.daysToSeconds(termDays),
-                ),
-              )}{" "}
-              <span className="text-lg text-gray-500">PAINN</span>
+          {/* Yield */}
+          <div className="flex items-center justify-between px-3.5 py-3 rounded-md bg-maxx-bg0/40 border border-maxx-violet/10">
+            <div className="flex items-center gap-2.5">
+              <div className="w-6 h-6 rounded-sm bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                <TrendingUp size={11} className="text-emerald-400" />
+              </div>
+              <span className="text-sm text-maxx-mid">Yield</span>
+            </div>
+            <span className="font-mono font-bold text-base text-emerald-400">
+              {currentYield.toFixed(2)}%
+            </span>
+          </div>
+
+          {/* Multiplier */}
+          <div className="flex items-center justify-between px-3.5 py-3 rounded-md bg-maxx-bg0/40 border border-maxx-violet/10">
+            <div className="flex items-center gap-2.5">
+              <div className="w-6 h-6 rounded-sm bg-maxx-pink/10 border border-maxx-pink/20 flex items-center justify-center">
+                <Zap size={11} className="text-maxx-pink" />
+              </div>
+              <span className="text-sm text-maxx-mid">Multiplier</span>
+            </div>
+            <span className="font-mono font-bold text-base text-maxx-pink">
+              {currentMultiplier}x
+            </span>
+          </div>
+
+          {/* Unlock date */}
+          <div className="flex items-center justify-between px-3.5 py-3 rounded-md bg-maxx-bg0/40 border border-maxx-violet/10">
+            <div className="flex items-center gap-2.5">
+              <div className="w-6 h-6 rounded-sm bg-maxx-violet/10 border border-maxx-violet/20 flex items-center justify-center">
+                <Clock size={11} className="text-maxx-violet" />
+              </div>
+              <span className="text-sm text-maxx-mid">Unlocks At</span>
+            </div>
+            <span className="font-mono font-bold text-sm text-maxx-bright">
+              {unlockDate}
+            </span>
+          </div>
+
+          {/* Divider */}
+          <div className="h-px bg-maxx-violet/15 my-2" />
+
+          {/* Projected reward */}
+          <div className="px-3.5 py-4 rounded-md bg-maxx-violet/5 border border-maxx-violet/20">
+            <div className="font-mono text-[0.65rem] tracking-widest uppercase text-maxx-sub mb-1.5">
+              Projected Reward
+            </div>
+            <div className="font-sans font-black text-[clamp(1.5rem,4vw,2.2rem)] text-maxx-white leading-none">
+              {utils.toLocaleString(projectedReward)}
+            </div>
+            <div className="font-mono text-xs text-maxx-violet mt-1 tracking-widest uppercase">
+              $PAINN Tokens
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );
