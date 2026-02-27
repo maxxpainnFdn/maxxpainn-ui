@@ -95,7 +95,7 @@ const ClansSorter: React.FC<{ onChange: (v: string) => void }> = ({
           "
           style={{ animation: "_srt-in 0.2s ease both" }}
         >
-          <div className="max-h-[280px] overflow-y-auto py-1">
+          <div className="max-h-[280px] overflow-y-auto py-1 z-50">
             {Object.entries(SORT_OPTS).map(([key, label], i) => {
               const active = selected === key;
               return (
