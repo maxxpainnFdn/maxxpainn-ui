@@ -27,12 +27,12 @@ export default function CountDownTimer({
         <svg className="absolute w-0 h-0">
           <defs>
             <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%"   stopColor="#8b5cf6" />
-              <stop offset="100%" stopColor="#ff2d78" />
+              <stop offset="0%"   stopColor="var(--maxx-violet)" />
+              <stop offset="100%" stopColor="var(--maxx-pink)" />
             </linearGradient>
             <linearGradient id="readyGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%"   stopColor="#10b981" />
-              <stop offset="100%" stopColor="#34d399" />
+              <stop offset="0%"   stopColor="var(--maxx-emerald)" />
+              <stop offset="100%" stopColor="var(--maxx-emerald-lt)" />
             </linearGradient>
           </defs>
         </svg>
@@ -42,7 +42,7 @@ export default function CountDownTimer({
           <circle
             cx="50%" cy="50%" r="46%"
             fill="none"
-            stroke="rgba(61,43,92,0.5)"
+            stroke="color-mix(in srgb, var(--maxx-dim) 50%, transparent)"
             strokeWidth="6"
           />
           {/* Progress ring */}
@@ -57,8 +57,8 @@ export default function CountDownTimer({
               strokeDasharray: 1212,
               strokeDashoffset: 1212 * (1 - progressPercent / 100),
               filter: isClaimable
-                ? "drop-shadow(0 0 8px rgba(16,185,129,0.6))"
-                : "drop-shadow(0 0 8px rgba(139,92,246,0.5))",
+                ? "drop-shadow(0 0 8px color-mix(in srgb, var(--maxx-emerald) 60%, transparent))"
+                : "drop-shadow(0 0 8px color-mix(in srgb, var(--maxx-violet) 50%, transparent))",
             }}
           />
         </svg>
@@ -93,13 +93,13 @@ export default function CountDownTimer({
           ) : (
             <div className="flex flex-col items-center">
               {/* Ready icon */}
-              <div className="w-16 h-16 rounded-md bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-5 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+              <div className="w-16 h-16 rounded-md bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-5 shadow-[0_0_30px_color-mix(in srgb, var(--maxx-emerald) 20%, transparent)]">
                 <Zap size={28} className="text-emerald-400 fill-current" />
               </div>
 
               <div className="eyebrow justify-center mb-2">
-                <span className="eyebrow-dot" style={{ background: "#10b981" }} />
-                <span style={{ color: "#10b981" }}>Ready to Harvest</span>
+                <span className="eyebrow-dot" style={{ background: "var(--maxx-emerald)" }} />
+                <span style={{ color: "var(--maxx-emerald)" }}>Ready to Harvest</span>
               </div>
 
               <h3 className="font-sans font-black text-[clamp(2.5rem,8vw,4rem)] text-maxx-white uppercase tracking-tight leading-none">

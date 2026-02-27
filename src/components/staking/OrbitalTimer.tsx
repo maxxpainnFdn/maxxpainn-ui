@@ -68,7 +68,7 @@ export default function OrbitalTimer({ lockedDate, targetDate }) {
         <div className="absolute inset-0 bg-maxx-violet/15 blur-xl rounded-full pointer-events-none" />
         <svg className="transform -rotate-90 w-full h-full relative z-10">
           <circle
-            stroke="rgba(61,43,92,0.5)" fill="transparent"
+            stroke="color-mix(in srgb, var(--maxx-dim) 50%, transparent)" fill="transparent"
             strokeWidth={sw} r={radius} cx={center} cy={center}
           />
           <circle
@@ -77,12 +77,12 @@ export default function OrbitalTimer({ lockedDate, targetDate }) {
             strokeDashoffset={offset} strokeLinecap="round"
             r={radius} cx={center} cy={center}
             className="transition-all duration-1000 ease-out"
-            style={{ filter: "drop-shadow(0 0 6px rgba(139,92,246,0.5))" }}
+            style={{ filter: "drop-shadow(0 0 6px color-mix(in srgb, var(--maxx-violet) 50%, transparent))" }}
           />
           <defs>
             <linearGradient id="orbitalGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%"   stopColor="#8b5cf6" />
-              <stop offset="100%" stopColor="#ff2d78" />
+              <stop offset="0%"   stopColor="var(--maxx-violet)" />
+              <stop offset="100%" stopColor="var(--maxx-pink)" />
             </linearGradient>
           </defs>
         </svg>
@@ -114,7 +114,7 @@ export default function OrbitalTimer({ lockedDate, targetDate }) {
             className="h-full rounded-sm transition-all duration-1000"
             style={{
               width: `${progress}%`,
-              background: "linear-gradient(90deg, #8b5cf6, #ff2d78)",
+              background: "linear-gradient(90deg, var(--maxx-violet), var(--maxx-pink))",
             }}
           />
         </div>

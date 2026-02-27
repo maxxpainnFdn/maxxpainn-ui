@@ -46,6 +46,32 @@
     --radius: 0.5rem;
 
     color-scheme: dark;
+
+    /* ── MAXXPAINN raw color tokens (for use in SVG, style props, CSS) ── */
+    --maxx-pink:        #ff2d78;
+    --maxx-violet:      #8b5cf6;
+    --maxx-violet-lt:   #c4b5fd;
+    --maxx-bg0:         #0d080c;
+    --maxx-bg1:         #120a10;
+    --maxx-white:       #fdf4ff;
+    --maxx-bright:      #e2d9f3;
+    --maxx-mid:         #b89fd4;
+    --maxx-sub:         #9d7fba;
+    --maxx-dim:         #3d2b5c;
+    --maxx-emerald:     #10b981;
+    --maxx-emerald-lt:  #34d399;
+
+    /* Extended palette tokens */
+    --maxx-yellow:      #eab308;
+    --maxx-yellow-dk:   #ca8a04;
+    --maxx-orange:      #f97316;
+    --maxx-orange-dk:   #ea580c;
+    --maxx-red:         #ef4444;
+    --maxx-red-dk:      #dc2626;
+    --maxx-pink-dk:     #c0003c;
+    --maxx-blue:        #3b82f6;
+    --maxx-teal:        #14b8a6;
+    --maxx-cyan:        #06b6d4;
   }
 }
 
@@ -70,19 +96,19 @@
 
   /* Scrollbar */
   ::-webkit-scrollbar       { width: 3px; }
-  ::-webkit-scrollbar-track { background: #0d080c; }
+  ::-webkit-scrollbar-track { background: var(--maxx-bg0); }
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(to bottom, #8b5cf6, #ff2d78);
+    background: linear-gradient(to bottom, var(--maxx-violet), var(--maxx-pink));
     border-radius: 4px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(to bottom, #a855f7, #ff85ab);
+    background: linear-gradient(to bottom, var(--maxx-violet-lt), var(--maxx-pink));
   }
 
   /* Selection */
   ::selection {
-    background: rgba(139, 92, 246, 0.3);
-    color: #fdf4ff;
+    background: color-mix(in srgb, var(--maxx-violet) 30%, transparent);
+    color: var(--maxx-white);
   }
 }
 
@@ -103,8 +129,8 @@
 }
 
 @keyframes neon-pulse {
-  0%, 100% { box-shadow: 0 0 2px rgba(139, 92, 246, 0.6), 0 0 8px rgba(139, 92, 246, 0.6); }
-  50%       { box-shadow: 0 0 5px rgba(139, 92, 246, 0.6), 0 0 18px rgba(139, 92, 246, 0.6); }
+  0%, 100% { box-shadow: 0 0 2px color-mix(in srgb, var(--maxx-violet) 60%, transparent), 0 0 8px color-mix(in srgb, var(--maxx-violet) 60%, transparent); }
+  50%       { box-shadow: 0 0 5px color-mix(in srgb, var(--maxx-violet) 60%, transparent), 0 0 18px color-mix(in srgb, var(--maxx-violet) 60%, transparent); }
 }
 
 @keyframes float {
@@ -185,26 +211,22 @@
 @layer components {
 
   /* ── Primary Button ── */
+  /* ── Primary button ── */
   .btn-p {
     @apply inline-flex items-center gap-2 font-sans font-bold text-[0.95rem] tracking-wider uppercase
            px-7 py-3 border-none cursor-pointer no-underline
-           transition-all duration-200 hover:opacity-90 hover:-translate-y-px active:translate-y-0
+           transition-all hover:opacity-90 hover:-translate-y-px
            whitespace-nowrap justify-center sm:justify-start w-full sm:w-auto
-           rounded-lg text-white;
-    background: linear-gradient(135deg, #5b21b6 0%, #9333ea 45%, #ff2d78 100%);
-    box-shadow: 0 4px 18px rgba(255, 45, 120, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  }
-  .btn-p:hover {
-    box-shadow: 0 6px 24px rgba(255, 45, 120, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+           rounded-lg bg-grad-btn text-maxx-white;
   }
 
-  /* ── Skewed Button variant ── */
+  /* Skewed variant — applied alongside btn-p */
   .btn-skewed {
     clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 100%, 10px 100%);
     border-radius: 2px !important;
   }
 
-  /* ── Secondary Button ── */
+  /* ── Secondary button ── */
   .btn-s {
     @apply inline-flex items-center gap-2
            bg-maxx-bg0/80 backdrop-blur-md
@@ -213,7 +235,7 @@
            border border-maxx-violet/30
            cursor-pointer no-underline rounded-lg
            transition-all duration-300
-           hover:border-maxx-violet hover:text-white
+           hover:border-maxx-violet hover:text-maxx-white
            hover:bg-maxx-violet/15 hover:shadow-[0_0_15px_rgba(139,92,246,0.2)]
            whitespace-nowrap justify-center w-full sm:w-auto;
     box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
@@ -237,14 +259,14 @@
   .card-hover {
     @apply transition-all duration-300
            hover:border-maxx-pink/50 hover:bg-maxx-pink/5
-           hover:shadow-[0_8px_32px_rgba(255,45,120,0.08)];
+           hover:shadow-[0_8px_32px_color-mix(in_srgb,var(--maxx-pink)_8%,transparent)];
   }
 
   /* ── NEW: violet card hover variant ── */
   .card-hover-v {
     @apply transition-all duration-300
            hover:border-maxx-violet/50 hover:bg-maxx-violet/5
-           hover:shadow-[0_8px_32px_rgba(139,92,246,0.1)];
+           hover:shadow-[0_8px_32px_color-mix(in_srgb,var(--maxx-violet)_10%,transparent)];
   }
 
   /* ── Progress track ── */
@@ -253,7 +275,7 @@
   }
   .maxx-fill {
     @apply h-full transition-[width] duration-75 ease-linear;
-    background: linear-gradient(90deg, #8b5cf6, #ff2d78);
+    background: linear-gradient(90deg, var(--maxx-violet), var(--maxx-pink));
   }
 
   /* ── Pain meter wrapper (shimmer overlay) ── */
@@ -266,7 +288,7 @@
     position: absolute;
     inset: 0;
     z-index: 10;
-    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%);
+    background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, white 6%, transparent) 50%, transparent 100%);
     animation: shine 3s ease-in-out infinite;
     pointer-events: none;
   }
@@ -274,7 +296,7 @@
   /* ── NEW: Section divider diagonal ── */
   .section-divider-br {
     @apply h-[52px];
-    background: linear-gradient(to bottom right, var(--from-col, #0d080c) 49.5%, var(--to-col, #120a10) 50%);
+    background: linear-gradient(to bottom right, var(--from-col, var(--maxx-bg0)) 49.5%, var(--to-col, var(--maxx-bg1)) 50%);
   }
 
   /* ── NEW: Card with animated top accent on hover ── */
@@ -284,7 +306,7 @@
   .card-accent::before {
     content: '';
     @apply absolute top-0 left-0 right-0 h-px;
-    background: linear-gradient(90deg, #8b5cf6, #ff2d78, transparent);
+    background: linear-gradient(90deg, var(--maxx-violet), var(--maxx-pink), transparent);
     opacity: 0;
     transition: opacity 0.3s ease;
   }
@@ -301,11 +323,11 @@
   .input-maxx:hover  { @apply border-maxx-violet/35; }
   .input-maxx:focus  {
     @apply border-maxx-violet/55;
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--maxx-violet) 12%, transparent);
   }
   .input-maxx.error  { @apply border-maxx-pink/40; }
   .input-maxx.error:focus {
-    box-shadow: 0 0 0 3px rgba(255, 45, 120, 0.12);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--maxx-pink) 12%, transparent);
   }
 }
 
@@ -336,7 +358,7 @@
 
   /* Animated gradient text */
   .gradient-text {
-    background: linear-gradient(135deg, #ff0040, #8b5cf6, #06b6d4, #10b981, #f59e0b);
+    background: linear-gradient(135deg, var(--maxx-pink), var(--maxx-violet), var(--maxx-cyan), var(--maxx-emerald), var(--maxx-yellow));
     background-size: 300% 300%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -380,20 +402,20 @@
       0deg,
       transparent,
       transparent 2px,
-      rgba(0, 0, 0, 0.06) 2px,
-      rgba(0, 0, 0, 0.06) 4px
+      color-mix(in srgb, black 6%, transparent) 2px,
+      color-mix(in srgb, black 6%, transparent) 4px
     );
     pointer-events: none;
     z-index: 1;
   }
 
   /* NEW: text glow helpers */
-  .text-glow-pink   { text-shadow: 0 0 20px rgba(255, 45, 120, 0.5); }
-  .text-glow-violet { text-shadow: 0 0 20px rgba(139, 92, 246, 0.5); }
+  .text-glow-pink   { text-shadow: 0 0 20px color-mix(in srgb, var(--maxx-pink) 50%, transparent); }
+  .text-glow-violet { text-shadow: 0 0 20px color-mix(in srgb, var(--maxx-violet) 50%, transparent); }
 
   /* NEW: box glow helpers */
-  .glow-pink   { box-shadow: 0 0 20px rgba(255, 45, 120, 0.25); }
-  .glow-violet { box-shadow: 0 0 20px rgba(139, 92, 246, 0.25); }
+  .glow-pink   { box-shadow: 0 0 20px color-mix(in srgb, var(--maxx-pink) 25%, transparent); }
+  .glow-violet { box-shadow: 0 0 20px color-mix(in srgb, var(--maxx-violet) 25%, transparent); }
 }
 
 
@@ -427,30 +449,30 @@ img { content-visibility: auto; }
   width: 18px;
   height: 30px;
   border-radius: 4px;
-  background: linear-gradient(180deg, #c4b5fd 0%, #8b5cf6 45%, #ff2d78 100%);
+  background: linear-gradient(180deg, var(--maxx-violet-lt) 0%, var(--maxx-violet) 45%, var(--maxx-pink) 100%);
   cursor: pointer;
-  border: 2px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.45), 0 4px 14px rgba(139, 92, 246, 0.55);
+  border: 2px solid color-mix(in srgb, white 12%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--maxx-violet) 45%, transparent), 0 4px 14px color-mix(in srgb, var(--maxx-violet) 55%, transparent);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .mint-slider::-webkit-slider-thumb:hover {
   transform: scaleY(1.1);
-  box-shadow: 0 0 0 1px rgba(255, 45, 120, 0.55), 0 4px 20px rgba(255, 45, 120, 0.55);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--maxx-pink) 55%, transparent), 0 4px 20px color-mix(in srgb, var(--maxx-pink) 55%, transparent);
 }
 .mint-slider::-webkit-slider-thumb:active { transform: scaleY(0.93); }
 .mint-slider::-moz-range-thumb {
   width: 18px;
   height: 30px;
   border-radius: 4px;
-  background: linear-gradient(180deg, #c4b5fd 0%, #8b5cf6 45%, #ff2d78 100%);
+  background: linear-gradient(180deg, var(--maxx-violet-lt) 0%, var(--maxx-violet) 45%, var(--maxx-pink) 100%);
   cursor: pointer;
-  border: 2px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.45), 0 4px 14px rgba(139, 92, 246, 0.55);
+  border: 2px solid color-mix(in srgb, white 12%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--maxx-violet) 45%, transparent), 0 4px 14px color-mix(in srgb, var(--maxx-violet) 55%, transparent);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .mint-slider::-moz-range-thumb:hover {
   transform: scaleY(1.1);
-  box-shadow: 0 0 0 1px rgba(255, 45, 120, 0.55), 0 4px 20px rgba(255, 45, 120, 0.55);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--maxx-pink) 55%, transparent), 0 4px 20px color-mix(in srgb, var(--maxx-pink) 55%, transparent);
 }
 
 /* ── Blood drip effect ── */
@@ -468,14 +490,14 @@ img { content-visibility: auto; }
 /* ── Navigation scrollbar ── */
 .nav-scroll-container::-webkit-scrollbar        { height: 0px; }
 .nav-scroll-container:hover::-webkit-scrollbar  { height: 2px; }
-.nav-scroll-container::-webkit-scrollbar-track  { background: rgba(255,255,255,0.05) !important; border-radius: 2px !important; }
-.nav-scroll-container::-webkit-scrollbar-thumb  { background: linear-gradient(135deg, #8b5cf6, #db2777) !important; border-radius: 2px !important; }
+.nav-scroll-container::-webkit-scrollbar-track  { background: color-mix(in srgb, white 5%, transparent) !important; border-radius: 2px !important; }
+.nav-scroll-container::-webkit-scrollbar-thumb  { background: linear-gradient(135deg, var(--maxx-violet), var(--maxx-pink)) !important; border-radius: 2px !important; }
 
 @supports (scrollbar-color: auto) {
   @supports not selector(::-webkit-scrollbar) {
     .nav-scroll-container {
       scrollbar-width: thin;
-      scrollbar-color: #8b5cf6 rgba(255, 255, 255, 0.05);
+      scrollbar-color: var(--maxx-violet) color-mix(in srgb, white 5%, transparent);
     }
   }
 }
