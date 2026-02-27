@@ -18,10 +18,10 @@ export default function LatePenaltyCard({ daysLate }: LatePenaltyCardProps) {
 
   const getDotStyle = (item: typeof penalties[0], isCurrent: boolean, isPast: boolean) => {
     if (isCurrent) {
-      if (item.penalty === 0) return "bg-emerald-400 border-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]";
-      if (item.penalty < 20) return "bg-yellow-400 border-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.5)]";
-      if (item.penalty < 50) return "bg-orange-400 border-orange-400 shadow-[0_0_8px_rgba(251,146,60,0.5)]";
-      return "bg-maxx-pink border-maxx-pink shadow-[0_0_8px_rgba(255,45,120,0.5)]";
+      if (item.penalty === 0) return "bg-emerald-400 border-emerald-400 shadow-[0_0_8px_color-mix(in srgb, var(--maxx-emerald-lt) 50%, transparent)]";
+      if (item.penalty < 20) return "bg-yellow-400 border-yellow-400 shadow-[0_0_8px_color-mix(in_srgb,theme(colors.yellow.400)_50%,transparent)]";
+      if (item.penalty < 50) return "bg-orange-400 border-orange-400 shadow-[0_0_8px_color-mix(in_srgb,theme(colors.orange.400)_50%,transparent)]";
+      return "bg-maxx-pink border-maxx-pink shadow-[0_0_8px_color-mix(in srgb, var(--maxx-pink) 50%, transparent)]";
     }
     if (isPast) return "bg-maxx-dim/80 border-maxx-dim";
     return "bg-maxx-bg0 border-maxx-dim/40";
@@ -40,7 +40,7 @@ export default function LatePenaltyCard({ daysLate }: LatePenaltyCardProps) {
       {/* top accent */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-maxx-pink/50 via-maxx-violet/30 to-transparent" />
       {/* corner glow */}
-      <div className="absolute -top-10 -right-10 w-32 h-32 bg-[radial-gradient(circle,rgba(139,92,246,0.08)_0%,transparent_70%)] pointer-events-none" />
+      <div className="absolute -top-10 -right-10 w-32 h-32 bg-[radial-gradient(circle,color-mix(in srgb, var(--maxx-violet) 8%, transparent)_0%,transparent_70%)] pointer-events-none" />
 
       {/* ── Header ── */}
       <div className="relative z-10 flex items-center justify-between mb-5">
@@ -50,7 +50,7 @@ export default function LatePenaltyCard({ daysLate }: LatePenaltyCardProps) {
           </div>
           <div>
             <div className="eyebrow mb-0 text-maxx-pink" style={{ color: undefined }}>
-              <span className="eyebrow-dot" style={{ background: "#ff2d78" }} />
+              <span className="eyebrow-dot" style={{ background: "var(--maxx-pink)" }} />
               <span className="text-maxx-pink">Late Penalty Schedule</span>
             </div>
             <p className="font-sans text-xs text-maxx-sub">Claim on time to avoid penalties</p>

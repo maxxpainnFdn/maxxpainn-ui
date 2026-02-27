@@ -25,17 +25,17 @@ const colorMap: Record<string, { icon: string; border: string; bg: string }> = {
 const StatBox = ({ label, value, icon: Icon, color }: any) => {
   const c = colorMap[color] ?? colorMap.violet;
   return (
-    <div className="group relative overflow-hidden bg-maxx-bg1/80 border border-maxx-violet/20 rounded-lg p-5 transition-all duration-200 hover:border-maxx-violet/40">
-      {/* top accent line */}
+    <div className="group relative overflow-hidden bg-maxx-bg1/80 border border-maxx-violet/20 rounded-xl p-5 transition-all duration-200 hover:border-maxx-violet/40">
+      {/* top accent line 
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-maxx-violet/40 to-transparent" />
-
+      */}
       {/* icon badge — top right corner */}
-      <div className={`absolute top-0 right-0 p-2.5 rounded-bl-md border-b border-l ${c.border} ${c.bg}`}>
-        <Icon size={14} className={c.icon} />
+      <div className={`absolute top-0 right-0 p-2.5 rounded-bl-xl border-b border-l ${c.border} ${c.bg}`}>
+        <Icon className={`${c.icon} w-4 h-4`} />
       </div>
 
       <div className="relative z-10 mt-1">
-        <p className="font-mono text-[0.65rem] tracking-widest uppercase text-maxx-sub mb-1.5">
+        <p className="font-mono text-[0.7rem] tracking-widest uppercase text-maxx-sub mb-1.5">
           {label}
         </p>
         <p className="font-mono font-bold text-lg text-maxx-white tracking-tight">

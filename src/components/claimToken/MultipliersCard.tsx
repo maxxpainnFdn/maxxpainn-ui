@@ -16,7 +16,7 @@ export default function MultipliersCard({ rewardInfo, rankNo, globalRank }: Mult
       {/* top accent */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-maxx-violet/60 via-maxx-pink/30 to-transparent" />
       {/* corner glow */}
-      <div className="absolute -top-10 -right-10 w-32 h-32 bg-[radial-gradient(circle,rgba(139,92,246,0.1)_0%,transparent_70%)] pointer-events-none" />
+      <div className="absolute -top-10 -right-10 w-32 h-32 bg-[radial-gradient(circle,color-mix(in srgb, var(--maxx-violet) 10%, transparent)_0%,transparent_70%)] pointer-events-none" />
 
       {/* ── Header ── */}
       <div className="relative z-10 flex items-center gap-3 mb-5">

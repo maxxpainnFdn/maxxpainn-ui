@@ -1,3 +1,4 @@
+import { tokenConfig } from "@/config/token";
 import { StakingMath } from "@/core/StakingMath";
 import utils from "@/lib/utils";
 import { TrendingUp, Zap, Clock } from "lucide-react";
@@ -36,7 +37,7 @@ export default function StakeSummary({
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-maxx-violet/60 via-maxx-pink/30 to-transparent" />
 
         {/* corner glow */}
-        <div className="absolute -top-10 -right-10 w-36 h-36 bg-[radial-gradient(circle,rgba(139,92,246,0.1)_0%,transparent_70%)] pointer-events-none" />
+        <div className="absolute -top-10 -right-10 w-36 h-36 bg-[radial-gradient(circle,color-mix(in srgb, var(--maxx-violet) 10%, transparent)_0%,transparent_70%)] pointer-events-none" />
 
         {/* ── Badge header ── */}
         <div className="relative z-10 mb-6">
@@ -106,7 +107,7 @@ export default function StakeSummary({
               {utils.toLocaleString(projectedReward)}
             </div>
             <div className="font-mono text-xs text-maxx-violet mt-1 tracking-widest uppercase">
-              $PAINN Tokens
+              { tokenConfig.symbol }
             </div>
           </div>
         </div>

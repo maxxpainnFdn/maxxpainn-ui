@@ -300,8 +300,8 @@ export default function TokenClaim() {
         <div className="fixed inset-0 pointer-events-none z-0 bg-noise-pattern opacity-100" />
 
         {/* ── Ambient glows ── */}
-        <div className="fixed -top-32 -right-32 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(255,45,120,0.07)_0%,transparent_65%)] pointer-events-none z-0" />
-        <div className="fixed top-[40%] -left-24 w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(139,92,246,0.06)_0%,transparent_70%)] pointer-events-none z-0" />
+        <div className="fixed -top-32 -right-32 w-[600px] h-[600px] bg-[radial-gradient(circle,color-mix(in srgb, var(--maxx-pink) 7%, transparent)_0%,transparent_65%)] pointer-events-none z-0" />
+        <div className="fixed top-[40%] -left-24 w-[400px] h-[400px] bg-[radial-gradient(circle,color-mix(in srgb, var(--maxx-violet) 6%, transparent)_0%,transparent_70%)] pointer-events-none z-0" />
 
         <Navigation />
 
@@ -315,7 +315,7 @@ export default function TokenClaim() {
         )}
 
         <main className="relative z-10 pt-[68px] pb-20">
-          <div className="max-w-3xl mx-auto px-4 md:px-6 pt-12">
+          <div className="max-w-4xl mx-auto px-4 md:px-6 pt-12">
 
             <EnsureConnected className="min-h-[75vh]">
               <LoadingView
@@ -339,7 +339,7 @@ export default function TokenClaim() {
                           TOKENS
                         </span>
                       </h1>
-                      <p className="font-sans text-base md:text-lg text-maxx-bright leading-relaxed mt-3 max-w-xl mx-auto">
+                      <p className="font-sans text-md md:text-lg text-maxx-bright leading-relaxed mt-3 max-w-xl mx-auto">
                         The cycle is nearly complete.{" "}
                         <span className={`font-bold ${isClaimable ? "text-emerald-400" : "text-maxx-violetLt"}`}>
                           {isClaimable
@@ -378,7 +378,7 @@ export default function TokenClaim() {
                         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-maxx-violet/60 via-maxx-pink/30 to-transparent" />
 
                         {/* corner glow */}
-                        <div className="absolute -top-10 -right-10 w-48 h-48 bg-[radial-gradient(circle,rgba(139,92,246,0.1)_0%,transparent_70%)] pointer-events-none" />
+                        <div className="absolute -top-10 -right-10 w-48 h-48 bg-[radial-gradient(circle,color-mix(in srgb, var(--maxx-violet) 10%, transparent)_0%,transparent_70%)] pointer-events-none" />
 
                         <div className="relative p-8 flex flex-col items-center text-center">
 
@@ -405,7 +405,7 @@ export default function TokenClaim() {
                           {/* token label */}
                           <div className="flex items-center gap-2 mt-4">
                             <div className="w-1.5 h-1.5 rounded-sm bg-maxx-violet" />
-                            <span className="font-mono text-sm font-bold text-maxx-violet tracking-widest uppercase">
+                            <span className="font-mono text-sm font-bold text-maxx-violetLt tracking-widest uppercase">
                               ${tokenConfig.symbol} Tokens
                             </span>
                           </div>
@@ -418,8 +418,8 @@ export default function TokenClaim() {
                             style={{
                               width: `${progressPercent}%`,
                               background: isClaimable
-                                ? "#10b981"
-                                : "linear-gradient(90deg, #8b5cf6, #ff2d78)",
+                                ? "var(--maxx-emerald)"
+                                : "linear-gradient(90deg, var(--maxx-violet), var(--maxx-pink))",
                             }}
                           />
                         </div>
