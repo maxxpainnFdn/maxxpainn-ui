@@ -82,7 +82,7 @@ export default function Navigation() {
             </Link>
 
             {/* ── Desktop nav links ── */}
-            <div className="hidden lg:flex items-center flex-1 justify-center gap-8 mx-8">
+            <div className="hidden md:flex items-center flex-1 justify-center gap-8 mx-8">
 
               <a
                 href="#"
@@ -134,12 +134,7 @@ export default function Navigation() {
 
             {/* ── Desktop right actions ── */}
             <div className="hidden md:flex items-center gap-2.5">
-              <a href={app.tokenBuyUrl} target="_blank" rel="noopener noreferrer">
-                <Button variant="secondary" className="!px-4">
-                  <span>BUY</span>
-                  <span className="hidden xl:inline-block">${tokenConfig.symbol}</span>
-                </Button>
-              </a>
+        
 
               {!showBottomNav && (
                 <>
@@ -154,7 +149,9 @@ export default function Navigation() {
             </div>
 
             {/* ── Mobile scrolling pills ── */}
-            <MobileNav navItems={[...navItems, ...docsLinks]} />
+            <div className="block  md:hidden">
+              <MobileNav navItems={[...navItems, ...docsLinks]} />
+            </div>
 
           </div>
         </div>
