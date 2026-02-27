@@ -1,45 +1,83 @@
 import { Search } from "lucide-react";
-import { Input } from "../ui/input";
 import { useEffect, useRef } from "react";
 
-export default function ClansSearch({ onChange }) {
-    const inputRef = useRef();
-    const timeoutRef = useRef(); // Store timeout ID for cleanup
-
-    const handleOnSearch = (e) => {
-        const value = e.target.value;
-        
-        // Clear the previous timeout
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-        }
-        
-        // @ts-ignore
-        timeoutRef.current = setTimeout(() => {
-            onChange(value);
-        }, 1000); // 500ms is typically better than 3000ms
+/* ── Inject once ── */
+let _csInjected = false;
+function injectSearchStyles() {
+  if (_csInjected || typeof document === "undefined") return;
+  _csInjected = true;
+  const s = document.createElement("style");
+  s.textContent = `
+    @keyframes _cs-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(139,92,246,0); }
+      50%      { box-shadow: 0 0 0 4px rgba(139,92,246,0.08); }
     }
+    ._cs-wrap:focus-within {
+      box-shadow:
+        0 0 0 1px rgba(139,92,246,0.35),
+        0 0 24px -6px rgba(139,92,246,0.18);
+      animation: _cs-pulse 2.5s ease-in-out infinite;
+    }
+  `;
+  document.head.appendChild(s);
+}
 
-    useEffect(() => {
-        return () => {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
-        };
-    }, []);
+export default function ClansSearch({
+  onChange,
+}: {
+  onChange: (v: string) => void;
+}) {
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
-    return (
-         <div className="flex-1 max-w-sm">
-            <div className="relative group">
-                <input
-                    placeholder="Search clans by name..."
-                    onChange={handleOnSearch}
-                    className="w-full h-14 pl-5 pr-14 bg-maxx-bg1/10 rounded-lg  overflow-hidden border-2 border-maxx-violet/10  text-white placeholder:text-maxx-sub focus:border-purple-500/60 focus:outline-none transition-all duration-300"
-                />
-                <button className="absolute right-2 top-1/2 -translate-y-1/2  p-2 rounded-lg transition-all duration-300 hover:scale-110">
-                    <Search className="w-5 h-5  text-maxx-violet/20  group-focus-within:text-maxx-violet" strokeWidth={2.5} />
-                </button>
-            </div>
+  useEffect(() => {
+    injectSearchStyles();
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value;
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => onChange(v), 500);
+  };
+
+  return (
+    <div className="flex-1 max-w-sm">
+      <div
+        className="
+          _cs-wrap group relative rounded-xl overflow-hidden
+          bg-white/[0.03] border border-white/[0.06]
+          hover:border-white/[0.12]
+          focus-within:border-purple-500/40
+          transition-all duration-300
+        "
+      >
+        {/* focus tint */}
+        <div
+          className="absolute inset-0 bg-purple-500/[0.03] opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 pointer-events-none"
+          aria-hidden
+        />
+
+        <div className="relative flex items-center">
+          <div className="pl-4 flex items-center">
+            <Search
+              className="w-[18px] h-[18px] text-gray-600 group-focus-within:text-purple-400 group-focus-within:scale-110 transition-all duration-300"
+              strokeWidth={2.2}
+            />
+          </div>
+          <input
+            placeholder="Search clans…"
+            onChange={handleChange}
+            className="
+              w-full h-12 pl-3 pr-4 bg-transparent
+              text-sm font-medium text-white
+              placeholder:text-gray-600
+              focus:outline-none
+            "
+          />
         </div>
-    )
+      </div>
+    </div>
+  );
 }
