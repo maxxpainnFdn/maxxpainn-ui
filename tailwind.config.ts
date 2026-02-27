@@ -95,7 +95,8 @@ export default {
 					bright: "#e2d9f3",
 					mid: "#b89fd4",
 					sub: "#9d7fba",
-					dim: "#3d2b5c",
+          dim: "#3d2b5c",
+					statsCard: "#0c080b"
 				}
 			},
 			borderRadius: {

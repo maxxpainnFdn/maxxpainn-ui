@@ -51,7 +51,7 @@ export const StatsCard = ({
       />
 
       {/* ── Inner card ──bg-[#08080f] */}
-      <div className="relative rounded-2xl bg-[#0a0a11] overflow-hidden">
+      <div className="relative rounded-2xl bg-maxx-bg4 overflow-hidden">
 
         {/* ▸ Dot-matrix texture */}
         <div

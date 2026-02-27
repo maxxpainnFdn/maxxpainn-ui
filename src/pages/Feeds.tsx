@@ -1,379 +1,216 @@
-import React, { FormEvent, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import {
-  MessageCircle,
-  Heart,
-  Flame,
-  Send,
-  ShieldCheck,
-  Users,
-  PenSquare,
-} from "lucide-react";
+/**
+ * MAXXPAINN — Social Feed (Infinite Glass Style)
+ * 
+ * A high-end, spatial layout that prioritizes content and typography.
+ * Uses "Progressive Disclosure" (hiding complexity until needed)
+ * and deep glassmorphism to match your existing navigation.
+ */
 
-type Clan = {
-  id: string;
-  name: string;
-  tag: string;
-  slug: string;
-  members: number;
-  online: number;
-};
+import React, { useState } from 'react';
+import { 
+  Flame, 
+  Zap, 
+  Skull, 
+  MessageSquare, 
+  Share2, 
+  ShieldCheck, 
+  ChevronRight, 
+  Plus,
+  Compass,
+  History,
+  TrendingUp
+} from 'lucide-react';
 
-type FeedPost = {
-  id: string;
-  authorName: string;
-  authorHandle: string;
-  clanId: string;
-  content: string;
-  createdAt: string;
-  likes: number;
-  replies: number;
-  boosted: number;
-};
+/* ── Types & Data ── */
 
-const CLANS: Clan[] = [
-  { id: "void-raiders", name: "Void Raiders", tag: "VOID", slug: "void-raiders", members: 1244, online: 182 },
-  { id: "alpha-wolves", name: "Alpha Wolves", tag: "AWLF", slug: "alpha-wolves", members: 938, online: 121 },
-  { id: "night-oracle", name: "Night Oracle", tag: "NITE", slug: "night-oracle", members: 642, online: 88 },
-];
-
-const CURRENT_USER = {
-  name: "MAXX User",
-  handle: "@maxxdegen",
-  clanIds: ["void-raiders", "alpha-wolves"], // user communities
-};
-
-const SEED_POSTS: FeedPost[] = [
+const POSTS = [
   {
-    id: "p1",
-    authorName: "Ash",
-    authorHandle: "@ashvoid",
-    clanId: "void-raiders",
-    content: "Stacked more this dip. Pain is temporary. Conviction is forever.",
-    createdAt: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
-    likes: 22,
-    replies: 4,
-    boosted: 2,
+    id: 1,
+    user: "0xNova",
+    tag: "WHALE",
+    content: "The protocol just reached $200M TVL. The burn rate is doubling tonight. Are you positioned or just watching from the sidelines? ⚡️",
+    time: "4m",
+    clans: ["Volt", "Inferno"],
+    metrics: { burn: "1.2k", pain: "24", comments: "12" },
+    verified: true
   },
   {
-    id: "p2",
-    authorName: "Nora",
-    authorHandle: "@noraalpha",
-    clanId: "alpha-wolves",
-    content: "Clan mission tonight: 20 holders onboarding challenge. Let’s run it.",
-    createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
-    likes: 41,
-    replies: 9,
-    boosted: 7,
-  },
-  {
-    id: "p3",
-    authorName: "Hex",
-    authorHandle: "@hexnite",
-    clanId: "night-oracle",
-    content: "Charts look chaotic, vibes look pristine.",
-    createdAt: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
-    likes: 17,
-    replies: 3,
-    boosted: 1,
-  },
-];
-
-function timeAgo(iso: string) {
-  const seconds = Math.max(1, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
-  if (seconds < 60) return `${seconds}s ago`;
-  const mins = Math.floor(seconds / 60);
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  return `${days}d ago`;
-}
-
-export default function SocialFeedPage() {
-  const [posts, setPosts] = useState<FeedPost[]>(SEED_POSTS);
-  const [draft, setDraft] = useState("");
-  const [filterClan, setFilterClan] = useState<string>("all");
-
-  const userClans = useMemo(
-    () => CLANS.filter((c) => CURRENT_USER.clanIds.includes(c.id)),
-    []
-  );
-
-  const clanById = useMemo(
-    () => Object.fromEntries(CLANS.map((c) => [c.id, c])),
-    []
-  );
-
-  const [selectedClanId, setSelectedClanId] = useState<string>(
-    userClans[0]?.id ?? ""
-  );
-
-  const canPost = draft.trim().length > 0 && selectedClanId.length > 0;
-
-  const filteredPosts = posts.filter((p) =>
-    filterClan === "all" ? true : p.clanId === filterClan
-  );
-
-  function onSubmitPost(e: FormEvent) {
-    e.preventDefault();
-    if (!canPost) return;
-
-    const newPost: FeedPost = {
-      id: `p-${Date.now()}`,
-      authorName: CURRENT_USER.name,
-      authorHandle: CURRENT_USER.handle,
-      clanId: selectedClanId, // required
-      content: draft.trim(),
-      createdAt: new Date().toISOString(),
-      likes: 0,
-      replies: 0,
-      boosted: 0,
-    };
-
-    setPosts((prev) => [newPost, ...prev]);
-    setDraft("");
+    id: 2,
+    user: "PainMaster",
+    tag: "REAPER",
+    content: "Just liquidated a 50x position. The market doesn't care about your feelings, only your collateral. Sacrifice made. 💀",
+    time: "18m",
+    clans: ["Skull"],
+    metrics: { burn: "850", pain: "98", comments: "42" },
+    verified: false
   }
+];
+
+export default function GlassFeed() {
+  const [activeTab, setActiveTab] = useState('Global');
 
   return (
-    <main className="min-h-screen bg-maxx-bg0 text-maxx-white pb-14">
-      <div className="max-w-7xl mx-auto px-6 pt-10">
-        {/* Header */}
-        <header className="mb-8">
-          <div className="eyebrow mb-3">
-            <span className="eyebrow-dot" />
-            Community Feed
-          </div>
-          <h1 className="font-sans font-black tracking-tight text-3xl md:text-4xl text-maxx-white">
-            Clan Social
-          </h1>
-          <p className="text-sm text-maxx-sub mt-3 max-w-2xl leading-relaxed">
-            Post updates, rally your people, and keep the timeline degen-sharp.
-            Every post belongs to a clan community.
-          </p>
-        </header>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left: Composer + Feed */}
-          <section className="lg:col-span-8 space-y-5">
-            {/* Composer */}
-            <form
-              onSubmit={onSubmitPost}
-              className="rounded-xl border border-maxx-violet/15 bg-maxx-violet/4 p-4 md:p-5"
+    <div className="min-h-screen bg-maxx-bg0 text-maxx-white font-sans selection:bg-maxx-violet/30 pt-[80px]">
+      
+      {/* ── Main Layout Container ── */}
+      <div className="max-w-7xl mx-auto px-4 md:px-6 flex gap-8">
+        
+        {/* LEFT NAV: Minimal Sidebar */}
+        <aside className="hidden lg:flex flex-col w-64 sticky top-[100px] h-fit gap-2">
+          {['Global', 'Following', 'Clans', 'Saved'].map((item) => (
+            <button
+              key={item}
+              onClick={() => setActiveTab(item)}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm tracking-wide uppercase
+                ${activeTab === item 
+                  ? 'bg-maxx-violet/10 text-maxx-bright border border-maxx-violet/20' 
+                  : 'text-maxx-bright/50 hover:text-maxx-bright hover:bg-maxx-white/5 border border-transparent'}
+              `}
             >
-              <div className="flex items-center justify-between gap-3 mb-4">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-md bg-maxx-violet/20 border border-maxx-violet/25 flex items-center justify-center">
-                    <PenSquare size={14} className="text-maxx-violet" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-maxx-bright">
-                      Post status
-                    </p>
-                    <p className="text-sm text-maxx-sub">
-                      as {CURRENT_USER.handle}
-                    </p>
-                  </div>
+              {item === 'Global' && <Compass size={18} />}
+              {item === 'Following' && <TrendingUp size={18} />}
+              {item === 'Clans' && <ShieldCheck size={18} />}
+              {item === 'Saved' && <History size={18} />}
+              {item}
+            </button>
+          ))}
+          
+          <div className="mt-8 px-4">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-maxx-bright/30 mb-4">Trending Clans</h4>
+            <div className="flex flex-col gap-3">
+              {['Inferno', 'Volt', 'Skull'].map(clan => (
+                <div key={clan} className="flex items-center justify-between group cursor-pointer">
+                  <span className="text-xs font-bold text-maxx-bright/70 group-hover:text-maxx-pink transition-colors">#{clan}</span>
+                  <span className="text-[10px] text-maxx-bright/30">2.4k post</span>
                 </div>
-
-                <div className="pill px-3 py-1 border border-maxx-violet/20 text-sm text-maxx-sub">
-                  Clan required
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-                <label className="md:col-span-1">
-                  <span className="text-sm text-maxx-sub block mb-1.5">
-                    Post to clan
-                  </span>
-                  <select
-                    value={selectedClanId}
-                    onChange={(e) => setSelectedClanId(e.target.value)}
-                    className="w-full h-10 rounded-md bg-maxx-bg0 border border-maxx-violet/20 text-sm text-maxx-bright px-3 outline-none focus:border-maxx-violet/40"
-                  >
-                    {userClans.length === 0 ? (
-                      <option value="">Join a clan first</option>
-                    ) : (
-                      userClans.map((clan) => (
-                        <option key={clan.id} value={clan.id}>
-                          {clan.name} · {clan.tag}
-                        </option>
-                      ))
-                    )}
-                  </select>
-                </label>
-
-                <label className="md:col-span-2">
-                  <span className="text-sm text-maxx-sub block mb-1.5">
-                    Status
-                  </span>
-                  <textarea
-                    value={draft}
-                    onChange={(e) => setDraft(e.target.value)}
-                    maxLength={280}
-                    rows={4}
-                    placeholder="What pain did you convert into power today?"
-                    className="w-full rounded-md bg-maxx-bg0 border border-maxx-violet/20 text-sm text-maxx-bright px-3 py-2.5 outline-none resize-none focus:border-maxx-violet/40 placeholder:text-maxx-dim"
-                  />
-                </label>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-maxx-dim">
-                  {draft.length}/280 characters
-                </p>
-                <button
-                  type="submit"
-                  disabled={!canPost}
-                  className="h-10 px-4 rounded-md border border-maxx-violet/25 bg-maxx-violet/10 text-sm text-maxx-bright transition-all hover:bg-maxx-violet/15 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                >
-                  <Send size={14} />
-                  Publish to clan
-                </button>
-              </div>
-            </form>
-
-            {/* Feed filters */}
-            <div className="rounded-xl border border-maxx-violet/15 bg-maxx-violet/3 p-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  onClick={() => setFilterClan("all")}
-                  className={`h-9 px-3 rounded-md border text-sm transition-all ${
-                    filterClan === "all"
-                      ? "border-maxx-violet/40 bg-maxx-violet/12 text-maxx-bright"
-                      : "border-maxx-violet/20 text-maxx-sub hover:border-maxx-violet/35 hover:text-maxx-bright"
-                  }`}
-                >
-                  All clans
-                </button>
-
-                {CLANS.map((clan) => (
-                  <button
-                    key={clan.id}
-                    onClick={() => setFilterClan(clan.id)}
-                    className={`h-9 px-3 rounded-md border text-sm transition-all ${
-                      filterClan === clan.id
-                        ? "border-maxx-violet/40 bg-maxx-violet/12 text-maxx-bright"
-                        : "border-maxx-violet/20 text-maxx-sub hover:border-maxx-violet/35 hover:text-maxx-bright"
-                    }`}
-                  >
-                    {clan.tag}
-                  </button>
-                ))}
-              </div>
+              ))}
             </div>
+          </div>
+        </aside>
 
-            {/* Feed list */}
-            <div className="space-y-4">
-              {filteredPosts.map((post) => {
-                const clan = clanById[post.clanId];
-                return (
-                  <article
-                    key={post.id}
-                    className="rounded-xl border border-maxx-violet/15 bg-maxx-violet/4 p-4 md:p-5"
-                  >
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <div>
-                        <p className="text-sm font-semibold text-maxx-bright">
-                          {post.authorName}
-                          <span className="text-maxx-sub font-normal">
-                            {" "}
-                            · {post.authorHandle}
-                          </span>
-                        </p>
-                        <p className="text-sm text-maxx-dim">{timeAgo(post.createdAt)}</p>
+        {/* CENTER FEED: The Glass Stream */}
+        <main className="flex-1 max-w-2xl mx-auto">
+          
+          {/* Quick Post Input */}
+          <div className="mb-8 p-[1px] rounded-2xl bg-gradient-to-r from-maxx-violet/20 via-maxx-pink/20 to-transparent">
+            <div className="bg-maxx-bg0 rounded-[15px] p-4 flex gap-4 items-center">
+              <div className="w-10 h-10 rounded-full bg-maxx-violet/20 border border-maxx-violet/30 flex items-center justify-center">
+                <Plus className="text-maxx-bright" size={20} />
+              </div>
+              <input 
+                type="text" 
+                placeholder="What's the pain level today?" 
+                className="bg-transparent border-none flex-1 text-maxx-bright placeholder:text-maxx-bright/30 focus:outline-none font-medium"
+              />
+              <button className="bg-maxx-bright text-maxx-bg0 px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-tighter hover:scale-105 transition-transform">
+                POST
+              </button>
+            </div>
+          </div>
+
+          {/* Feed List */}
+          <div className="flex flex-col gap-px bg-maxx-white/5 border-x border-maxx-white/5">
+            {POSTS.map((post) => (
+              <article 
+                key={post.id} 
+                className="bg-maxx-bg0 p-6 hover:bg-maxx-white/[0.02] transition-all cursor-pointer group"
+              >
+                <div className="flex gap-4">
+                  {/* Avatar with Status Ring */}
+                  <div className="relative shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-maxx-violet to-maxx-pink p-[2px]">
+                      <div className="w-full h-full rounded-full bg-maxx-bg0 flex items-center justify-center font-black text-sm">
+                        {post.user[0]}
                       </div>
+                    </div>
+                    {post.verified && (
+                      <div className="absolute -bottom-1 -right-1 bg-maxx-bright text-maxx-bg0 rounded-full p-0.5 border-2 border-maxx-bg0">
+                        <ShieldCheck size={10} fill="currentColor" />
+                      </div>
+                    )}
+                  </div>
 
-                      <Link
-                        to={`/clans/${clan.slug}`}
-                        className="pill px-2.5 py-1 border border-maxx-violet/25 text-sm text-maxx-sub no-underline hover:text-maxx-bright hover:border-maxx-violet/40"
-                      >
-                        {clan.tag} · {clan.name}
-                      </Link>
+                  {/* Content Area */}
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm tracking-tight">{post.user}</span>
+                        <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-maxx-white/10 text-maxx-bright/60 uppercase tracking-widest">
+                          {post.tag}
+                        </span>
+                        <span className="text-xs text-maxx-bright/30">· {post.time}</span>
+                      </div>
+                      <ChevronRight size={14} className="text-maxx-bright/20 group-hover:translate-x-1 transition-transform" />
                     </div>
 
-                    <p className="text-sm text-maxx-sub leading-relaxed mb-4">
+                    <p className="text-[15px] leading-relaxed text-maxx-bright/90 mb-4">
                       {post.content}
                     </p>
 
-                    <div className="flex items-center gap-4">
-                      <button className="text-sm text-maxx-dim hover:text-maxx-bright flex items-center gap-1.5">
-                        <Heart size={14} /> {post.likes}
+                    {/* Clan Tags */}
+                    <div className="flex gap-2 mb-4">
+                      {post.clans.map(clan => (
+                        <span key={clan} className="text-[10px] font-bold text-maxx-violet">#{clan.toUpperCase()}</span>
+                      ))}
+                    </div>
+
+                    {/* Action Bar: Minimalist */}
+                    <div className="flex items-center gap-6 pt-2 border-t border-maxx-white/5">
+                      <button className="flex items-center gap-2 text-maxx-bright/40 hover:text-maxx-pink transition-colors">
+                        <Flame size={16} />
+                        <span className="text-[11px] font-bold">{post.metrics.burn}</span>
                       </button>
-                      <button className="text-sm text-maxx-dim hover:text-maxx-bright flex items-center gap-1.5">
-                        <MessageCircle size={14} /> {post.replies}
+                      <button className="flex items-center gap-2 text-maxx-bright/40 hover:text-maxx-violet transition-colors">
+                        <Skull size={16} />
+                        <span className="text-[11px] font-bold">{post.metrics.pain}%</span>
                       </button>
-                      <button className="text-sm text-maxx-dim hover:text-maxx-bright flex items-center gap-1.5">
-                        <Flame size={14} /> {post.boosted}
+                      <button className="flex items-center gap-2 text-maxx-bright/40 hover:text-maxx-bright transition-colors">
+                        <MessageSquare size={16} />
+                        <span className="text-[11px] font-bold">{post.metrics.comments}</span>
+                      </button>
+                      <button className="ml-auto text-maxx-bright/20 hover:text-maxx-bright transition-colors">
+                        <Share2 size={16} />
                       </button>
                     </div>
-                  </article>
-                );
-              })}
-
-              {filteredPosts.length === 0 && (
-                <div className="rounded-xl border border-maxx-violet/15 bg-maxx-violet/4 p-6 text-sm text-maxx-sub">
-                  No posts for this clan yet. Be the first degen to break the silence.
+                  </div>
                 </div>
-              )}
-            </div>
-          </section>
+              </article>
+            ))}
+          </div>
+        </main>
 
-          {/* Right: Sidebar */}
-          <aside className="lg:col-span-4 space-y-5">
-            <div className="rounded-xl border border-maxx-violet/15 bg-maxx-violet/4 p-4">
-              <div className="eyebrow mb-3">
-                <span className="eyebrow-dot" />
-                Clan Rooms
-              </div>
-              <ul className="space-y-2.5">
-                {CLANS.map((clan) => (
-                  <li key={clan.id}>
-                    <Link
-                      to={`/clans/${clan.slug}`}
-                      className="no-underline rounded-md border border-maxx-violet/15 hover:border-maxx-violet/35 px-3 py-2.5 flex items-center justify-between"
-                    >
-                      <div>
-                        <p className="text-sm text-maxx-bright font-semibold">
-                          {clan.name}
-                        </p>
-                        <p className="text-sm text-maxx-dim">{clan.tag}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-maxx-sub flex items-center gap-1 justify-end">
-                          <Users size={13} /> {clan.members}
-                        </p>
-                        <p className="text-sm text-maxx-dim">{clan.online} online</p>
-                      </div>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+        {/* RIGHT PANEL: Live Stats */}
+        <aside className="hidden xl:flex flex-col w-72 sticky top-[100px] h-fit gap-6">
+          <div className="bg-maxx-white/[0.03] border border-maxx-white/5 rounded-2xl p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Zap size={14} className="text-maxx-pink" />
+              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-maxx-bright/50">Live Analytics</h3>
             </div>
+            
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between text-[11px] mb-1.5 font-bold">
+                  <span className="text-maxx-bright/40">TOTAL BURN</span>
+                  <span className="text-maxx-pink">4,209.1 MAXX</span>
+                </div>
+                <div className="h-1 bg-maxx-white/10 rounded-full overflow-hidden">
+                  <div className="h-full bg-maxx-pink w-[65%]" />
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between text-[11px] mb-1.5 font-bold">
+                  <span className="text-maxx-bright/40">SYSTEM PAIN</span>
+                  <span className="text-maxx-violet">88%</span>
+                </div>
+                <div className="h-1 bg-maxx-white/10 rounded-full overflow-hidden">
+                  <div className="h-full bg-maxx-violet w-[88%]" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
 
-            <div className="rounded-xl border border-maxx-violet/15 bg-maxx-violet/4 p-4">
-              <div className="eyebrow mb-3">
-                <span className="eyebrow-dot" />
-                Posting Rules
-              </div>
-              <ul className="space-y-2">
-                <li className="text-sm text-maxx-sub flex gap-2">
-                  <ShieldCheck size={14} className="text-maxx-violet mt-0.5" />
-                  Every status must target a clan community.
-                </li>
-                <li className="text-sm text-maxx-sub flex gap-2">
-                  <ShieldCheck size={14} className="text-maxx-violet mt-0.5" />
-                  Keep it alpha, no spam.
-                </li>
-                <li className="text-sm text-maxx-sub flex gap-2">
-                  <ShieldCheck size={14} className="text-maxx-violet mt-0.5" />
-                  Respect clan walls and community rules.
-                </li>
-              </ul>
-            </div>
-          </aside>
-        </div>
       </div>
-    </main>
+    </div>
   );
 }
