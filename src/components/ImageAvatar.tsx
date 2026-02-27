@@ -1,5 +1,5 @@
 import { createAvatar } from '@dicebear/core';
-import { avataaars, botttsNeutral } from '@dicebear/collection';
+import { avataaarsNeutral, botttsNeutral } from '@dicebear/collection';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 export interface ImageAvatarProps {
@@ -25,9 +25,9 @@ export default function ImageAvatar({
     ...props
 }) {    
 
-    if(avatarType == null){
-        avatarType = avataaars;
-    }
+   // if(avatarType == null){
+      avatarType = avataaarsNeutral;
+      //}
 
     const getDicebearAvatar = () => (
          createAvatar(avatarType, {
