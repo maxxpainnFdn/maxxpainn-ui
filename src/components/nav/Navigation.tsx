@@ -149,9 +149,7 @@ export default function Navigation() {
             </div>
 
             {/* ── Mobile scrolling pills ── */}
-            <div className="block  md:hidden">
-              <MobileNav navItems={[...navItems, ...docsLinks]} />
-            </div>
+            <MobileNav navItems={[...navItems, ...docsLinks]} />
 
           </div>
         </div>

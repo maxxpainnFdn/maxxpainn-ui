@@ -70,7 +70,7 @@ export const MobileNav = ({ navItems }) => {
   );
 
   return (
-    <div className="flex flex-1 items-center ml-3 relative min-w-0 h-full">
+    <div className="flex md:hidden flex-1 items-center ml-3 relative min-w-0 h-full">
 
       <ArrowBtn direction="left"  show={showLeftArrow}  onClick={() => scrollNav('left')}  />
 
