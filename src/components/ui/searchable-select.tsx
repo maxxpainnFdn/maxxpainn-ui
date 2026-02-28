@@ -155,7 +155,7 @@ export function SearchableSelect({
       {/* ── Dropdown ── */}
       <PopoverContent
         className={cn(
-          " p-0 rounded-lg",
+          "min-w-[var(--radix-popover-trigger-width)] p-0 rounded-lg",
           "bg-maxx-bg1 backdrop-blur-xl",
           "border border-maxx-violet/25",
           "shadow-[0_16px_48px_color-mix(in_srgb,black_70%,transparent)]",

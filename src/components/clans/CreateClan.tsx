@@ -73,14 +73,7 @@ const CreateClan = () => {
 
   const ModalTitle = () => (
     <div>
-      <div className="eyebrow mb-1.5">
-        <span className="eyebrow-dot" />
-        FORGE YOUR ALLIANCE
-      </div>
       <h2 className="font-sans font-black text-[clamp(1.5rem,3vw,2rem)] uppercase tracking-tight text-maxx-white leading-none flex items-center gap-3">
-        <div className="p-2 bg-maxx-violet/10 rounded-md border border-maxx-violet/20 shrink-0">
-          <Swords className="w-5 h-5 text-maxx-violet" />
-        </div>
         Create Clan
       </h2>
     </div>
@@ -235,10 +228,10 @@ const CreateClan = () => {
                     disabled={loading}
                     className="w-full flex items-center justify-between px-4 py-3 bg-maxx-bg0/50 hover:bg-maxx-violet/5 transition-colors duration-200"
                   >
-                    <span className="flex items-center gap-2 font-mono text-[0.7rem] tracking-[0.14em] uppercase text-maxx-mid">
+                    <span className="flex items-center gap-2 font-mono text-sm uppercase text-maxx-mid">
                       <Globe className="w-3.5 h-3.5 text-maxx-violet" />
-                      Social Links
-                      <span className="text-maxx-mid/60 text-sm">(Optional)</span>
+                      <span className="font-semibold  text-maxx-mid ">Social Links</span>
+                      <span className="text-maxx-mid/80 text-sm">(Optional)</span>
                     </span>
                     <ChevronDown
                       className={`w-3.5 h-3.5 text-maxx-sub transition-transform duration-300 ${
