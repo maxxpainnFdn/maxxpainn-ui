@@ -156,7 +156,7 @@ export function SearchableSelect({
       <PopoverContent
         className={cn(
           "min-w-[var(--radix-popover-trigger-width)] p-0 rounded-lg",
-          "bg-maxx-bg1 backdrop-blur-xl",
+          "bg-maxx-bg1",
           "border border-maxx-violet/25",
           "shadow-[0_16px_48px_color-mix(in_srgb,black_70%,transparent)]",
           // Top accent line
