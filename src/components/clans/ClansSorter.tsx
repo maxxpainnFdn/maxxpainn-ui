@@ -36,7 +36,8 @@ const SORT_OPTS: Record<string, string> = {
 
 const ClansSorter = ({
   onChange,
-  disabled
+  disabled,
+  className=""
 }) => {
   
   const [selectedValue, setSelectedValue] = useState("")
@@ -57,11 +58,7 @@ const ClansSorter = ({
       onChange={setSelectedValue}
       placeholder={"Sort"}
       hasSearch={false}
-      className={`
-        w-full h-12 px-4 rounded-xl text-sm font-medium
-         bg-white/[0.03] border border-white/[0.06] 
-        text-gray-400 hover:border-white/[0.12] hover:text-gray-300
-      `}
+      className={className}
       placeholderClass={"text-gray-300"}
       disabled={disabled}
     />

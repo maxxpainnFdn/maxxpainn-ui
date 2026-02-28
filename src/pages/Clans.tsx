@@ -62,7 +62,13 @@ const Clans = () => {
     "MaxxPainn Clans - Create your community & earn upto $1 per mint";
   const description =
     "Join a MaxxPainn Clan and show your allegiance during minting. Clans earn upto $1 for every mint when selected by members. Build your community. Earn together.";
-
+  
+  const catAndSorterClass = `
+    w-full h-12 px-4 rounded-xl text-sm font-medium
+     bg-white/[0.03] border border-white/[0.06] 
+    text-gray-400 hover:border-white/[0.12] hover:text-gray-300
+  `
+  
   return (
     <>
       <Helmet>
@@ -144,26 +150,27 @@ const Clans = () => {
 
             {/* ═══ Filter / Sort ═══ */}
             <div
-              className="flex flex-col xs:flex-row justify-between items-stretch lg:items-center gap-4 mb-10"
+              className="flex flex-col md:flex-row justify-between items-stretch lg:items-center gap-4 mb-10"
               style={{ animation: "_cl-fade-up 0.6s ease 0.2s both" }}
             >
-              <div className="max-w-full md:max-w-[280px]">
+              <div className="w-full md:w-[280px]">
                 <ClansSearch onChange={(v) => setSearchKeyword(v)} />
               </div>
               <div className="flex gap-2">
-                <div className="relative w-full xs:w-[180px] sm:w-[220px]">
+                <div className="relative w-full xs:w-[50%] md:w-[220px]">
                   <ClanCategorySelect
                     value={""}
                     onChange={() => { }}
                     placeholderClass={"text-gray-400"}
-                    className={`
-                      w-full h-12 px-4 rounded-xl text-sm font-medium
-                       bg-white/[0.03] border border-white/[0.06] 
-                      text-gray-400 hover:border-white/[0.12] hover:text-gray-300
-                    `}
+                    className={catAndSorterClass}
                   />
                 </div>
-                <ClansSorter onChange={(v) => setSortBy(v)} />
+                <div className="relative w-full xs:w-[50%] md:w-[220px]">
+                  <ClansSorter
+                    onChange={(v) => setSortBy(v)}
+                    className={catAndSorterClass}
+                  />
+                </div>
               </div>
             </div>
 

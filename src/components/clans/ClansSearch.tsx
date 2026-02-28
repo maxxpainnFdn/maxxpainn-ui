@@ -43,7 +43,7 @@ export default function ClansSearch({
   };
 
   return (
-    <div className="flex-1 max-w-sm">
+    <div className="flex-1 w-full">
       <div
         className="
           _cs-wrap group relative rounded-xl overflow-hidden
