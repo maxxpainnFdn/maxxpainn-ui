@@ -33,14 +33,10 @@ export default function ClansModal({ children, onChange }: ClansModalProps) {
 
     const Title = () => (
         <div>
-            <div className="eyebrow mb-1.5">
-                <span className="eyebrow-dot" />
-                PICK YOUR ALLEGIANCE
-            </div>
-            <h1 className="font-sans font-black text-[clamp(1.6rem,3.5vw,2.6rem)] uppercase tracking-tight text-maxx-white leading-none">
-                Choose a{" "}
-                <span className="bg-grad-accent bg-clip-text text-transparent">Clan</span>
-            </h1>
+          <h1 className="font-sans font-black text-[clamp(1.6rem,3.5vw,2.6rem)] uppercase tracking-tight text-maxx-white leading-none">
+            Choose a{" "}
+            <span className="bg-grad-accent bg-clip-text text-transparent">Clan</span>
+          </h1>
         </div>
     );
 
@@ -55,9 +51,9 @@ export default function ClansModal({ children, onChange }: ClansModalProps) {
                 onOpenChange={setDialogOpen}
                 title={<Title />}
                 desktopClass="w-full max-w-[1200px]"
-                description="The clan you select earns SOL rewards every time a member mints."
+                description="Selected clan earns sol rewards"
                 desktopDialogProps={{
-                    onOpenAutoFocus: (e) => e.preventDefault(),
+                  onOpenAutoFocus: (e) => e.preventDefault(),
                 }}
             >
                 {/*
