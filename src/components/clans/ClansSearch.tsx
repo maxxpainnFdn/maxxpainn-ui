@@ -47,7 +47,9 @@ export default function ClansSearch({
       <div
         className="
           _cs-wrap group relative rounded-xl overflow-hidden
-          bg-white/[0.03] border border-white/[0.06]
+          bg-white/[0.03] 
+          border 
+          border-white/[0.06]
           hover:border-white/[0.12]
           focus-within:border-purple-500/40
           transition-all duration-300
