@@ -15,6 +15,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/colla
 import Button from "../button/Button";
 import { ClanCategories } from "@/data/clanCategories";
 import Modal from "../modal/Modal";
+import ClanCategorySelect from "./ClanCategorySelect";
 
 interface CreateClanForm {
   name: string;
@@ -93,7 +94,7 @@ const CreateClan = () => {
           variant="primary"
           size="md"
           skewed
-          className="w-auto"
+          className="max-w-[90%]"
           onClick={() => setDialogOpen(true)}
         >
           Create Clan

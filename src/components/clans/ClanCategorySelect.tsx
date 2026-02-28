@@ -1,5 +1,5 @@
 import { ClanCategories } from "@/data/clanCategories";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SearchableSelect } from "../ui/searchable-select";
 
 export interface ClanCategorySelectProps {
@@ -7,7 +7,7 @@ export interface ClanCategorySelectProps {
   value?: string,
   placeholder?: string,
   inputCls?: string,
-  loading?: boolean;
+  disabled?: boolean;
   errors?: string;
 }
 
@@ -17,9 +17,16 @@ export default function ClanCategorySelect({
   placeholder="Category",
   className = "",
   placeholderClass = "",
-  loading = false,
+  disabled = false,
   error = ""
 }) {
+  
+  const [selectedValue, setSelectedValue] = useState(value)
+  
+  useEffect(() => {
+    onChange?.(selectedValue)
+  }, [selectedValue])
+  
   
   const categoryOptions = useMemo(
     () => Object.entries(ClanCategories).map(([value, label]) => ({ value, label })),
@@ -29,13 +36,13 @@ export default function ClanCategorySelect({
   return (
     <SearchableSelect
       options={categoryOptions}
-      value={value}
-      onChange={onChange}
+      value={selectedValue}
+      onChange={setSelectedValue}
       placeholder={placeholder}
       searchPlaceholder="Search.."
       className={className}
       placeholderClass={placeholderClass}
-      disabled={loading}
+      disabled={disabled}
       error={error}
     />
   )

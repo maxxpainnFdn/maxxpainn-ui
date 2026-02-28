@@ -1,24 +1,10 @@
-import { ChevronDown, Check } from "lucide-react";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { SearchableSelect } from "../ui/searchable-select";
 
-/* ── Inject once ── */
-let _sortInjected = false;
-function injectSorterStyles() {
-  if (_sortInjected || typeof document === "undefined") return;
-  _sortInjected = true;
-  const s = document.createElement("style");
-  s.textContent = `
-    @keyframes _srt-in {
-      from { opacity: 0; transform: translateY(-8px) scale(0.95); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    @keyframes _srt-item {
-      from { opacity: 0; transform: translateX(-8px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-  `;
-  document.head.appendChild(s);
+export interface ClanSorterProps {
+  onChange: (value: string) => void;
+  disabled?: boolean;
+  className?: string;
 }
 
 const SORT_OPTS: Record<string, string> = {
@@ -38,7 +24,7 @@ const ClansSorter = ({
   onChange,
   disabled,
   className=""
-}) => {
+}: ClanSorterProps) => {
   
   const [selectedValue, setSelectedValue] = useState("")
   

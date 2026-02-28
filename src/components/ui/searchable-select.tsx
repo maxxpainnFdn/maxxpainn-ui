@@ -155,14 +155,14 @@ export function SearchableSelect({
       {/* ── Dropdown ── */}
       <PopoverContent
         className={cn(
-          " p-0 rounded-md",
-          "bg-maxx-bg1/98 backdrop-blur-xl",
+          " p-0 rounded-lg",
+          "bg-maxx-bg1 backdrop-blur-xl",
           "border border-maxx-violet/25",
           "shadow-[0_16px_48px_color-mix(in_srgb,black_70%,transparent)]",
           // Top accent line
           "overflow-hidden",
         )}
-        align="start"
+        align="center"
         sideOffset={6}
         // ── Mobile fix: prevent popover from stealing focus away from the
         //    touch scroll container, and avoid viewport shift on iOS
@@ -177,7 +177,7 @@ export function SearchableSelect({
         <div className="flex flex-col w-full">
           
           { hasSearch && (
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-maxx-violet/10 bg-maxx-bg0/40">
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-maxx-violet/10 bg-maxx-bg0/90">
               <Search className="h-3.5 w-3.5 shrink-0 text-maxx-violet" />
               <input
                 ref={inputRef}
@@ -200,7 +200,7 @@ export function SearchableSelect({
                   className="text-maxx-dim hover:text-maxx-sub transition-colors"
                 >
                   <span className="sr-only">Clear</span>
-                  <span aria-hidden className="text-xs">✕</span>
+                  <span aria-hidden className="text-sm">✕</span>
                 </button>
               )}
             </div>
@@ -238,7 +238,7 @@ export function SearchableSelect({
                     key={option.value}
                     onClick={() => handleSelect(option.value)}
                     className={cn(
-                      "relative flex cursor-pointer select-none items-center rounded px-3.5 py-2.5 text-sm",
+                      "relative flex cursor-pointer select-none items-center rounded px-3.5 py-2.5 text-sm hover:bg-white/5",
                       "transition-all duration-150 mb-0.5 last:mb-0 outline-none hover:",
                       isHighlighted && !isSelected && "bg-maxx-violet/8 text-maxx-bright pl-5",
                       !isHighlighted && !isSelected && "text-maxx-mid",
