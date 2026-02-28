@@ -16,6 +16,8 @@ interface SearchableSelectProps {
   searchPlaceholder?: string
   emptyMessage?: string
   className?: string
+  placeholderClass?: string
+  hasSearch?: boolean
   disabled?: boolean
   error?: string
 }
@@ -28,6 +30,8 @@ export function SearchableSelect({
   searchPlaceholder = "Search...",
   emptyMessage = "No results found",
   className,
+  placeholderClass = "",
+  hasSearch=true,
   disabled,
   error,
 }: SearchableSelectProps) {
@@ -138,7 +142,7 @@ export function SearchableSelect({
             className,
           )}
         >
-          <span className={cn("truncate text-left text-base", !value && "text-maxx-dim")}>
+          <span className={cn("truncate text-left text-base", !value && `text-maxx-dim ${placeholderClass}`)}>
             {selectedLabel || placeholder}
           </span>
           <ChevronsUpDown className={cn(
@@ -171,35 +175,36 @@ export function SearchableSelect({
         <div className="h-px bg-gradient-to-r from-maxx-violet/60 via-maxx-pink/30 to-transparent" />
 
         <div className="flex flex-col w-full">
-
-          {/* ── Search header ── */}
-          <div className="flex items-center gap-3 px-4 py-3 border-b border-maxx-violet/10 bg-maxx-bg0/40">
-            <Search className="h-3.5 w-3.5 shrink-0 text-maxx-violet" />
-            <input
-              ref={inputRef}
-              className="flex-1 bg-transparent text-sm text-maxx-bright outline-none placeholder:text-maxx-dim"
-              placeholder={searchPlaceholder}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-              // Prevent iOS zoom on focus (font-size >= 16px in native, but
-              // we handle it via the parent text-base; this attr helps)
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck={false}
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onPointerDown={(e) => { e.preventDefault(); setSearchQuery("") }}
-                className="text-maxx-dim hover:text-maxx-sub transition-colors"
-              >
-                <span className="sr-only">Clear</span>
-                <span aria-hidden className="text-xs">✕</span>
-              </button>
-            )}
-          </div>
+          
+          { hasSearch && (
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-maxx-violet/10 bg-maxx-bg0/40">
+              <Search className="h-3.5 w-3.5 shrink-0 text-maxx-violet" />
+              <input
+                ref={inputRef}
+                className="flex-1 bg-transparent text-sm text-maxx-bright outline-none placeholder:text-maxx-dim"
+                placeholder={searchPlaceholder}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
+                // Prevent iOS zoom on focus (font-size >= 16px in native, but
+                // we handle it via the parent text-base; this attr helps)
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onPointerDown={(e) => { e.preventDefault(); setSearchQuery("") }}
+                  className="text-maxx-dim hover:text-maxx-sub transition-colors"
+                >
+                  <span className="sr-only">Clear</span>
+                  <span aria-hidden className="text-xs">✕</span>
+                </button>
+              )}
+            </div>
+          )}
 
           {/* ── Options list ──
               Key mobile fixes:
@@ -234,7 +239,7 @@ export function SearchableSelect({
                     onClick={() => handleSelect(option.value)}
                     className={cn(
                       "relative flex cursor-pointer select-none items-center rounded px-3.5 py-2.5 text-sm",
-                      "transition-all duration-150 mb-0.5 last:mb-0 outline-none",
+                      "transition-all duration-150 mb-0.5 last:mb-0 outline-none hover:",
                       isHighlighted && !isSelected && "bg-maxx-violet/8 text-maxx-bright pl-5",
                       !isHighlighted && !isSelected && "text-maxx-mid",
                       isSelected && "bg-maxx-violet/12 text-maxx-violet-lt font-semibold pl-5",

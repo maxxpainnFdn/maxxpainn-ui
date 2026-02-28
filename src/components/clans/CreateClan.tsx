@@ -88,16 +88,27 @@ const CreateClan = () => {
   return (
     <>
       {/* ── Trigger button ── */}
-      <Button
-        variant="primary"
-        size="md"
-        className="w-auto"
-        onClick={() => setDialogOpen(true)}
-      >
-        <Plus className="w-4 h-4" />
-        Create Clan
-      </Button>
-
+      <div className="md:hidden flex w-full justify-center">
+        <Button
+          variant="primary"
+          size="md"
+          skewed
+          className="w-auto"
+          onClick={() => setDialogOpen(true)}
+        >
+          Create Clan
+        </Button>
+      </div>
+      <div className="hidden md:flex">
+        <Button
+          variant="primary"
+          size="md"
+          className="w-auto"
+          onClick={() => setDialogOpen(true)}
+        >
+          Create Clan
+        </Button>
+      </div>
       <Modal
         open={isDialogOpen}
         onOpenChange={setDialogOpen}
@@ -159,12 +170,10 @@ const CreateClan = () => {
                   control={control}
                   rules={{ required: "Please select a category" }}
                   render={({ field: { onChange, value } }) => (
-                    <SearchableSelect
-                      options={categoryOptions}
+                    <ClanCategorySelect
                       value={value}
                       onChange={onChange}
                       placeholder="Select a category..."
-                      searchPlaceholder="Search categories..."
                       className={inputCls}
                       disabled={loading}
                       error={errors.category?.message}
@@ -228,7 +237,7 @@ const CreateClan = () => {
                     <span className="flex items-center gap-2 font-mono text-[0.7rem] tracking-[0.14em] uppercase text-maxx-mid">
                       <Globe className="w-3.5 h-3.5 text-maxx-violet" />
                       Social Links
-                      <span className="text-maxx-dim">(Optional)</span>
+                      <span className="text-maxx-mid/60 text-sm">(Optional)</span>
                     </span>
                     <ChevronDown
                       className={`w-3.5 h-3.5 text-maxx-sub transition-transform duration-300 ${

@@ -9,6 +9,8 @@ import CreateClan from "@/components/clans/CreateClan";
 import ClansSorter from "@/components/clans/ClansSorter";
 import ClansSearch from "@/components/clans/ClansSearch";
 import { Helmet } from "react-helmet-async";
+import { SearchableSelect } from "@/components/ui/searchable-select";
+import ClanCategorySelect from "@/components/clans/ClanCategorySelect";
 
 /* ── Inject once ── */
 let _pgInjected = false;
@@ -148,7 +150,21 @@ const Clans = () => {
               <div className="max-w-full md:max-w-[280px]">
                 <ClansSearch onChange={(v) => setSearchKeyword(v)} />
               </div>
-              <ClansSorter onChange={(v) => setSortBy(v)} />
+              <div className="flex gap-2">
+                <div className="relative w-full xs:w-[180px] sm:w-[220px]">
+                  <ClanCategorySelect
+                    value={""}
+                    onChange={() => { }}
+                    placeholderClass={"text-gray-400"}
+                    className={`
+                      w-full h-12 px-4 rounded-xl text-sm font-medium
+                       bg-white/[0.03] border border-white/[0.06] 
+                      text-gray-400 hover:border-white/[0.12] hover:text-gray-300
+                    `}
+                  />
+                </div>
+                <ClansSorter onChange={(v) => setSortBy(v)} />
+              </div>
             </div>
 
             {/* ═══ Grid ═══ */}
