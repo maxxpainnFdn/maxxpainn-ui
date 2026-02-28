@@ -135,11 +135,11 @@ function Dropzone({
                   "p-3 rounded-md transition-all duration-200",
                   isDragActive
                     ? "bg-gradient-to-br from-maxx-violet to-maxx-pink shadow-[0_0_20px_color-mix(in_srgb,var(--maxx-violet)_30%,transparent)] scale-110"
-                    : "bg-maxx-violet/10 border border-maxx-violet/20 group-hover:bg-gradient-to-br group-hover:from-maxx-violet group-hover:to-maxx-pink group-hover:border-transparent group-hover:shadow-[0_0_20px_color-mix(in_srgb,var(--maxx-violet)_25%,transparent)]"
+                    : "bg-maxx-violet/10 border border-maxx-violet/20"
                 )}>
                   <Upload className={cn(
                     "w-6 h-6 transition-colors duration-200",
-                    isDragActive ? "text-maxx-white" : "text-maxx-violet group-hover:text-maxx-white"
+                    isDragActive ? "text-maxx-white" : "text-maxx-violet group-hover:text-maxx-pink"
                   )} />
                 </div>
 
@@ -155,14 +155,14 @@ function Dropzone({
                   {/* File type + size pills */}
                   <div className="flex items-center justify-center gap-2 mt-2">
                     <div className="flex items-center gap-1.5 px-2.5 py-1 bg-maxx-bg0/80 rounded border border-maxx-violet/15">
-                      <FileType className="w-3 h-3 text-maxx-violet" />
-                      <span className="text-[0.65rem] font-mono font-semibold text-maxx-sub tracking-wide">
+                      <FileType className="w-4 h-4 text-maxx-violet" />
+                      <span className="text-[0.7rem] font-mono font-semibold text-maxx-sub tracking-wide">
                         {getAcceptedFileTypes()}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 px-2.5 py-1 bg-maxx-bg0/80 rounded border border-maxx-pink/15">
-                      <HardDrive className="w-3 h-3 text-maxx-pink" />
-                      <span className="text-[0.65rem] font-mono font-semibold text-maxx-sub tracking-wide">
+                      <HardDrive className="w-4 h-4 text-maxx-pink" />
+                      <span className="text-[0.7rem] font-mono font-semibold text-maxx-sub tracking-wide">
                         Max {formatFileSize(maxSize)}
                       </span>
                     </div>
@@ -175,8 +175,8 @@ function Dropzone({
 
         {/* ── Helper text ── */}
         {helperText && !error && (
-          <p className="mt-2 text-xs text-maxx-sub flex items-start gap-1.5">
-            <span className="inline-block w-1 h-1 rounded-sm bg-maxx-violet mt-[5px] shrink-0" />
+          <p className="mt-2 text-sm text-maxx-sub flex items-start gap-1.5">
+            <span className="inline-block w-1 h-1 rounded-sm bg-maxx-sub mt-[5px] shrink-0" />
             <span>{helperText}</span>
           </p>
         )}

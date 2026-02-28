@@ -67,7 +67,8 @@ const CreateClan = () => {
   };
 
   // ── Shared input style — dark enough to contrast against modal bg ──
-  const inputCls = "bg-maxx-bg0/70 border-maxx-violet/20 focus-visible:border-maxx-violet/50 text-maxx-bright placeholder:text-maxx-dim";
+  const inputCls = "bg-maxx-bg0/60 text-white  placeholder:text-maxx-violetLt/60 " +
+                    "flex h-11 w-full rounded-md px-4 text-base transition-all duration-200";
 
   const ModalTitle = () => (
     <div>
@@ -110,7 +111,7 @@ const CreateClan = () => {
 
               {/* ── Logo upload ── */}
               <div className="space-y-2">
-                <Label className="font-mono text-[0.7rem] font-medium tracking-[0.14em] uppercase text-maxx-violet">
+                <Label className="text-sm font-semibold tracking-wider uppercase text-maxx-mid block mb-2.5">
                   Clan Logo <span className="text-maxx-pink">*</span>
                 </Label>
                 <Controller
@@ -150,7 +151,7 @@ const CreateClan = () => {
 
               {/* ── Category ── */}
               <div className="space-y-2">
-                <Label className="font-mono text-[0.7rem] font-medium tracking-[0.14em] uppercase text-maxx-violet">
+                <Label className="text-sm font-semibold tracking-wider uppercase text-maxx-mid block mb-2.5">
                   Category <span className="text-maxx-pink">*</span>
                 </Label>
                 <Controller

@@ -16,7 +16,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
         {/* Label */}
         {label && (
-          <label className="font-mono text-[0.7rem] font-medium tracking-[0.14em] uppercase text-maxx-violet block mb-2">
+          <label className="text-sm font-semibold tracking-wider uppercase text-maxx-mid block mb-2.5">
             {label}
           </label>
         )}
@@ -28,7 +28,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             className={cn(
               // Base
               "flex h-11 w-full rounded-md px-4 text-base transition-all duration-200",
-              "bg-maxx-bg0/60 text-maxx-bright placeholder:text-maxx-dim",
+              "bg-maxx-bg0/60 text-white  placeholder:text-maxx-violetLt/60",
               "border focus-visible:outline-none",
               // Disabled
               "disabled:cursor-not-allowed disabled:opacity-50",
@@ -80,7 +80,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
         {/* Hint */}
         {hint && !error && (
-          <p className="mt-2 text-xs text-maxx-sub flex items-start gap-1.5">
+          <p className="mt-2 text-sm text-maxx-sub flex items-start gap-1.5">
             <span className="inline-block w-1 h-1 rounded-sm bg-maxx-dim mt-[5px] shrink-0" />
             <span>{hint}</span>
           </p>

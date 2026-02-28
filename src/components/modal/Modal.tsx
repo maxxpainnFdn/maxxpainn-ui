@@ -63,6 +63,14 @@ export default function Modal({
   const AccentLine = () => (
     <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-maxx-violet/70 via-maxx-pink/40 to-transparent z-10 pointer-events-none" />
   );
+  
+  const AmbientGlows = () => (
+    <>
+      <div className="fixed -top-32 -right-32 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(255,45,120,0.05)_0%,transparent_60%)] pointer-events-none z-0" />
+      <div className="fixed top-[30%] -left-24 w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(139,92,246,0.05)_0%,transparent_65%)] pointer-events-none z-0" />
+      <div className="fixed -bottom-10 right-[5%] w-[350px] h-[350px] bg-[radial-gradient(circle,rgba(6,182,212,0.04)_0%,transparent_70%)] pointer-events-none z-0" />
+    </>
+  );
 
   /* ── header ── */
   const HeaderContent = () => (
@@ -128,12 +136,11 @@ export default function Modal({
 
             <div className="flex flex-col overflow-hidden h-full w-full">
               <HeaderContent />
+              
               <div className="flex-1 overflow-y-auto p-5 pb-8 bg-maxx-bg1/20">
                 {/* ambient glows — larger, more layered */}
-                <div className="fixed -top-40 -right-40 w-[700px] h-[700px] bg-[radial-gradient(circle,rgba(255,45,120,0.06)_0%,transparent_60%)] pointer-events-none z-0" />
-                <div className="fixed top-[28%] -left-28 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(139,92,246,0.055)_0%,transparent_65%)] pointer-events-none z-0" />
-                <div className="fixed bottom-[10%] right-[10%] w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(168,85,247,0.04)_0%,transparent_70%)] pointer-events-none z-0" />
-
+                <AmbientGlows />
+                
                 {children}
               </div>
               <FooterContent />
@@ -161,7 +168,7 @@ export default function Modal({
         style={{ "--desktop-width": desktopWidth } as React.CSSProperties}
         className={`
           flex flex-col
-          bg-maxx-bg0/60 backdrop-blur-xl
+          bg-maxx-bg0 backdrop-blur-xl
           border border-maxx-violet/25
           shadow-[0_32px_80px_rgba(0,0,0,0.7),0_0_0_1px_rgba(139,92,246,0.06)]
           p-0 gap-0 overflow-hidden
@@ -181,7 +188,10 @@ export default function Modal({
 
         <HeaderContent />
 
-        <div className="flex-1 overflow-y-auto p-6 bg-maxx-bg0">
+        <div className="flex-1 overflow-y-auto p-6">
+          {/* noise */}
+          <div className="fixed inset-0 pointer-events-none z-0 bg-noise-pattern opacity-100" />
+  
           {/* ambient glows — larger, more layered */}
           <div className="fixed -top-40 -right-40 w-[700px] h-[700px] bg-[radial-gradient(circle,rgba(255,45,120,0.06)_0%,transparent_60%)] pointer-events-none z-0" />
           <div className="fixed top-[28%] -left-28 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(139,92,246,0.055)_0%,transparent_65%)] pointer-events-none z-0" />

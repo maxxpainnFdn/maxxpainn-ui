@@ -55,7 +55,7 @@ export const StatsCard = ({
 
         {/* ▸ Dot-matrix texture */}
         <div
-          className="absolute inset-0 opacity-[0.06] group-hover:opacity-[0.09] transition-opacity duration-500"
+          className="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity duration-500"
           style={{
             backgroundImage: `radial-gradient(${c.hex} 0.8px, transparent 0.8px)`,
             backgroundSize: "14px 14px",

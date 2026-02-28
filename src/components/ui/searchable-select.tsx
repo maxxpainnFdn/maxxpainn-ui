@@ -149,19 +149,118 @@ export function SearchableSelect({
       </PopoverTrigger>
 
       {/* ── Dropdown ── */}
-      <PopoverContent className="max-h-[120px] overflow-y-auto">
-          {filteredOptions.map((option, index) => {
-            const isSelected = value === option.value
-            const isHighlighted = index === highlightedIndex
+      <PopoverContent
+        className={cn(
+          "w-[var(--radix-popover-trigger-width)] p-0 rounded-md",
+          "bg-maxx-bg1/98 backdrop-blur-xl",
+          "border border-maxx-violet/25",
+          "shadow-[0_16px_48px_color-mix(in_srgb,black_70%,transparent)]",
+          // Top accent line
+          "overflow-hidden",
+        )}
+        align="start"
+        sideOffset={6}
+        // ── Mobile fix: prevent popover from stealing focus away from the
+        //    touch scroll container, and avoid viewport shift on iOS
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        // Keep popover in-bounds on small screens
+        collisionPadding={12}
+        avoidCollisions
+      >
+        {/* Top accent */}
+        <div className="h-px bg-gradient-to-r from-maxx-violet/60 via-maxx-pink/30 to-transparent" />
 
-            return (
-              <div>
-            
-                <span className="flex-1 truncate">{option.label}</span>
+        <div className="flex flex-col w-full">
 
+          {/* ── Search header ── */}
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-maxx-violet/10 bg-maxx-bg0/40">
+            <Search className="h-3.5 w-3.5 shrink-0 text-maxx-violet" />
+            <input
+              ref={inputRef}
+              className="flex-1 bg-transparent text-sm text-maxx-bright outline-none placeholder:text-maxx-dim"
+              placeholder={searchPlaceholder}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+              // Prevent iOS zoom on focus (font-size >= 16px in native, but
+              // we handle it via the parent text-base; this attr helps)
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onPointerDown={(e) => { e.preventDefault(); setSearchQuery("") }}
+                className="text-maxx-dim hover:text-maxx-sub transition-colors"
+              >
+                <span className="sr-only">Clear</span>
+                <span aria-hidden className="text-xs">✕</span>
+              </button>
+            )}
+          </div>
+
+          {/* ── Options list ──
+              Key mobile fixes:
+              - explicit max-h so it doesn't overflow viewport
+              - -webkit-overflow-scrolling: touch for momentum scroll on iOS
+              - overscroll-contain stops page scroll leaking through
+              - touch-action: pan-y ensures vertical swipes scroll the list
+          ── */}
+          <div
+            ref={listRef}
+            onPointerMove={handlePointerMove}
+            className="overflow-y-auto overscroll-contain p-1.5"
+            style={{
+              maxHeight: "min(280px, 40vh)",
+              WebkitOverflowScrolling: "touch",
+              touchAction: "pan-y",
+            }}
+          >
+            {filteredOptions.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 gap-2">
+                <Ghost className="w-6 h-6 text-maxx-dim" />
+                <span className="text-xs font-mono text-maxx-dim tracking-wide">{emptyMessage}</span>
               </div>
-            )
-          })}
+            ) : (
+              filteredOptions.map((option, index) => {
+                const isSelected    = value === option.value
+                const isHighlighted = index === highlightedIndex
+
+                return (
+                  <div
+                    key={option.value}
+                    onClick={() => handleSelect(option.value)}
+                    className={cn(
+                      "relative flex cursor-pointer select-none items-center rounded px-3.5 py-2.5 text-sm",
+                      "transition-all duration-150 mb-0.5 last:mb-0 outline-none",
+                      isHighlighted && !isSelected && "bg-maxx-violet/8 text-maxx-bright pl-5",
+                      !isHighlighted && !isSelected && "text-maxx-mid",
+                      isSelected && "bg-maxx-violet/12 text-maxx-violet-lt font-semibold pl-5",
+                    )}
+                  >
+                    {/* Left indicator bar */}
+                    {(isHighlighted || isSelected) && (
+                      <div className={cn(
+                        "absolute left-0 top-1/2 -translate-y-1/2 w-[3px] rounded-r-full transition-all duration-150",
+                        isSelected
+                          ? "bg-maxx-violet h-1/2"
+                          : "bg-maxx-violet/40 h-1/3",
+                      )} />
+                    )}
+
+                    <span className="flex-1 truncate">{option.label}</span>
+
+                    {isSelected && (
+                      <Check className="ml-2 h-3.5 w-3.5 text-maxx-violet shrink-0" />
+                    )}
+                  </div>
+                )
+              })
+            )}
+          </div>
+        </div>
       </PopoverContent>
     </Popover>
   )
