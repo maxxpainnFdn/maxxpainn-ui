@@ -168,6 +168,7 @@ const Clans = () => {
                 <div className="relative w-full xs:w-[50%] md:w-[220px]">
                   <ClansSorter
                     onChange={(v) => setSortBy(v)}
+                    placeholderClass={"text-gray-400"}
                     className={catAndSorterClass}
                   />
                 </div>

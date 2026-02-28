@@ -5,6 +5,7 @@ export interface ClanSorterProps {
   onChange: (value: string) => void;
   disabled?: boolean;
   className?: string;
+  placeholderClass?: string;
 }
 
 const SORT_OPTS: Record<string, string> = {
@@ -23,7 +24,8 @@ const SORT_OPTS: Record<string, string> = {
 const ClansSorter = ({
   onChange,
   disabled,
-  className=""
+  className = "",
+  placeholderClass=""
 }: ClanSorterProps) => {
   
   const [selectedValue, setSelectedValue] = useState("")
@@ -45,7 +47,7 @@ const ClansSorter = ({
       placeholder={"Sort"}
       hasSearch={false}
       className={className}
-      placeholderClass={"text-gray-300"}
+      placeholderClass={placeholderClass}
       disabled={disabled}
     />
   )

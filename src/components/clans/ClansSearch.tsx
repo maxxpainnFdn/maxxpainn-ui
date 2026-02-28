@@ -62,7 +62,7 @@ export default function ClansSearch({
         <div className="relative flex items-center">
           <div className="pl-4 flex items-center">
             <Search
-              className="w-[18px] h-[18px] text-gray-600 group-focus-within:text-purple-400 group-focus-within:scale-110 transition-all duration-300"
+              className="w-[18px] h-[18px] text-maxx-white/70 group-focus-within:text-purple-400 group-focus-within:scale-110 transition-all duration-300"
               strokeWidth={2.2}
             />
           </div>
@@ -71,8 +71,8 @@ export default function ClansSearch({
             onChange={handleChange}
             className="
               w-full h-12 pl-3 pr-4 bg-transparent
-              text-sm font-medium text-white
-              placeholder:text-gray-600
+              text-base font-medium text-white
+              placeholder:text-gray-400
               focus:outline-none
             "
           />
