@@ -33,10 +33,14 @@ export default function ClansModal({ children, onChange }: ClansModalProps) {
 
     const Title = () => (
         <div>
-          <h1 className="font-sans font-black text-[clamp(1.6rem,3.5vw,2.6rem)] uppercase tracking-tight text-maxx-white leading-none">
-            Choose a{" "}
-            <span className="bg-grad-accent bg-clip-text text-transparent">Clan</span>
-          </h1>
+            <div className="eyebrow mb-1.5">
+                <span className="eyebrow-dot" />
+                PICK YOUR ALLEGIANCE
+            </div>
+            <h1 className="font-sans font-black text-[clamp(1.6rem,3.5vw,2.6rem)] uppercase tracking-tight text-maxx-white leading-none">
+                Choose a{" "}
+                <span className="bg-grad-accent bg-clip-text text-transparent">Clan</span>
+            </h1>
         </div>
     );
 
@@ -51,7 +55,7 @@ export default function ClansModal({ children, onChange }: ClansModalProps) {
                 onOpenChange={setDialogOpen}
                 title={<Title />}
                 desktopClass="w-full max-w-[1200px]"
-                description="Selected clan earns sol rewards"
+                description="Selected clan earns sol"
                 desktopDialogProps={{
                   onOpenAutoFocus: (e) => e.preventDefault(),
                 }}
@@ -61,7 +65,7 @@ export default function ClansModal({ children, onChange }: ClansModalProps) {
                   Modal uses bg-gray-900/95 — we override the feel with a full-bleed
                   bg-maxx-bg1 surface that sits flush against the padded container.
                 */}
-                <div className="overflow-y-auto z-10 -mx-6 -mt-6 px-6 pt-6 bg-maxx-bg1 min-h-full">
+                <div className="overflow-y-auto z-10 -mx-6 -mt-6 px-6 pt-2 bg-maxx-bg1 min-h-full">
 
                     {/* subtle noise layer */}
                     <div className="absolute inset-0 pointer-events-none bg-noise-pattern opacity-100 z-0" />
