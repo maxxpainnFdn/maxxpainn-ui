@@ -37,9 +37,8 @@ export default function ClansModal({ children, onChange }: ClansModalProps) {
                 <span className="eyebrow-dot" />
                 PICK YOUR ALLEGIANCE
             </div>
-            <h1 className="font-sans font-black text-[clamp(1.6rem,3.5vw,2.6rem)] uppercase tracking-tight text-maxx-white leading-none">
-                Choose a{" "}
-                <span className="bg-grad-accent bg-clip-text text-transparent">Clan</span>
+            <h1 className="font-sans font-black text-xl md:text-3xl uppercase tracking-tight text-maxx-white leading-none">
+              Choose a Clan
             </h1>
         </div>
     );
@@ -47,7 +46,7 @@ export default function ClansModal({ children, onChange }: ClansModalProps) {
     return (
         <>
             <div onClick={() => setDialogOpen(true)}>
-                {children ?? <ClansModalTriggerBtn selectedClan={selectedClan} />}
+              {children ?? <ClansModalTriggerBtn selectedClan={selectedClan} />}
             </div>
 
             <Modal
@@ -55,7 +54,7 @@ export default function ClansModal({ children, onChange }: ClansModalProps) {
                 onOpenChange={setDialogOpen}
                 title={<Title />}
                 desktopClass="w-full max-w-[1200px]"
-                description="Selected clan earns sol"
+                description="Selected clan earns sol rewards"
                 desktopDialogProps={{
                   onOpenAutoFocus: (e) => e.preventDefault(),
                 }}
@@ -65,7 +64,7 @@ export default function ClansModal({ children, onChange }: ClansModalProps) {
                   Modal uses bg-gray-900/95 — we override the feel with a full-bleed
                   bg-maxx-bg1 surface that sits flush against the padded container.
                 */}
-                <div className="overflow-y-auto z-10 -mx-6 -mt-6 px-6 pt-2 bg-maxx-bg1 min-h-full">
+                <div className="overflow-y-auto z-10 -mx-6 -mt-6 px-6 pt-2 bg-maxx-bg1">
 
                     {/* subtle noise layer */}
                     <div className="absolute inset-0 pointer-events-none bg-noise-pattern opacity-100 z-0" />
@@ -74,9 +73,13 @@ export default function ClansModal({ children, onChange }: ClansModalProps) {
                     <div className="absolute -top-10 -right-10 w-64 h-64 bg-[radial-gradient(circle,rgba(139,92,246,0.07)_0%,transparent_65%)] pointer-events-none z-0" />
 
                     {/* Filter & Sort Bar */}
-                    <div className="relative z-10 flex flex-col xs:flex-row justify-between items-stretch lg:items-center gap-3 mb-6 pb-5 border-b border-maxx-violet/15">
-                        <ClansSearch onChange={(v) => setSearchKeyword(v)} />
+                    <div className="relative z-10 flex mt-3 flex-col xs:flex-row justify-between items-stretch lg:items-center gap-3 mb-6 pb-5 border-b border-maxx-violet/15">
+                      {/*<div className="relative w-full xs:w-[50%] md:w-[220px]">*/}
+                         <ClansSearch onChange={(v) => setSearchKeyword(v)} />
+                         {/* </div>
+                     <div className="relative w-full xs:w-[50%] md:w-[220px]">
                         <ClansSorter onChange={(value) => setSortBy(value)} />
+                      </div>*/}
                     </div>
 
                     {/* Results */}
@@ -117,15 +120,6 @@ export default function ClansModal({ children, onChange }: ClansModalProps) {
                                 </div>
                             )}
                         </ApiQuery>
-
-                        {/* Footer count */}
-                        {clans.length > 0 && (
-                            <div className="pt-4 pb-2 border-t border-maxx-violet/15">
-                                <p className="font-mono text-xs tracking-widest uppercase text-maxx-dim text-center">
-                                    {clans.length} clans available
-                                </p>
-                            </div>
-                        )}
                     </div>
 
                 </div>

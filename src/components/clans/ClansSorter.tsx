@@ -39,6 +39,14 @@ const ClansSorter = ({
     [],
   );
   
+  const _className = `
+    w-full h-12 px-4 rounded-xl text-sm font-medium
+     bg-white/[0.03] border border-white/[0.06] 
+    text-gray-400 hover:border-white/[0.12] hover:text-gray-300
+    ${className}
+  `
+  const _placeholderClass = "text-gray-400 " + placeholderClass;
+  
   return (
     <SearchableSelect
       options={options}
@@ -46,8 +54,8 @@ const ClansSorter = ({
       onChange={setSelectedValue}
       placeholder={"Sort"}
       hasSearch={false}
-      className={className}
-      placeholderClass={placeholderClass}
+      className={_className}
+      placeholderClass={_placeholderClass}
       disabled={disabled}
     />
   )

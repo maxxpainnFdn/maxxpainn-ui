@@ -123,6 +123,7 @@ export default function Modal({
               fixed bottom-0 left-0 right-0 z-50
               focus:outline-none overflow-hidden
               shadow-[0_-10px_40px_rgba(0,0,0,0.7)]
+              overflow-x-hidden
               ${className}
             `}
           >
@@ -134,10 +135,10 @@ export default function Modal({
             {/* drag handle */}
             <div className="mx-auto w-10 h-1 flex-shrink-0 rounded-sm bg-maxx-violet/60 mt-4 mb-2 relative z-20" />
 
-            <div className="flex flex-col overflow-hidden h-full w-full">
+            <div className="flex flex-col overflow-hidden h-full w-full ">
               <HeaderContent />
               
-              <div className="flex-1 overflow-y-auto p-5 pb-8 bg-maxx-bg1/20">
+              <div className="flex-1 overflow-y-auto p-5 pb-8 bg-maxx-bg1/20 overflow-x-hidden">
                 {/* ambient glows — larger, more layered */}
                 <AmbientGlows />
                 
@@ -177,6 +178,7 @@ export default function Modal({
           h-auto max-h-[85vh]
           data-[state=open]:slide-in-from-left-1/2
           data-[state=open]:slide-in-from-top-1/2
+          overflow-x-hidden
           ${className} ${desktopClass}
         `}
         {...dialogContentExtraProps}
@@ -188,7 +190,7 @@ export default function Modal({
 
         <HeaderContent />
 
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 overflow-x-hidden">
           {/* noise */}
           <div className="fixed inset-0 pointer-events-none z-0 bg-noise-pattern opacity-100" />
   
