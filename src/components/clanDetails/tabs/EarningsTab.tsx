@@ -162,7 +162,7 @@ function TxRow({ tx, index }: { tx: typeof MOCK_TRANSACTIONS[0]; index: number }
 const PAGE_SIZE   = 6;
 const PAYOUT_GOAL = 250;
 
-export default function  EarningsTab({ clan } ) {
+export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
   
   const clanId = clan.id;
   const { address: accountAddr } = useWalletCore()
@@ -243,7 +243,7 @@ export default function  EarningsTab({ clan } ) {
               </div>
               <div className="flex items-baseline gap-3">
                 <span className="text-5xl md:text-6xl font-extrabold text-white drop-shadow-[0_0_30px_rgba(45,212,191,0.5)]">
-                  <AnimatedNumber value={8426.50} prefix="$" decimals={2} />
+                  <AnimatedNumber value={clan.totalEarned} prefix="$" decimals={2} />
                 </span>
                 <span className="text-lg font-semibold text-zinc-400">USDC</span>
               </div>
