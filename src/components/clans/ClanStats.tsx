@@ -14,17 +14,17 @@ export default function ClanStats() {
     totalClans: {
       title: "Clans",
       icon: Castle,
-      color: "purple",
+      color: "indigo",
     },
     clansTotalMembers: {
       title: "Members",
       icon: Users,
-      color: "blue",
+      color: "neon",
     },
     clansTotalEarned: {
       title: "Earned",
       icon: DollarSign,
-      color: "emerald",
+      color: "ice",
     },
     clansTotalMints: {
       title: "Minted",

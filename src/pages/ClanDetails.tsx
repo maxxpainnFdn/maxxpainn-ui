@@ -12,12 +12,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useApi } from "@/hooks/useApi";
 import utils from "@/lib/utils";
 import { ClanData } from "@/types/ClanData";
-import { ArrowLeft, Flame, Target, Trophy, Users } from "lucide-react";
+import { Activity, ArrowLeft, Book, Diamond, Flame, Group, Target, Trophy, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ClanActivities from "@/components/clanDetails/ClanActivities";
 import JoinClanBtn from "@/components/joinClanBtn/JoinClanBtn";
 import { Helmet } from "react-helmet-async";
+import Tabs from "@/components/tabs/Tabs";
+import OverviewTab from "@/components/clanDetails/tabs/OverviewTab";
+import EarningsTab from "@/components/clanDetails/tabs/EarningsTab";
 
 
 export default function ClanDetails() {
@@ -105,6 +108,7 @@ export default function ClanDetails() {
 
     setPageKey(Math.random() + Date.now())
   }
+
 
   return (
     <>
@@ -216,59 +220,19 @@ export default function ClanDetails() {
                   </div>
                 </div>
               </div>
-  
-              <ClanStats
-                data={{
-                  totalMembers: clan.totalMembers,
-                  totalEarned: clan.totalEarnedUsd || 0,
-                  totalMints: clan.totalMints || 0,
-                  rewardPerMint: clan.rewardPerMintUsd || 0
-                }}
-              />
-  
-              {/* Two Column Layout */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-                {/* Left Column - Leader & Members */}
-                <div className="lg:col-span-1 space-y-8">
-  
-                  <ChiefCard
-                    accountInfo={clan.creator}
-                    accentColor={ clan.accentColor1 }
-                  />
-  
-                  { clan &&
-                    <ClanMembers
-                      clanId={clan.id}
-                      accentColor={clan.accentColor1}
-                    />
-                  }
-                </div>
-  
-                {/* Right Column - About & Activity */}
-                <div className="lg:col-span-2 space-y-8">
-  
-                  {/** invite card */}
-                  <ClanInviteCard
-                    clanId={clan.id}
-                    clanSlug={clan.slug}
-                    accentColor={ clan.accentColor1 }
-                  />
-  
-                  {/* About Section */}
-                  <Card className="bg-gradient-to-br from-card via-card to-card/50 border border-border/40 shadow-xl">
-                    <CardContent className="p-8">
-                      <h2 className="text-3xl font-black mb-6">About the Clan</h2>
-                      <p className="text-muted-foreground leading-relaxed text-lg">
-                        {clan.description}
-                      </p>
-                    </CardContent>
-                  </Card>
-  
-                  <ClanActivities clanId={clan.id} />
-                </div>
-  
-              {/** end Grid */}
+              
+              <div className="my-5 mb-10">
+                <Tabs
+                  items={[
+                    { id: "overview", label: "Overview",  icon: Target,  component: OverviewTab, args:  { clan }  },
+                    { id: "earning",  label: "Earning",   icon: Diamond, component: EarningsTab, args: { clan }  },
+                    { id: "stories",  label: "Stories",   icon: Book,     component: () => <div>Stories</div>   },
+                    { id: "activity", label: "Activity",  icon: Activity, component: () => <div>Activities</div>  },
+                    { id: "members",  label: "Members",   icon: Group,    component: () => <div>Members</div>  },
+                  ]}
+                />
               </div>
+  
             </main>
           }
         </LoadingView>

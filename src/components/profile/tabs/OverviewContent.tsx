@@ -20,21 +20,19 @@ export default function OverviewContent({
 
 
       {/* Quick Stats Grid */}
-      <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 lg:gap-4">
         <StatsCard
           icon={Zap}
           title="Mint Count"
           value={totalMints}
-          sub=""
-          color="purple"
+          color="magenta"
           //trend=""
         />
         <StatsCard
           icon={PiggyBank}
           title="Minted Amount"
           value={amountMinted}
-          sub=""
-          color="blue"
+          color="plasma"
           //trend=""
         />
         
@@ -42,8 +40,7 @@ export default function OverviewContent({
           icon={Users}
           title="Followers"
           value={totalFollowers}
-          sub=""
-          color="yellow"
+          color="neon"
           //trend="+8.1%"
         />
       </div>

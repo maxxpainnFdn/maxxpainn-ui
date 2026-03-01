@@ -10,7 +10,7 @@ export default function ClanStats ({ data }: { data: IClanStats }) {
 
   const statsMeta = {
     "totalMints": {
-      color: "purple",
+      color: "indigo",
       icon: Target,
       title: "Mints",
       suffix: ""
@@ -18,12 +18,12 @@ export default function ClanStats ({ data }: { data: IClanStats }) {
     "totalMembers": {
       icon:  Users,
       title: "Members",
-      color: "blue",
+      color: "ice",
       suffix: "",
     },
     "totalEarned": {
       title: "Earned",    
-      color:  "emerald",
+      color:  "gold",
       icon:   TrendingUp,
       suffix: "USDC",
 
@@ -38,7 +38,7 @@ export default function ClanStats ({ data }: { data: IClanStats }) {
 
     return (
       
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 mb-8">
         {Object.keys(data).map(key => {
              
           let value = data[key]

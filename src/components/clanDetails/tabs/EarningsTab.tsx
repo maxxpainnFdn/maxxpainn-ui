@@ -1,0 +1,361 @@
+import { useState, useEffect, useRef } from "react";
+import { ArrowUpRight, Settings, ChevronDown, Copy, Check, TrendingUp, Wallet, Coins, Layers } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ClanData } from "@/types/ClanData";
+import StatsCard from "@/components/StatsCard";
+import { useWalletCore } from "@/hooks/useWalletCore";
+
+// ── Mock data ─────────────────────────────────────────────────────────────────
+const MOCK_TRANSACTIONS = [
+  { id: 1, name: "CryptoKing",  address: "8xPq...4mNk", amount: 2500, time: "1 min ago",   isNew: true  },
+  { id: 2, name: "DegenLord",   address: "3bYz...9kLm", amount: 1200, time: "5 mins ago",  isNew: true  },
+  { id: 3, name: "WhaleAlert",  address: "7nXw...2pQr", amount: 8900, time: "23 mins ago", isNew: false },
+  { id: 4, name: "SolanaOG",    address: "5vBc...8mNk", amount: 450,  time: "1 hour ago",  isNew: false },
+  { id: 5, name: "NFTMaxi",     address: "2tYu...6wEr", amount: 3200, time: "2 hours ago", isNew: false },
+  { id: 6, name: "DiamondApe",  address: "9mQw...4sAz", amount: 1800, time: "5 hours ago", isNew: false },
+  { id: 7, name: "PainLord",    address: "4kZx...7rBn", amount: 5100, time: "6 hours ago", isNew: false },
+  { id: 8, name: "GrindQueen",  address: "1pWe...3cLo", amount: 990,  time: "8 hours ago", isNew: false },
+];
+
+const CHART_DATA = [4, 7, 5, 9, 6, 8, 12, 10, 14, 11, 16, 13];
+
+const AVATAR_GRADIENTS = [
+  "from-teal-400 to-emerald-500",
+  "from-pink-500 to-orange-500",
+  "from-purple-600 to-indigo-500",
+  "from-blue-500 to-cyan-500",
+  "from-amber-500 to-red-500",
+  "from-emerald-500 to-teal-500",
+];
+
+// ── Animated counter ──────────────────────────────────────────────────────────
+function AnimatedNumber({ value, prefix = "", suffix = "", decimals = 0 }: {
+  value: number; prefix?: string; suffix?: string; decimals?: number;
+}) {
+  const [display, setDisplay] = useState(0);
+  const rafRef = useRef<number>();
+
+  useEffect(() => {
+    const duration = 1500;
+    const startTime = Date.now();
+    const tick = () => {
+      const elapsed  = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased    = 1 - Math.pow(1 - progress, 3);
+      setDisplay(value * eased);
+      if (progress < 1) rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current!);
+  }, [value]);
+
+  return (
+    <span>
+      {prefix}
+      {display.toLocaleString(undefined, {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      })}
+      {suffix}
+    </span>
+  );
+}
+
+
+// ── Payout ring ───────────────────────────────────────────────────────────────
+function PayoutRing({ current, goal }: { current: number; goal: number }) {
+  const r      = 42;
+  const circ   = 2 * Math.PI * r;
+  const offset = circ * (1 - Math.min(current / goal, 1));
+
+  return (
+    <div className="relative w-32 h-32 mx-auto">
+      <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r={r} fill="none" className="stroke-zinc-800" strokeWidth="8" />
+        <circle
+          cx="50" cy="50" r={r} fill="none"
+          stroke="url(#ringGrad)" strokeWidth="8"
+          strokeLinecap="round"
+          strokeDasharray={circ}
+          strokeDashoffset={offset}
+          className="transition-all duration-1000 ease-out"
+        />
+        <defs>
+          <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" className="[stop-color:theme(colors.pink.500)]" />
+            <stop offset="100%" className="[stop-color:theme(colors.purple.600)]" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="font-black text-2xl text-white leading-none">
+          <AnimatedNumber value={current} prefix="$" />
+        </span>
+        <span className="text-[10px] tracking-wider uppercase mt-0.5 text-zinc-500">
+          Pending
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ── Transaction row ───────────────────────────────────────────────────────────
+function TxRow({ tx, index }: { tx: typeof MOCK_TRANSACTIONS[0]; index: number }) {
+  const gradient = AVATAR_GRADIENTS[index % AVATAR_GRADIENTS.length];
+
+  return (
+    <div
+      className="group flex items-center justify-between gap-3 p-4 rounded-2xl cursor-pointer transition-all duration-300 bg-zinc-900/50 border border-white/5 hover:bg-zinc-800 hover:border-teal-400/20"
+    >
+      <div className="flex items-center gap-4 min-w-0 flex-1">
+        {/* Avatar */}
+        <div className="relative shrink-0">
+          <div
+            className={cn(
+              "w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-sm select-none bg-gradient-to-br",
+              gradient
+            )}
+          >
+            {tx.name.slice(0, 2).toUpperCase()}
+          </div>
+          {tx.isNew && (
+            <>
+              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 z-10 bg-teal-400 border-zinc-900" />
+              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full animate-ping bg-teal-400" />
+            </>
+          )}
+        </div>
+
+        {/* Identity */}
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-semibold text-white text-sm">{tx.name}</span>
+            <span className="font-mono text-[10px] px-2 py-0.5 rounded-md text-zinc-600 bg-zinc-950">
+              {tx.address}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-xs mt-1 text-zinc-500">
+            <span>{tx.time}</span>
+            <span className="w-1 h-1 rounded-full bg-zinc-600" />
+            <span className="text-purple-500">{tx.amount.toLocaleString()} \$PAINN</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Reward chip + arrow */}
+      <div className="flex items-center gap-3 shrink-0">
+        <div className="px-4 py-2 rounded-xl bg-teal-400/10 border border-teal-400/20">
+          <span className="font-mono font-semibold text-sm text-teal-400">+0.5</span>
+          <span className="text-xs ml-1 text-teal-400/60">USDC</span>
+        </div>
+        <button
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:text-white bg-zinc-700 hover:bg-purple-600"
+        >
+          <ArrowUpRight className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+const PAGE_SIZE   = 6;
+const PAYOUT_GOAL = 250;
+
+export default function  EarningsTab({ clan } ) {
+  
+  const clanId = clan.id;
+  const { address: accountAddr } = useWalletCore()
+  
+  console.log("clan===>", clan)
+  console.log("accountAddr===>", accountAddr)
+  
+  const [filter, setFilter] = useState<"all" | "today" | "week">("all");
+  const [visible,     setVisible]     = useState(PAGE_SIZE);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [copied,      setCopied]      = useState(false);
+
+  const shown   = MOCK_TRANSACTIONS.slice(0, visible);
+  const hasMore = visible < MOCK_TRANSACTIONS.length;
+
+ 
+
+  const loadMore = () => {
+    setLoadingMore(true);
+    setTimeout(() => {
+      setVisible(v => Math.min(v + PAGE_SIZE, MOCK_TRANSACTIONS.length));
+      setLoadingMore(false);
+    }, 500);
+  };
+  
+  const mintPerMemberRatio = (clan.totalMint == 0)
+    ? 0
+    : (clan.totalMints / clan.totalMembers)
+  
+  const statsData = [
+    { 
+      icon: Coins, 
+      label: "Reward Per Mint", 
+      value: clan.rewardPerMintUsd + " USDC",    
+      color: "mint"    
+    },
+    { 
+      icon: Layers, 
+      label: "Total Mints",     
+      value: clan.totalMints, 
+      color: "purple"  
+    },
+    { 
+      icon: Wallet, 
+      label: "Total Claimed (USDC)", 
+      value: clan.totalEarnedClaimedUsd,   
+      color: "neon" 
+    },
+    { 
+      icon: TrendingUp, 
+      label: "Mint Per Member Ratio",    
+      value: mintPerMemberRatio, 
+      color: "mint"     
+    },
+  ];
+  
+  return (
+    <div className="space-y-5 animate-fade-up font-sans">
+
+      {/* ── Background blurs (scoped to this tab) ── */}
+      <div className="relative">
+        <div className="absolute pointer-events-none -top-32 -left-32 w-96 h-96 rounded-full blur-[128px] bg-teal-400/10" />
+        <div className="absolute pointer-events-none -bottom-32 -right-32 w-96 h-96 rounded-full blur-[128px] bg-pink-500/10" />
+      </div>
+
+      {/* ══ MAIN GRID — total + ring ═════════════════════════════════════════ */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+        {/* Total earnings */}
+        <div className="lg:col-span-2 rounded-[20px] p-[1px] pb-[10px] bg-gradient-to-br from-teal-400/20 to-pink-500/20">
+          <div className=" h-[100%] rounded-[19px] p-6 md:p-8 flex flex-col md:flex-row md:items-end justify-between align-middle gap-6 bg-zinc-900">
+            <div className="">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xl">💰</span>
+                <span className="text-xs font-semibold tracking-wider uppercase text-zinc-500">
+                  Total Earnings
+                </span>
+              </div>
+              <div className="flex items-baseline gap-3">
+                <span className="text-5xl md:text-6xl font-extrabold text-white drop-shadow-[0_0_30px_rgba(45,212,191,0.5)]">
+                  <AnimatedNumber value={8426.50} prefix="$" decimals={2} />
+                </span>
+                <span className="text-lg font-semibold text-zinc-400">USDC</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Pending ring */}
+        <div className="rounded-[20px] p-6 flex flex-col items-center justify-center relative overflow-hidden bg-zinc-900 border border-white/5">
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-pink-500/5 to-transparent" />
+          <PayoutRing current={100} goal={100} />
+          <p className="text-sm mt-4 text-center text-zinc-400">
+            Unclaimed <span className="text-white font-semibold">${PAYOUT_GOAL}</span>
+          </p>
+        </div>
+      </div>
+
+      {/* ══ STATS ROW ════════════════════════════════════════════════════════ */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+        {statsData.map(({ icon, label, value, color }) => (
+          <StatsCard
+            icon={icon}
+            title={label}
+            value={value}
+            color={color}
+          />
+        ))}
+      </div>
+
+      {/* ══ WALLET ═══════════════════════════════════════════════════════════ */}
+      <div className="rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-zinc-900 border border-white/5">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl bg-gradient-to-br from-purple-600 to-indigo-700">
+            👛
+          </div>
+          <div>
+            <p className="text-xs mb-1 text-zinc-500">Connected Wallet</p>
+            <button
+              className="flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-sm transition-all bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+            >
+              { accountAddr }
+              {copied
+                ? <Check className="w-3.5 h-3.5 text-teal-400" />
+                : <Copy  className="w-3.5 h-3.5 text-zinc-600" />}
+            </button>
+          </div>
+        </div>
+
+        <button className="w-full sm:w-auto px-6 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-teal-400 to-emerald-500 text-zinc-950 hover:shadow-lg hover:shadow-teal-400/25">
+          <span>Withdraw Funds</span>
+          <ArrowUpRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* ══ TRANSACTIONS ══════════════════════════════════════════════════════ */}
+      <div className="rounded-2xl p-5 bg-zinc-900/50 border border-white/5">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+          <h3 className="text-lg font-bold text-white flex items-center gap-2">
+            <span>💧</span> Recent Mints
+          </h3>
+          {/* Filter */}
+          <div className="flex gap-1 p-1 rounded-xl bg-zinc-950">
+            {(["all", "today", "week"] as const).map(f => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={cn(
+                  "px-4 py-2 rounded-lg text-xs font-medium transition-all",
+                  filter === f
+                    ? "bg-zinc-800 text-white"
+                    : "text-zinc-500 hover:text-zinc-300"
+                )}
+              >
+                {f.charAt(0).toUpperCase() + f.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Rows */}
+        <div className="space-y-3 max-h-[500px] overflow-y-auto scrollbar-hide">
+          {shown.map((tx, i) => (
+            <TxRow key={tx.id} tx={tx} index={i} />
+          ))}
+        </div>
+
+        {/* Load more */}
+        {hasMore && (
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="w-full mt-4 py-4 rounded-xl text-sm flex items-center justify-center gap-2 transition-all border border-dashed border-white/10 text-zinc-500 hover:border-teal-400/30 hover:text-teal-400"
+          >
+            {loadingMore ? "Loading…" : <><span>Load More</span><ChevronDown className="w-4 h-4" /></>}
+          </button>
+        )}
+      </div>
+
+      {/* ── Copy toast ── */}
+      <div
+        className={cn(
+          "fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none",
+          "flex items-center gap-3 px-5 py-3 rounded-xl transition-all duration-300",
+          "bg-zinc-800 border border-teal-400/30",
+          copied ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
+        )}
+      >
+        <Check className="w-4 h-4 text-teal-400" />
+        <span className="text-sm text-white">Address copied!</span>
+      </div>
+
+    </div>
+  );
+}

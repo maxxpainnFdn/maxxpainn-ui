@@ -321,9 +321,10 @@ export const useWeb3 = () => {
     params: SendBatchTxProps,
   ): Promise<Status<SendTxResult | null>> => {
     try {
+      
       const { network } = params;
       const tx = new Transaction();
-      const provider = anchorProvider.getProvider();
+      const provider = anchorProvider.getProvider(network);
 
       tx.add(ComputeBudgetProgram.setComputeUnitLimit({ units: 800000 }));
 
