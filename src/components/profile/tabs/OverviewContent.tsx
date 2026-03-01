@@ -1,5 +1,6 @@
 import { Activity, Award, ChevronRight, Crown, Medal, PiggyBank, Star, TrendingUp, Users, Zap } from "lucide-react";
 import QuickStatCard from "../QuickStatCard";
+import StatsCard from "@/components/StatsCard";
 
 export interface OverviewContentProps {
   totalMints: number | string;
@@ -20,33 +21,26 @@ export default function OverviewContent({
 
       {/* Quick Stats Grid */}
       <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
-        <QuickStatCard
+        <StatsCard
           icon={Zap}
-          label="Mint Count"
+          title="Mint Count"
           value={totalMints}
           sub=""
           color="purple"
           //trend=""
         />
-        <QuickStatCard
+        <StatsCard
           icon={PiggyBank}
-          label="Minted Amount"
+          title="Minted Amount"
           value={amountMinted}
           sub=""
           color="blue"
           //trend=""
         />
-        <QuickStatCard
-          icon={Star}
-          label="Referrals"
-          value={totalReferral}
-          sub=""
-          color="emerald"
-          //trend="+8.1%"
-        />
-        <QuickStatCard
+        
+        <StatsCard
           icon={Users}
-          label="Followers"
+          title="Followers"
           value={totalFollowers}
           sub=""
           color="yellow"

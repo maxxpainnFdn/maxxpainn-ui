@@ -11,7 +11,7 @@ export default function BadgesContent({ accountId }) {
   const [totalBadges, setTotalBadges] = useState(0)
 
   return (
-    <div className="bg-gray-900/80 backdrop-blur-sm border-2 border-purple-500/20 rounded-3xl p-8 shadow-xl">
+    <div className="bg-maxx-bg1  border-2 border-purple-500/5 rounded-xl p-8 shadow-xl">
       <div className="flex items-center gap-3 mb-8">
         <div className="w-8 h:8 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg">
           <Medal className="w-4 h-4 md:w-6 md:h-6 text-white" />
