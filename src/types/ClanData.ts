@@ -16,6 +16,7 @@ export interface ClanData {
     totalMembers:           number;
     totalMints:             number;
     isMember?:              boolean;
-    totalEarned:           number;
-    totalEarnedClaimed:    number;
+    rewardPerMintUsd:       number;
+    totalEarned:            number;
+    totalEarnedClaimedUsd:  number;
 }

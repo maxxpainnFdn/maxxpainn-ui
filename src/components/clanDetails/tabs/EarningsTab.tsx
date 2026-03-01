@@ -177,7 +177,6 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
 
   const shown   = MOCK_TRANSACTIONS.slice(0, visible);
   const hasMore = visible < MOCK_TRANSACTIONS.length;
-
  
 
   const loadMore = () => {
@@ -188,7 +187,7 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
     }, 500);
   };
   
-  const mintPerMemberRatio = (clan.totalMint == 0)
+  const mintPerMemberRatio = (clan.totalMints == 0)
     ? 0
     : (clan.totalMints / clan.totalMembers)
   
