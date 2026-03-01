@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { ArrowUpRight, Settings, ChevronDown, Copy, Check, TrendingUp, Wallet, Coins, Layers } from "lucide-react";
-import { cn } from "@/lib/utils";
+import utils, { cn } from "@/lib/utils";
 import { ClanData } from "@/types/ClanData";
 import StatsCard from "@/components/StatsCard";
 import { useWalletCore } from "@/hooks/useWalletCore";
@@ -208,13 +208,13 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
       icon: Wallet, 
       label: "Total Claimed (USDC)", 
       value: clan.totalEarnedClaimedUsd,   
-      color: "neon" 
+      color: "mint" 
     },
     { 
       icon: TrendingUp, 
       label: "Mint Per Member Ratio",    
       value: mintPerMemberRatio, 
-      color: "mint"     
+      color: "purple"     
     },
   ];
   
@@ -242,7 +242,7 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
               </div>
               <div className="flex items-baseline gap-3">
                 <span className="text-5xl md:text-6xl font-extrabold text-white drop-shadow-[0_0_30px_rgba(45,212,191,0.5)]">
-                  <AnimatedNumber value={clan.totalEarned} prefix="$" decimals={2} />
+                  <AnimatedNumber value={clan.totalEarnedUsd} prefix="$" decimals={2} />
                 </span>
                 <span className="text-lg font-semibold text-zinc-400">USDC</span>
               </div>
@@ -283,7 +283,7 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
             <button
               className="flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-sm transition-all bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
             >
-              { accountAddr }
+              { utils.maskAddress(accountAddr, 8, 8) }
               {copied
                 ? <Check className="w-3.5 h-3.5 text-teal-400" />
                 : <Copy  className="w-3.5 h-3.5 text-zinc-600" />}

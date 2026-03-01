@@ -269,7 +269,8 @@ export const useWeb3 = () => {
       return Status.error(userMessage);
     }
   };
-
+  
+  /* old method
   const sendTx = async (
     params: ProgramTxProps,
   ): Promise<Status<SendTxResult | null>> => {
@@ -315,6 +316,79 @@ export const useWeb3 = () => {
 
       console.log(e, e.stack);
 
+      return Status.error(userMessage);
+    }
+  };
+  */
+  
+  const sendTx = async (
+    params: ProgramTxProps,
+  ): Promise<Status<SendTxResult | null>> => {
+    
+    let program: Program<Idl>;
+    
+    try {
+      
+      const { programMethod, provider, program } = await prepareTx(params);
+  
+      // ✅ Get latest blockhash
+      const { blockhash, lastValidBlockHeight } = await provider.connection.getLatestBlockhash("confirmed");
+  
+      // ✅ Build instruction from method
+      const ix = await programMethod.instruction();
+  
+      // ✅ Build VersionedTransaction
+      const message = new TransactionMessage({
+        payerKey: provider.wallet.publicKey,
+        recentBlockhash: blockhash,
+        instructions: [
+          ComputeBudgetProgram.setComputeUnitLimit({ units: 800000 }),
+          ix,
+        ],
+      }).compileToV0Message();
+  
+      const versionedTx = new VersionedTransaction(message);
+  
+      // ✅ Sign via wallet (MWA compatible)
+      const signedTx = await provider.wallet.signTransaction(versionedTx);
+  
+      // ✅ Send raw
+      const txSig = await provider.connection.sendRawTransaction(
+        signedTx.serialize(),
+        { skipPreflight: false }
+      );
+  
+      // ✅ Confirm with blockhash strategy
+      await provider.connection.confirmTransaction(
+        { signature: txSig, blockhash, lastValidBlockHeight },
+        "confirmed"
+      );
+  
+      const onTxSubmitted = params.onTxSubmitted;
+      
+      if (onTxSubmitted) onTxSubmitted(txSig);
+  
+      const tx = await provider.connection.getParsedTransaction(txSig, {
+        commitment: "confirmed",
+        maxSupportedTransactionVersion: 0,
+      });
+  
+      const rawLogs = tx?.meta?.logMessages || [];
+      const eventParser = new EventParser(program.programId, program.coder);
+      const events = {};
+  
+      for (const event of eventParser.parseLogs(rawLogs)) {
+        events[event.name] = event.data;
+      }
+  
+      const getEvent = (evtName: string): any => events[evtName];
+  
+      return Status.successData({ tx, txSig, events, getEvent });
+  
+    } catch (e) {
+      const userMessage = getAnchorErrorMessage(e, program);
+      logAnchorError(e, program);
+      console.log(e, e.stack);
       return Status.error(userMessage);
     }
   };
