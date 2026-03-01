@@ -314,7 +314,7 @@ export default function UserProfilePage() {
                         {/* Wallet address pill */}
                         <div className="inline-flex items-center gap-2.5 px-3 py-2 rounded-md bg-maxx-bg0/60 border border-maxx-violet/15 hover:border-maxx-violet/30 transition-colors duration-200 mb-4 group">
                           <span className="w-2 h-2 rounded-full bg-maxx-emerald animate-ping-slow shrink-0" />
-                          <span className="text-xs font-mono text-maxx-mid group-hover:text-maxx-bright transition-colors">
+                          <span className="text-sm font-mono text-maxx-mid group-hover:text-maxx-bright transition-colors">
                             {utils.maskAddress(accountInfo.address, 8, 6)}
                           </span>
                           <CopyBtn
@@ -332,9 +332,9 @@ export default function UserProfilePage() {
                         )}
 
                         {/* Meta */}
-                        <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-maxx-sub">
+                        <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-maxx-sub">
                           <span className="flex items-center gap-1.5 hover:text-maxx-violet transition-colors">
-                            <MapPin className="w-3.5 h-3.5 shrink-0" />
+                            <MapPin className="w-4 h-4 shrink-0" />
                             <span className="truncate max-w-[120px]">
                               {accountInfo.location === "" ? "Unknown" : accountInfo.location}
                             </span>
@@ -342,12 +342,12 @@ export default function UserProfilePage() {
                           {accountInfo.website !== "" && (
                             <a href={accountInfo.website} target="_blank"
                               className="flex items-center gap-1.5 hover:text-maxx-violet transition-colors group">
-                              <LinkIcon className="w-3.5 h-3.5 shrink-0 group-hover:rotate-45 transition-transform" />
+                              <LinkIcon className="w-4 h-4 shrink-0 group-hover:rotate-45 transition-transform" />
                               <span className="truncate max-w-[120px]">{new URL(accountInfo.website).hostname}</span>
                             </a>
                           )}
                           <span className="flex items-center gap-1.5">
-                            <Calendar className="w-3.5 h-3.5 shrink-0" />
+                            <Calendar className="w-4 h-4 shrink-0" />
                             Joined {utils.getRelativeDate(accountInfo.createdAt)}
                           </span>
                         </div>
