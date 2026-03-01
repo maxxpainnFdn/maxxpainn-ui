@@ -15,6 +15,8 @@ import {
   ParsedTransactionWithMeta,
   PublicKey,
   Transaction,
+  TransactionMessage,
+  VersionedTransaction,
 } from "@solana/web3.js";
 import {
   AccountLayout,
@@ -317,6 +319,7 @@ export const useWeb3 = () => {
     }
   };
 
+  /* old function
   const sendBatchTx = async (
     params: SendBatchTxProps,
   ): Promise<Status<SendTxResult | null>> => {
@@ -370,6 +373,88 @@ export const useWeb3 = () => {
       const getEvent = (evtName: string) => events[evtName];
 
       return Status.successData({ tx: parsedTx, txSig, events, getEvent });
+    } catch (e) {
+      console.log(e, e.stack);
+      return Status.error(e.message || "Transaction failed");
+    }
+  };
+  */
+  
+  const sendBatchTx = async (
+    params: SendBatchTxProps,
+  ): Promise<Status<SendTxResult | null>> => {
+    try {
+      
+      const { network } = params;
+      const provider = anchorProvider.getProvider(network);
+      const instructions = [];
+      const programs = [];
+  
+      // Add compute budget instruction
+      instructions.push(
+        ComputeBudgetProgram.setComputeUnitLimit({ units: 800000 })
+      );
+  
+      for (let programParam of params.instructions) {
+        const { programMethod, program } = await prepareTx({
+          network,
+          ...programParam,
+        });
+  
+        let ix = await programMethod.instruction();
+        instructions.push(ix);
+        programs.push(program);
+      }
+  
+      // ✅ Get latest blockhash
+      const { blockhash, lastValidBlockHeight } = await provider.connection.getLatestBlockhash("confirmed");
+  
+      // ✅ Build VersionedTransaction instead of legacy Transaction
+      const message = new TransactionMessage({
+        payerKey: provider.wallet.publicKey,
+        recentBlockhash: blockhash,
+        instructions,
+      }).compileToV0Message();
+  
+      const versionedTx = new VersionedTransaction(message);
+  
+      // ✅ Sign via wallet (MWA compatible)
+      const signedTx = await provider.wallet.signTransaction(versionedTx);
+  
+      // ✅ Send raw
+      const txSig = await provider.connection.sendRawTransaction(
+        signedTx.serialize(),
+        { skipPreflight: false }
+      );
+  
+      // ✅ Confirm with blockhash strategy
+      await provider.connection.confirmTransaction(
+        { signature: txSig, blockhash, lastValidBlockHeight },
+        "confirmed"
+      );
+  
+      const onTxSubmitted = params.onTxSubmitted;
+      if (onTxSubmitted) onTxSubmitted(txSig);
+  
+      const parsedTx = await provider.connection.getParsedTransaction(txSig, {
+        commitment: "confirmed",
+        maxSupportedTransactionVersion: 0,
+      });
+  
+      const rawLogs = parsedTx?.meta?.logMessages || [];
+      const events: Record<string, any> = {};
+  
+      for (const program of programs) {
+        const eventParser = new EventParser(program.programId, program.coder);
+        for (const evt of eventParser.parseLogs(rawLogs)) {
+          events[evt.name] = evt.data;
+        }
+      }
+  
+      const getEvent = (evtName: string) => events[evtName];
+  
+      return Status.successData({ tx: parsedTx, txSig, events, getEvent });
+  
     } catch (e) {
       console.log(e, e.stack);
       return Status.error(e.message || "Transaction failed");
