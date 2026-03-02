@@ -4,6 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 import ImageAvatar from "../ImageAvatar";
 import { tokenConfig } from "@/config/token";
 import { CopyBtn } from "../copyBtn/CopyBtn";
+import { Link } from "react-router-dom";
 
 export default function MintReferralTxRow({ data }: { data: MintReferralTx }) {
   
@@ -39,7 +40,9 @@ export default function MintReferralTxRow({ data }: { data: MintReferralTx }) {
         {/* Identity */}
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="font-semibold text-white text-sm">{minter.username}</div>
+            <div className="font-semibold text-white text-sm">
+              <Link to={`/profile/${minter.username}`}>{minter.username}</Link>
+            </div>
             <div className="flex align-middle font-mono text-[10px] px-2 py-1 rounded-md text-zinc-600 bg-zinc-950">
               <div>
                 <a href={minterAddrUrl} target="_blank">

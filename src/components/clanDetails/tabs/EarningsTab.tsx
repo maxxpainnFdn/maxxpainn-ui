@@ -7,6 +7,7 @@ import { useWalletCore } from "@/hooks/useWalletCore";
 import MintReferralFilter from "../MintReferralFilter";
 import ApiQuery from "@/components/apiQuery/ApiQuery";
 import MintReferralTxRow from "../MintReferralTxRow";
+import { clanConfig } from "@/config/clan";
 
 // ── Mock data ─────────────────────────────────────────────────────────────────
 const MOCK_TRANSACTIONS = [
@@ -20,16 +21,6 @@ const MOCK_TRANSACTIONS = [
   { id: 8, name: "GrindQueen",  address: "1pWe...3cLo", amount: 990,  time: "8 hours ago", isNew: false },
 ];
 
-const CHART_DATA = [4, 7, 5, 9, 6, 8, 12, 10, 14, 11, 16, 13];
-
-const AVATAR_GRADIENTS = [
-  "from-teal-400 to-emerald-500",
-  "from-pink-500 to-orange-500",
-  "from-purple-600 to-indigo-500",
-  "from-blue-500 to-cyan-500",
-  "from-amber-500 to-red-500",
-  "from-emerald-500 to-teal-500",
-];
 
 // ── Animated counter ──────────────────────────────────────────────────────────
 function AnimatedNumber({ value, prefix = "", suffix = "", decimals = 0 }: {
@@ -103,10 +94,6 @@ function PayoutRing({ current, goal }: { current: number; goal: number }) {
 }
 
 
-// ── Main ──────────────────────────────────────────────────────────────────────
-const PAGE_SIZE   = 6;
-const PAYOUT_GOAL = 250;
-
 export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
   
   const clanId = clan.id;
@@ -115,20 +102,9 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
   console.log("clan===>", clan)
   
   const [period, setPeriod] = useState<string>("all");
-  const [visible,     setVisible]     = useState(PAGE_SIZE);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [refDataArr, setRefDataArr] = useState([])
 
-  const hasMore = visible < MOCK_TRANSACTIONS.length;
- 
-
-  const loadMore = () => {
-    setLoadingMore(true);
-    setTimeout(() => {
-      setVisible(v => Math.min(v + PAGE_SIZE, MOCK_TRANSACTIONS.length));
-      setLoadingMore(false);
-    }, 500);
-  };
+  const unClaimedAmount = clan.totalEarnedUsd - clan.totalEarnedClaimedUsd;
   
   const onQuerySuccess = (data) => {
     console.log("data===>", data)
@@ -201,9 +177,9 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
         {/* Pending ring */}
         <div className="rounded-[20px] p-6 flex flex-col items-center justify-center relative overflow-hidden bg-zinc-900 border border-white/5">
           <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-pink-500/5 to-transparent" />
-          <PayoutRing current={100} goal={100} />
+          <PayoutRing current={unClaimedAmount} goal={clanConfig.minRewardWithdrawalThresholdUsd} />
           <p className="text-sm mt-4 text-center text-zinc-400">
-            Unclaimed <span className="text-white font-semibold">${PAYOUT_GOAL}</span>
+            min. withdrawal amount: <span className="text-white font-semibold">{clanConfig.minRewardWithdrawalThresholdUsd} USDC</span>
           </p>
         </div>
       </div>
@@ -247,13 +223,13 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
           <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <span>💧</span> Recent Mints
+           Recent Mints
           </h3>
           <MintReferralFilter onChange={setPeriod} />
         </div>
 
         {/* Rows */}
-        <div className="space-y-3 max-h-[500px] overflow-y-auto scrollbar-hide">
+        <div className="space-y-3 overflow-x-hidden max-h-[600px] overflow-y-auto scrollbar-hide">
           <ApiQuery
             uri={`/clans/${clanId}/referrals`}
             query={{ period }}
@@ -268,16 +244,12 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
           </ApiQuery>
         </div>
 
-        {/* Load more */}
-        {hasMore && (
-          <button
-            onClick={loadMore}
-            disabled={loadingMore}
-            className="w-full mt-4 py-4 rounded-xl text-sm flex items-center justify-center gap-2 transition-all border border-dashed border-white/10 text-zinc-500 hover:border-teal-400/30 hover:text-teal-400"
-          >
-            {loadingMore ? "Loading…" : <><span>Load More</span><ChevronDown className="w-4 h-4" /></>}
-          </button>
-        )}
+        <button
+          className="w-full mt-4 py-4 rounded-xl text-sm flex items-center justify-center gap-2 transition-all border border-dashed border-white/10 text-zinc-500 hover:border-teal-400/30 hover:text-teal-400"
+        >
+          <span>Load More</span><ChevronDown className="w-4 h-4" />
+        </button>
+        
       </div>
     </div>
   );
