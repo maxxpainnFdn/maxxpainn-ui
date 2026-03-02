@@ -41,13 +41,13 @@ export default function ApiQuery({
     useEffect(() => { fetchData()  }, [uri])
 
     const fetchData = async (pageNo?: number) => {
-
+        
         setError("")
         setLoading(true)
 
         if(pageNo) {
-            query = query || {}
-            query[pageNo] = pageNo
+          query = query || {}
+          query["pageNo"] = pageNo
         }
 
         const resultStatus = await api.get(uri, query)
@@ -64,6 +64,8 @@ export default function ApiQuery({
         }
 
         let resultData: any = resultStatus.getData();
+        
+        console.log("resultData===>", resultData)
 
         let isObj = (typeof resultData == 'object')
 
@@ -80,7 +82,7 @@ export default function ApiQuery({
     }
 
     const onPageChange = (pageNo) => {
-        fetchData(pageNo)
+      fetchData(pageNo)
     }
 
     const onReload = () => {
@@ -102,13 +104,13 @@ export default function ApiQuery({
                             { pagingType == "simple" ?
                                 <SimplePagination
                                     currentPage={pagingInfo.currentPage}
-                                    totalPages={pagingInfo.totalCount}
+                                    totalPages={pagingInfo.pageCount}
                                     onPageChange={onPageChange}
                                     {...pagingProps}
                                 /> :
                                 <Pagination
                                     currentPage={pagingInfo.currentPage}
-                                    totalPages={pagingInfo.totalCount}
+                                    totalPages={pagingInfo.pageCount}
                                     onPageChange={onPageChange}
                                     {...pagingProps}
                                 />

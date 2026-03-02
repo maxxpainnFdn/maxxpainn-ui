@@ -6,7 +6,7 @@ const cn = (...classes) => classes.filter(Boolean).join(' ');
 const buttonVariants = ({ variant, size }) => {
   const baseStyles = "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
   const variants = {
-    outline: "border border-gray-700 bg-gray-800 text-gray-200 hover:bg-gray-700 hover:text-white",
+    outline: "border border-violet-200/10 bg-white/5 text-gray-200 hover:bg-white/10 hover:text-white",
     ghost: "text-gray-400 hover:bg-gray-800 hover:text-gray-200",
   };
   const sizes = {
@@ -18,9 +18,10 @@ const buttonVariants = ({ variant, size }) => {
 
 // Simplified Pagination Component
 export function Pagination({ currentPage, totalPages, onPageChange, className = "", activeClassName = "" }) {
+  
   const renderPageNumbers = () => {
     const pages = [];
-    
+  
     // Always show first page
     pages.push(
       <button
@@ -35,8 +36,10 @@ export function Pagination({ currentPage, totalPages, onPageChange, className = 
         1
       </button>
     );
-    
-    // Show ellipsis if needed
+  
+    if (totalPages === 1) return pages;
+  
+    // Left ellipsis: only if currentPage is far from the start
     if (currentPage > 3) {
       pages.push(
         <span key="ellipsis1" className="flex h-9 w-9 items-center justify-center text-gray-500">
@@ -44,25 +47,28 @@ export function Pagination({ currentPage, totalPages, onPageChange, className = 
         </span>
       );
     }
-    
-    // Show current page if not first or last
-    if (currentPage > 2 && currentPage < totalPages - 1) {
+  
+    // Middle pages: show a window around currentPage, excluding first and last
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+  
+    for (let i = start; i <= end; i++) {
       pages.push(
         <button
-          key={currentPage}
-          //onClick={() => onPageChange(currentPage)}
+          key={i}
+          onClick={() => onPageChange(i)}
           className={cn(
-            buttonVariants({ variant: "outline", size: "icon" }),
-            "cursor-pointer"
+            buttonVariants({ variant: currentPage === i ? "outline" : "ghost", size: "icon" }),
+            "cursor-pointer",
+            currentPage === i && activeClassName
           )}
-          disabled
         >
-          {currentPage}
+          {i}
         </button>
       );
     }
-    
-    // Show ellipsis if needed
+  
+    // Right ellipsis: only if currentPage is far from the end
     if (currentPage < totalPages - 2) {
       pages.push(
         <span key="ellipsis2" className="flex h-9 w-9 items-center justify-center text-gray-500">
@@ -70,23 +76,22 @@ export function Pagination({ currentPage, totalPages, onPageChange, className = 
         </span>
       );
     }
-    
+  
     // Always show last page
-    if (totalPages > 1) {
-      pages.push(
-        <button
-          key={totalPages}
-          onClick={() => onPageChange(totalPages)}
-          className={cn(
-            buttonVariants({ variant: currentPage === totalPages ? "outline" : "ghost", size: "icon" }),
-            "cursor-pointer"
-          )}
-        >
-          {totalPages}
-        </button>
-      );
-    }
-    
+    pages.push(
+      <button
+        key={totalPages}
+        onClick={() => onPageChange(totalPages)}
+        className={cn(
+          buttonVariants({ variant: currentPage === totalPages ? "outline" : "ghost", size: "icon" }),
+          "cursor-pointer",
+          currentPage === totalPages && activeClassName
+        )}
+      >
+        {totalPages}
+      </button>
+    );
+  
     return pages;
   };
   
@@ -159,4 +164,3 @@ export function SimplePagination({ currentPage, totalPages, onPageChange, classN
     </nav>
   );
 }
-

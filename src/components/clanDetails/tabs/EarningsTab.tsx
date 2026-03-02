@@ -235,6 +235,7 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
             query={{ period }}
             key={period}
             onSuccess={onQuerySuccess}
+            pagingType="full"
           >
             <>
               { refDataArr.map((data, i) => (
@@ -243,12 +244,6 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
             </>
           </ApiQuery>
         </div>
-
-        <button
-          className="w-full mt-4 py-4 rounded-xl text-sm flex items-center justify-center gap-2 transition-all border border-dashed border-white/10 text-zinc-500 hover:border-teal-400/30 hover:text-teal-400"
-        >
-          <span>Load More</span><ChevronDown className="w-4 h-4" />
-        </button>
         
       </div>
     </div>
