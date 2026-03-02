@@ -181,6 +181,7 @@ export default function ClanDetails() {
                         <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
                           {clan.name}
                         </h1>
+                        {/* 
                         <div
                           className="flex items-center gap-2 px-4 py-2 rounded-2xl border-2 bg-background/60 backdrop-blur-sm"
                           style={{ borderColor: clan.accentColor1 }}
@@ -189,7 +190,7 @@ export default function ClanDetails() {
                           <span className="text-xl  md:text-3xl font-bold md:font-black" style={{ color: clan.accentColor1 }}>
                             #{ clan.rank + 1 }
                           </span>
-                        </div>
+                        </div>*/}
                       </div>
                       <p className="text-xl text-muted-foreground mb-6 max-w-2xl">{clan.tagline}</p>
   

@@ -4,6 +4,9 @@ import utils, { cn } from "@/lib/utils";
 import { ClanData } from "@/types/ClanData";
 import StatsCard from "@/components/StatsCard";
 import { useWalletCore } from "@/hooks/useWalletCore";
+import MintReferralFilter from "../MintReferralFilter";
+import ApiQuery from "@/components/apiQuery/ApiQuery";
+import MintReferralTxRow from "../MintReferralTxRow";
 
 // ── Mock data ─────────────────────────────────────────────────────────────────
 const MOCK_TRANSACTIONS = [
@@ -99,64 +102,6 @@ function PayoutRing({ current, goal }: { current: number; goal: number }) {
   );
 }
 
-// ── Transaction row ───────────────────────────────────────────────────────────
-function TxRow({ tx, index }: { tx: typeof MOCK_TRANSACTIONS[0]; index: number }) {
-  const gradient = AVATAR_GRADIENTS[index % AVATAR_GRADIENTS.length];
-
-  return (
-    <div
-      className="group flex items-center justify-between gap-3 p-4 rounded-2xl cursor-pointer transition-all duration-300 bg-zinc-900/50 border border-white/5 hover:bg-zinc-800 hover:border-teal-400/20"
-    >
-      <div className="flex items-center gap-4 min-w-0 flex-1">
-        {/* Avatar */}
-        <div className="relative shrink-0">
-          <div
-            className={cn(
-              "w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-sm select-none bg-gradient-to-br",
-              gradient
-            )}
-          >
-            {tx.name.slice(0, 2).toUpperCase()}
-          </div>
-          {tx.isNew && (
-            <>
-              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 z-10 bg-teal-400 border-zinc-900" />
-              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full animate-ping bg-teal-400" />
-            </>
-          )}
-        </div>
-
-        {/* Identity */}
-        <div className="min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-white text-sm">{tx.name}</span>
-            <span className="font-mono text-[10px] px-2 py-0.5 rounded-md text-zinc-600 bg-zinc-950">
-              {tx.address}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 text-xs mt-1 text-zinc-500">
-            <span>{tx.time}</span>
-            <span className="w-1 h-1 rounded-full bg-zinc-600" />
-            <span className="text-purple-500">{tx.amount.toLocaleString()} \$PAINN</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Reward chip + arrow */}
-      <div className="flex items-center gap-3 shrink-0">
-        <div className="px-4 py-2 rounded-xl bg-teal-400/10 border border-teal-400/20">
-          <span className="font-mono font-semibold text-sm text-teal-400">+0.5</span>
-          <span className="text-xs ml-1 text-teal-400/60">USDC</span>
-        </div>
-        <button
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:text-white bg-zinc-700 hover:bg-purple-600"
-        >
-          <ArrowUpRight className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-  );
-}
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 const PAGE_SIZE   = 6;
@@ -168,14 +113,12 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
   const { address: accountAddr } = useWalletCore()
   
   console.log("clan===>", clan)
-  console.log("accountAddr===>", accountAddr)
   
-  const [filter, setFilter] = useState<"all" | "today" | "week">("all");
+  const [period, setPeriod] = useState<string>("all");
   const [visible,     setVisible]     = useState(PAGE_SIZE);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [copied,      setCopied]      = useState(false);
+  const [refDataArr, setRefDataArr] = useState([])
 
-  const shown   = MOCK_TRANSACTIONS.slice(0, visible);
   const hasMore = visible < MOCK_TRANSACTIONS.length;
  
 
@@ -187,9 +130,14 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
     }, 500);
   };
   
+  const onQuerySuccess = (data) => {
+    console.log("data===>", data)
+    setRefDataArr(data)
+  }
+  
   const mintPerMemberRatio = (clan.totalMints == 0)
     ? 0
-    : (clan.totalMints / clan.totalMembers)
+    : ((clan.totalMints / clan.totalMembers) * 100).toFixed(1);
   
   const statsData = [
     { 
@@ -208,13 +156,13 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
       icon: Wallet, 
       label: "Total Claimed (USDC)", 
       value: clan.totalEarnedClaimedUsd,   
-      color: "mint" 
+      color: "ice" 
     },
     { 
       icon: TrendingUp, 
-      label: "Mint Per Member Ratio",    
-      value: mintPerMemberRatio, 
-      color: "purple"     
+      label: "Avg Mints per Member",    
+      value: mintPerMemberRatio + "%", 
+      color: "neon"     
     },
   ];
   
@@ -284,9 +232,6 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
               className="flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-sm transition-all bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
             >
               { utils.maskAddress(accountAddr, 8, 8) }
-              {copied
-                ? <Check className="w-3.5 h-3.5 text-teal-400" />
-                : <Copy  className="w-3.5 h-3.5 text-zinc-600" />}
             </button>
           </div>
         </div>
@@ -304,30 +249,23 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
           <h3 className="text-lg font-bold text-white flex items-center gap-2">
             <span>💧</span> Recent Mints
           </h3>
-          {/* Filter */}
-          <div className="flex gap-1 p-1 rounded-xl bg-zinc-950">
-            {(["all", "today", "week"] as const).map(f => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={cn(
-                  "px-4 py-2 rounded-lg text-xs font-medium transition-all",
-                  filter === f
-                    ? "bg-zinc-800 text-white"
-                    : "text-zinc-500 hover:text-zinc-300"
-                )}
-              >
-                {f.charAt(0).toUpperCase() + f.slice(1)}
-              </button>
-            ))}
-          </div>
+          <MintReferralFilter onChange={setPeriod} />
         </div>
 
         {/* Rows */}
         <div className="space-y-3 max-h-[500px] overflow-y-auto scrollbar-hide">
-          {shown.map((tx, i) => (
-            <TxRow key={tx.id} tx={tx} index={i} />
-          ))}
+          <ApiQuery
+            uri={`/clans/${clanId}/referrals`}
+            query={{ period }}
+            key={period}
+            onSuccess={onQuerySuccess}
+          >
+            <>
+              { refDataArr.map((data, i) => (
+                <MintReferralTxRow key={i} data={data}  />
+              ))}
+            </>
+          </ApiQuery>
         </div>
 
         {/* Load more */}
@@ -341,20 +279,6 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
           </button>
         )}
       </div>
-
-      {/* ── Copy toast ── */}
-      <div
-        className={cn(
-          "fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none",
-          "flex items-center gap-3 px-5 py-3 rounded-xl transition-all duration-300",
-          "bg-zinc-800 border border-teal-400/30",
-          copied ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
-        )}
-      >
-        <Check className="w-4 h-4 text-teal-400" />
-        <span className="text-sm text-white">Address copied!</span>
-      </div>
-
     </div>
   );
 }

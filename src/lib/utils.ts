@@ -6,6 +6,7 @@ import api from "@/config/api";
 import { BN } from "@coral-xyz/anchor";
 import { format, formatDistanceToNow, differenceInDays } from "date-fns";
 import { v5 as uuidv5, v4 as uuidv4 } from 'uuid';
+import { getNetworkById } from "@/config/networks";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -227,5 +228,13 @@ export default class utils {
   static uuidFromSeed(seed: string): string {
     return uuidv5(seed, "a13a7628-1154-43cc-9e2a-93c0a6ddedcc");
   }
-
+  
+  static getExplorerUrl(networkId: string, uri: string): string {
+    const netInfo = getNetworkById(networkId);
+    if (!netInfo) return ""
+    const exp = new URL(netInfo.explorer)
+    exp.pathname = uri;
+    return exp.toString()
+  }
+  
 }

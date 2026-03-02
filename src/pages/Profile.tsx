@@ -138,7 +138,7 @@ export default function UserProfilePage() {
 
                   {/* Cover */}
                   <div
-                    className="h-48 md:h-64 rounded-xl overflow-hidden relative bg-maxx-bg1 border border-maxx-violet/20"
+                    className="h-48 md:h-64 rounded-tl-lg rounded-tr-lg overflow-hidden relative bg-maxx-bg1 border border-maxx-violet/20"
                     style={{ backgroundImage: `url(${profileCoverUrl})`, backgroundSize: "cover", backgroundPosition: "center" }}
                   >
                     {/* Gradient overlay */}

@@ -2,13 +2,13 @@ import React from "react";
 
 export interface StatCardProps {
   title: string;
-  color?: keyof typeof PALETTE;
+  color?: keyof typeof PALETTE | any;
   value: React.ReactNode;
   icon: React.ComponentType<{
     className?: string;
     strokeWidth?: number;
     style?: React.CSSProperties;
-  }>;
+  }> | any;
 }
 
 const PALETTE = {
@@ -151,7 +151,7 @@ export const StatsCard = ({ title, color = "plasma", value, icon }: StatCardProp
           </div>
 
           {/* Label */}
-          <p className="truncate font-mono text-[0.65rem] md:text-[0.7rem] font-medium text-white/50 uppercase tracking-[0.2em] group-hover:text-white/55 transition-colors duration-300">
+          <p className="truncate font-mono text-[0.65rem] md:text-[0.7rem] font-semibold text-white/60 uppercase tracking-[0.2em] group-hover:text-white/55 transition-colors duration-300">
             {title}
           </p>
         </div>
