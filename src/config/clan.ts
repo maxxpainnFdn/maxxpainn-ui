@@ -1,8 +1,10 @@
 
 export interface ClanConfig {
-  minRewardWithdrawalThresholdUsd: number
+  minRewardWithdrawalThresholdUsd: number,
+  rewardsWithdrawalNetwork: string
 }
 
 export const  clanConfig: ClanConfig = {
-  minRewardWithdrawalThresholdUsd: 5
+  minRewardWithdrawalThresholdUsd: 5,
+  rewardsWithdrawalNetwork: "solana:devnet"
 }

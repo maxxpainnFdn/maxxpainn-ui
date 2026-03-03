@@ -74,7 +74,7 @@ export default function MintReferralTxRow({ data }: { data: MintReferralTx }) {
 
       {/* Reward chip + arrow */}
       <div className="flex items-center gap-3 shrink-0">
-        <div className="px-4 py-2 rounded-xl bg-teal-400/10 border border-teal-400/20">
+        <div className="px-4 py-2 rounded-lg bg-teal-400/10 border border-teal-400/20">
           <span className="font-mono font-semibold text-sm text-teal-400">
             +{ data.rewardEarnedUsd }
           </span>
@@ -82,7 +82,7 @@ export default function MintReferralTxRow({ data }: { data: MintReferralTx }) {
         </div>
         <a href={rankClaimExplorerUrl}
           target="_blank"
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 transition-all duration-200 hover:text-white bg-white/10 hover:bg-purple-600"
+          className="w-10 h-10 rounded-lg flex items-center justify-center text-zinc-400 transition-all duration-200 hover:text-white bg-white/10 hover:bg-purple-600"
         >
           <ArrowUpRight className="w-4 h-4" />
         </a>

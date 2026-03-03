@@ -8,6 +8,7 @@ import MintReferralFilter from "../MintReferralFilter";
 import ApiQuery from "@/components/apiQuery/ApiQuery";
 import MintReferralTxRow from "../MintReferralTxRow";
 import { clanConfig } from "@/config/clan";
+import EarningsWithdrawalModal from "../EarningsWithdrawalModal";
 
 // ── Mock data ─────────────────────────────────────────────────────────────────
 const MOCK_TRANSACTIONS = [
@@ -97,9 +98,9 @@ function PayoutRing({ current, goal }: { current: number; goal: number }) {
 export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
   
   const clanId = clan.id;
-  const { address: accountAddr } = useWalletCore()
+  const { address: accountAddr, isConnected } = useWalletCore()
   
-  console.log("clan===>", clan)
+  //console.log("clan===>", clan)
   
   const [period, setPeriod] = useState<string>("all");
   const [refDataArr, setRefDataArr] = useState([])
@@ -107,7 +108,7 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
   const unClaimedAmount = clan.totalEarnedUsd - clan.totalEarnedClaimedUsd;
   
   const onQuerySuccess = (data) => {
-    console.log("data===>", data)
+    //console.log("data===>", data)
     setRefDataArr(data)
   }
   
@@ -196,29 +197,28 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
         ))}
       </div>
 
-      {/* ══ WALLET ═══════════════════════════════════════════════════════════ */}
-      <div className="rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-zinc-900 border border-white/5">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl bg-gradient-to-br from-purple-600 to-indigo-700">
-            👛
+      {isConnected && (
+        <div className="rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-zinc-900 border border-white/5">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl bg-gradient-to-br from-purple-600 to-indigo-700">
+              👛
+            </div>
+            <div>
+              <p className="text-xs mb-1 text-zinc-500">Connected Wallet</p>
+              <button
+                className="flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-sm transition-all bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+              >
+                {utils.maskAddress(accountAddr, 8, 8)}
+              </button>
+            </div>
           </div>
-          <div>
-            <p className="text-xs mb-1 text-zinc-500">Connected Wallet</p>
-            <button
-              className="flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-sm transition-all bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
-            >
-              { utils.maskAddress(accountAddr, 8, 8) }
-            </button>
-          </div>
+          
+          <EarningsWithdrawalModal
+            amount={unClaimedAmount}
+          />
         </div>
-
-        <button className="w-full sm:w-auto px-6 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-teal-400 to-emerald-500 text-zinc-950 hover:shadow-lg hover:shadow-teal-400/25">
-          <span>Withdraw Funds</span>
-          <ArrowUpRight className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* ══ TRANSACTIONS ══════════════════════════════════════════════════════ */}
+      )}
+      
       <div className="rounded-2xl p-5 bg-zinc-900/50 border border-white/5">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">

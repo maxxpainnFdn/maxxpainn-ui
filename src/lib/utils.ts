@@ -237,4 +237,8 @@ export default class utils {
     return exp.toString()
   }
   
+  static getAccountExplorerUrl(networkId: string, account: string): string {
+    return this.getExplorerUrl(networkId, `account/${account}`)
+  }
+  
 }

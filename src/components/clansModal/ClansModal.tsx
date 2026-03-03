@@ -50,14 +50,14 @@ export default function ClansModal({ children, onChange }: ClansModalProps) {
             </div>
 
             <Modal
-                open={isDialogOpen}
-                onOpenChange={setDialogOpen}
-                title={<Title />}
-                desktopClass="w-full max-w-[1200px]"
-                description="Selected clan earns sol rewards"
-                desktopDialogProps={{
-                  onOpenAutoFocus: (e) => e.preventDefault(),
-                }}
+              open={isDialogOpen}
+              onOpenChange={setDialogOpen}
+              title={<Title />}
+              desktopClass="w-full max-w-[1200px]"
+              description="Selected clan earns sol rewards"
+              desktopDialogProps={{
+                onOpenAutoFocus: (e) => e.preventDefault(),
+              }}
             >
                 {/*
                   This div is rendered inside Modal's scrollable `<div className="flex-1 overflow-y-auto p-6">`.
