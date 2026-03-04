@@ -21,6 +21,7 @@ import { Helmet } from "react-helmet-async";
 import Tabs from "@/components/tabs/Tabs";
 import OverviewTab from "@/components/clanDetails/tabs/OverviewTab";
 import EarningsTab from "@/components/clanDetails/tabs/EarningsTab";
+import { useWalletCore } from "@/hooks/useWalletCore";
 
 
 export default function ClanDetails() {
@@ -28,6 +29,7 @@ export default function ClanDetails() {
   const { slugId } = useParams();
   const navigate = useNavigate();
   const api = useApi();
+  const { isConnected, address: accountAddr } = useWalletCore()
 
   const [loading, setLoading] = useState(false)
   const [pageError, setPageError] = useState("")
@@ -92,6 +94,9 @@ export default function ClanDetails() {
 
     //console.log("clanInfo===>", clanInfo)
 
+    clanInfo.isOwner = (!isConnected) ? false : accountAddr == clanInfo.creator.address;
+      
+      
     setClan(clanInfo)
 
   }

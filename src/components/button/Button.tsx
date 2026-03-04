@@ -36,6 +36,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: React.ReactNode;
   children: React.ReactNode;
   skewed?: boolean;
+  loadingText?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -43,6 +44,7 @@ const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'md',
   loading = false,
+  loadingText = "",
   disabled = false,
   className = '',
   fullWidth = false,
@@ -77,6 +79,10 @@ const Button: React.FC<ButtonProps> = ({
   const widthClass = fullWidth ? 'w-full' : '';
   
   const skewedStyle = skewed ? "btn-skewed" : ""
+  
+  if (loadingText.trim() == "") {
+    loadingText = children;
+  }
 
   return (
     <button
@@ -91,9 +97,13 @@ const Button: React.FC<ButtonProps> = ({
       disabled={disabled || loading}
       {...props}
     >
-      {loading && <LoaderIcon className="w-4 h-4 animate-spin shrink-0" />}
-      {!loading && icon && <span className="shrink-0">{icon}</span>}
-      {children}
+      {loading ?
+        <>{loadingText} <LoaderIcon className="w-4 h-4 animate-spin shrink-0" /></> :
+        <>
+          {icon && <span className="shrink-0 me-1">{icon}</span>}
+           {children}
+        </>
+      }
     </button>
   );
 };

@@ -56,8 +56,8 @@ export default function Account({ btnProps = {} }) {
           <div className="w-[22px] h-[22px] flex-shrink-0 overflow-hidden shadow-lg">
             <ImageAvatar
               seed={address}
-              radius={22}
-              className="w-full h-full"
+              radius={2}
+              className="w-[22px] h-[22px] rounded"
               avatarType={botttsNeutral}
             />
           </div>

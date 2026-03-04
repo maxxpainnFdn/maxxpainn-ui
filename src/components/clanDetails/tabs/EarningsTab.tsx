@@ -1,5 +1,20 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowUpRight, Settings, ChevronDown, Copy, Check, TrendingUp, Wallet, Coins, Layers } from "lucide-react";
+import { 
+  ArrowUpRight, 
+  Settings, 
+  ChevronDown, 
+  Copy, 
+  Check, 
+  TrendingUp, 
+  Wallet, 
+  Coins, 
+  Layers,
+  History,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  ExternalLink
+} from "lucide-react";
 import utils, { cn } from "@/lib/utils";
 import { ClanData } from "@/types/ClanData";
 import StatsCard from "@/components/StatsCard";
@@ -7,21 +22,17 @@ import { useWalletCore } from "@/hooks/useWalletCore";
 import MintReferralFilter from "../MintReferralFilter";
 import ApiQuery from "@/components/apiQuery/ApiQuery";
 import MintReferralTxRow from "../MintReferralTxRow";
-import { clanConfig } from "@/config/clan";
+import { rewardsConfig } from "@/config/rewards_config";
 import EarningsWithdrawalModal from "../EarningsWithdrawalModal";
 
-// ── Mock data ─────────────────────────────────────────────────────────────────
-const MOCK_TRANSACTIONS = [
-  { id: 1, name: "CryptoKing",  address: "8xPq...4mNk", amount: 2500, time: "1 min ago",   isNew: true  },
-  { id: 2, name: "DegenLord",   address: "3bYz...9kLm", amount: 1200, time: "5 mins ago",  isNew: true  },
-  { id: 3, name: "WhaleAlert",  address: "7nXw...2pQr", amount: 8900, time: "23 mins ago", isNew: false },
-  { id: 4, name: "SolanaOG",    address: "5vBc...8mNk", amount: 450,  time: "1 hour ago",  isNew: false },
-  { id: 5, name: "NFTMaxi",     address: "2tYu...6wEr", amount: 3200, time: "2 hours ago", isNew: false },
-  { id: 6, name: "DiamondApe",  address: "9mQw...4sAz", amount: 1800, time: "5 hours ago", isNew: false },
-  { id: 7, name: "PainLord",    address: "4kZx...7rBn", amount: 5100, time: "6 hours ago", isNew: false },
-  { id: 8, name: "GrindQueen",  address: "1pWe...3cLo", amount: 990,  time: "8 hours ago", isNew: false },
+// ── Mock Data for Payouts ─────────────────────────────────────────────────────
+const MOCK_PAYOUTS = [
+  { id: "tx-1", date: "2025-02-28", amount: 150.00, status: "completed", txHash: "5x...9a21" },
+  { id: "tx-2", date: "2025-02-15", amount: 45.50, status: "completed", txHash: "2b...8c44" },
+  { id: "tx-3", date: "2025-02-14", amount: 12.25, status: "completed", txHash: "9f...1d00" },
+  { id: "tx-4", date: "2025-02-10", amount: 200.00, status: "processing", txHash: "pending" },
+  { id: "tx-5", date: "2025-01-30", amount: 85.75, status: "completed", txHash: "3a...7b12" },
 ];
-
 
 // ── Animated counter ──────────────────────────────────────────────────────────
 function AnimatedNumber({ value, prefix = "", suffix = "", decimals = 0 }: {
@@ -55,7 +66,6 @@ function AnimatedNumber({ value, prefix = "", suffix = "", decimals = 0 }: {
     </span>
   );
 }
-
 
 // ── Payout ring ───────────────────────────────────────────────────────────────
 function PayoutRing({ current, goal }: { current: number; goal: number }) {
@@ -94,22 +104,21 @@ function PayoutRing({ current, goal }: { current: number; goal: number }) {
   );
 }
 
-
-export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
+export default function EarningsTab({ clan }: { clan: ClanData }) {
   
   const clanId = clan.id;
-  const { address: accountAddr, isConnected } = useWalletCore()
+  const { address: accountAddr, isConnected } = useWalletCore();
   
-  //console.log("clan===>", clan)
+  // Tab State
+  const [activeTab, setActiveTab] = useState<'mints' | 'payouts'>('mints');
   
   const [period, setPeriod] = useState<string>("all");
-  const [refDataArr, setRefDataArr] = useState([])
+  const [refDataArr, setRefDataArr] = useState([]);
 
   const unClaimedAmount = clan.totalEarnedUsd - clan.totalEarnedClaimedUsd;
   
-  const onQuerySuccess = (data) => {
-    //console.log("data===>", data)
-    setRefDataArr(data)
+  const onQuerySuccess = (data: any) => {
+    setRefDataArr(data);
   }
   
   const mintPerMemberRatio = (clan.totalMints == 0)
@@ -146,7 +155,7 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
   return (
     <div className="space-y-5 animate-fade-up font-sans">
 
-      {/* ── Background blurs (scoped to this tab) ── */}
+      {/* ── Background blurs ── */}
       <div className="relative">
         <div className="absolute pointer-events-none -top-32 -left-32 w-96 h-96 rounded-full blur-[128px] bg-teal-400/10" />
         <div className="absolute pointer-events-none -bottom-32 -right-32 w-96 h-96 rounded-full blur-[128px] bg-pink-500/10" />
@@ -154,10 +163,9 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
 
       {/* ══ MAIN GRID — total + ring ═════════════════════════════════════════ */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
         {/* Total earnings */}
         <div className="lg:col-span-2 rounded-[20px] p-[1px] pb-[10px] bg-gradient-to-br from-teal-400/20 to-pink-500/20">
-          <div className=" h-[100%] rounded-[19px] p-6 md:p-8 flex flex-col md:flex-row md:items-end justify-between align-middle gap-6 bg-zinc-900">
+          <div className="h-[100%] rounded-[19px] p-6 md:p-8 flex flex-col md:flex-row md:items-end justify-between align-middle gap-6 bg-zinc-900">
             <div className="">
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-xl">💰</span>
@@ -178,17 +186,19 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
         {/* Pending ring */}
         <div className="rounded-[20px] p-6 flex flex-col items-center justify-center relative overflow-hidden bg-zinc-900 border border-white/5">
           <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-pink-500/5 to-transparent" />
-          <PayoutRing current={unClaimedAmount} goal={clanConfig.minRewardWithdrawalThresholdUsd} />
-          <p className="text-sm mt-4 text-center text-zinc-400">
-            min. withdrawal amount: <span className="text-white font-semibold">{clanConfig.minRewardWithdrawalThresholdUsd} USDC</span>
-          </p>
+          <PayoutRing current={unClaimedAmount} goal={rewardsConfig.minCashoutThresholdUsd} />
+          <div className="text-sm mt-4 text-center text-zinc-400">
+            <div className="text-white font-semibold">{rewardsConfig.minCashoutThresholdUsd} USDC</div>
+            <div>Minimum Cashout Amount</div>
+          </div>
         </div>
       </div>
 
       {/* ══ STATS ROW ════════════════════════════════════════════════════════ */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-        {statsData.map(({ icon, label, value, color }) => (
+        {statsData.map(({ icon, label, value, color }, i) => (
           <StatsCard
+            key={i}
             icon={icon}
             title={label}
             value={value}
@@ -197,7 +207,8 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
         ))}
       </div>
 
-      {isConnected && (
+      {/* ══ WITHDRAWAL ROW ═══════════════════════════════════════════════════ */}
+      {isConnected && clan.isOwner === true && (
         <div className="rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-zinc-900 border border-white/5">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl bg-gradient-to-br from-purple-600 to-indigo-700">
@@ -219,32 +230,142 @@ export default function  EarningsTab({ clan }: { clan: ClanData  } ) {
         </div>
       )}
       
-      <div className="rounded-2xl p-5 bg-zinc-900/50 border border-white/5">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-           Recent Mints
-          </h3>
-          <MintReferralFilter onChange={setPeriod} />
+      {/* ══ TABBED CONTENT SECTION ═══════════════════════════════════════════ */}
+      <div className="rounded-2xl bg-zinc-900/50 border border-white/5 overflow-hidden">
+        
+        {/* Tabs Header */}
+        <div className="flex items-center border-b border-white/5 bg-zinc-900/80">
+          <button
+            onClick={() => setActiveTab('mints')}
+            className={cn(
+              "px-6 py-4 text-sm font-semibold tracking-wide transition-all border-b-2",
+              activeTab === 'mints' 
+                ? "border-teal-400 text-white bg-white/5" 
+                : "border-transparent text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.02]"
+            )}
+          >
+            Recent Mints
+          </button>
+          <button
+            onClick={() => setActiveTab('payouts')}
+            className={cn(
+              "px-6 py-4 text-sm font-semibold tracking-wide transition-all border-b-2",
+              activeTab === 'payouts' 
+                ? "border-purple-500 text-white bg-white/5" 
+                : "border-transparent text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.02]"
+            )}
+          >
+            Payout History
+          </button>
         </div>
 
-        {/* Rows */}
-        <div className="space-y-3 overflow-x-hidden max-h-[600px] overflow-y-auto scrollbar-hide">
-          <ApiQuery
-            uri={`/clans/${clanId}/referrals`}
-            query={{ period }}
-            key={period}
-            onSuccess={onQuerySuccess}
-            pagingType="full"
-          >
-            <>
-              { refDataArr.map((data, i) => (
-                <MintReferralTxRow key={i} data={data}  />
-              ))}
-            </>
-          </ApiQuery>
+        {/* Tab Content */}
+        <div className="p-5">
+          
+          {/* ── TAB: MINTS ── */}
+          {activeTab === 'mints' && (
+            <div className="animate-fade-up">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                 Referral Activity
+                </h3>
+                <MintReferralFilter onChange={setPeriod} />
+              </div>
+
+              <div className="space-y-3 overflow-x-hidden max-h-[600px] overflow-y-auto scrollbar-hide">
+                <ApiQuery
+                  uri={`/clans/${clanId}/referrals`}
+                  query={{ period }}
+                  key={period}
+                  onSuccess={onQuerySuccess}
+                  pagingType="full"
+                >
+                  <>
+                    {refDataArr.length === 0 && (
+                      <div className="p-8 text-center text-zinc-500 border border-dashed border-zinc-800 rounded-xl">
+                        No recent mints found for this period.
+                      </div>
+                    )}
+                    {refDataArr.map((data: any, i) => (
+                      <MintReferralTxRow key={i} data={data} />
+                    ))}
+                  </>
+                </ApiQuery>
+              </div>
+            </div>
+          )}
+
+          {/* ── TAB: PAYOUTS ── */}
+          {activeTab === 'payouts' && (
+            <div className="animate-fade-up">
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                 Withdrawal History
+                </h3>
+                <div className="text-xs text-zinc-500 font-mono">
+                  Displaying last {MOCK_PAYOUTS.length} transactions
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {MOCK_PAYOUTS.map((tx) => (
+                  <div key={tx.id} className="group p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    
+                    {/* Left: Icon & Date */}
+                    <div className="flex items-center gap-4">
+                      <div className={cn(
+                        "w-10 h-10 rounded-full flex items-center justify-center border",
+                        tx.status === 'completed' 
+                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" 
+                          : "bg-amber-500/10 border-amber-500/20 text-amber-500"
+                      )}>
+                        {tx.status === 'completed' ? <ArrowUpRight size={18} /> : <Clock size={18} />}
+                      </div>
+                      <div>
+                        <div className="text-white font-semibold flex items-center gap-2">
+                          Withdrawal
+                          <span className="text-[10px] px-1.5 py-0.5 rounded border border-zinc-700 bg-zinc-800 text-zinc-400 font-mono uppercase">
+                            USDC
+                          </span>
+                        </div>
+                        <div className="text-xs text-zinc-500 flex items-center gap-1 mt-0.5">
+                          <Calendar size={10} /> {tx.date}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right: Amount & Status */}
+                    <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-white font-mono">
+                          -${tx.amount.toFixed(2)}
+                        </div>
+                        <div className="flex items-center justify-end gap-1 text-[10px] text-zinc-500 font-mono">
+                          FEE: $0.25
+                        </div>
+                      </div>
+
+                      <div className="text-right min-w-[100px]">
+                        {tx.status === 'completed' ? (
+                           <a href="#" className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-medium hover:bg-emerald-500/20 transition-colors">
+                             <CheckCircle2 size={12} /> Paid
+                             <ExternalLink size={10} className="opacity-50" />
+                           </a>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-medium animate-pulse">
+                             <Clock size={12} /> Processing
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
         </div>
-        
       </div>
     </div>
   );

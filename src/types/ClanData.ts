@@ -19,4 +19,5 @@ export interface ClanData {
     rewardPerMintUsd:       number;
     totalEarnedUsd:         number;
     totalEarnedClaimedUsd:  number;
+    isOwner?:               boolean;
 }
