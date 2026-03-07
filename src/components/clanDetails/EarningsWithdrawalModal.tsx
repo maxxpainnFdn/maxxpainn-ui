@@ -10,16 +10,19 @@ import { getNetworkById } from "@/config/networks";
 import { useApi } from "@/hooks/useApi";
 import toast from "@/hooks/toast";
 import Button from "../button/Button";
+import { ClanData } from "@/types/ClanData";
 
 // Renamed slightly to append "Props" to avoid naming conflicts in some TS setups
 export interface EarningsWithdrawalModalProps {
   clanId: number;
   amount: number;
+  onSuccess: (clan: ClanData | null) => void;
 }
 
 export default function EarningsWithdrawalModal({ 
   clanId,
-  amount 
+  amount,
+  onSuccess
 }: EarningsWithdrawalModalProps) {
   
   const { address: accountAddr, isConnected } = useWalletCore()
@@ -41,7 +44,7 @@ export default function EarningsWithdrawalModal({
     if (!isEligible) return;
     setIsProcessing(true);
     
-    const resultStatus = await api.postWithAuth(`/clans/${clanId}/enable-cashout`)
+    const resultStatus = await api.postWithAuth(`/clans/${clanId}/request-payout`)
     
     setIsProcessing(false);
 
@@ -52,6 +55,8 @@ export default function EarningsWithdrawalModal({
     
     setIsSuccess(true)
     toast.success("Cashout enabled, withdrawal pending.")
+    
+    onSuccess?.(resultStatus.getData())
   };
 
   return (

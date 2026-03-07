@@ -24,15 +24,9 @@ import ApiQuery from "@/components/apiQuery/ApiQuery";
 import MintReferralTxRow from "../MintReferralTxRow";
 import { rewardsConfig } from "@/config/rewards_config";
 import EarningsWithdrawalModal from "../EarningsWithdrawalModal";
+import { useNavigate } from "react-router-dom";
+import PayoutHistoryItem from "../PayoutHistoryItem";
 
-// ── Mock Data for Payouts ─────────────────────────────────────────────────────
-const MOCK_PAYOUTS = [
-  { id: "tx-1", date: "2025-02-28", amount: 150.00, status: "completed", txHash: "5x...9a21" },
-  { id: "tx-2", date: "2025-02-15", amount: 45.50, status: "completed", txHash: "2b...8c44" },
-  { id: "tx-3", date: "2025-02-14", amount: 12.25, status: "completed", txHash: "9f...1d00" },
-  { id: "tx-4", date: "2025-02-10", amount: 200.00, status: "processing", txHash: "pending" },
-  { id: "tx-5", date: "2025-01-30", amount: 85.75, status: "completed", txHash: "3a...7b12" },
-];
 
 // ── Animated counter ──────────────────────────────────────────────────────────
 function AnimatedNumber({ value, prefix = "", suffix = "", decimals = 0 }: {
@@ -104,22 +98,22 @@ function PayoutRing({ current, goal }: { current: number; goal: number }) {
   );
 }
 
-export default function EarningsTab({ clan }: { clan: ClanData }) {
+export default function EarningsTab({ clan, onPageUpdate }: { clan: ClanData, onPageUpdate: ((clan: ClanData | null) => void) }) {
   
   const clanId = clan.id;
   const { address: accountAddr, isConnected } = useWalletCore();
+  const navigate = useNavigate();
+
   
   // Tab State
   const [activeTab, setActiveTab] = useState<'mints' | 'payouts'>('mints');
   
   const [period, setPeriod] = useState<string>("all");
   const [refDataArr, setRefDataArr] = useState([]);
-
+  const [payoutsData, setPayoutsData] = useState([]);
+ 
   const unClaimedAmount = clan.totalEarnedUsd - clan.totalEarnedClaimedUsd;
   
-  const onQuerySuccess = (data: any) => {
-    setRefDataArr(data);
-  }
   
   const mintPerMemberRatio = (clan.totalMints == 0)
     ? 0
@@ -189,7 +183,7 @@ export default function EarningsTab({ clan }: { clan: ClanData }) {
           <PayoutRing current={unClaimedAmount} goal={rewardsConfig.minCashoutThresholdUsd} />
           <div className="text-sm mt-4 text-center text-zinc-400">
             <div className="text-white font-semibold">{rewardsConfig.minCashoutThresholdUsd} USDC</div>
-            <div>Minimum Cashout Amount</div>
+            <div>Minimum Payout Amount</div>
           </div>
         </div>
       </div>
@@ -225,7 +219,9 @@ export default function EarningsTab({ clan }: { clan: ClanData }) {
           </div>
           
           <EarningsWithdrawalModal
+            clanId={clanId}
             amount={unClaimedAmount}
+            onSuccess={(newClanData) => onPageUpdate(newClanData) }
           />
         </div>
       )}
@@ -277,7 +273,7 @@ export default function EarningsTab({ clan }: { clan: ClanData }) {
                   uri={`/clans/${clanId}/referrals`}
                   query={{ period }}
                   key={period}
-                  onSuccess={onQuerySuccess}
+                  onSuccess={ data => setRefDataArr(data)}
                   pagingType="full"
                 >
                   <>
@@ -300,67 +296,30 @@ export default function EarningsTab({ clan }: { clan: ClanData }) {
             <div className="animate-fade-up">
               <div className="flex items-center justify-between mb-5">
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                 Withdrawal History
+                  Payouts History
                 </h3>
-                <div className="text-xs text-zinc-500 font-mono">
-                  Displaying last {MOCK_PAYOUTS.length} transactions
-                </div>
               </div>
 
               <div className="space-y-3">
-                {MOCK_PAYOUTS.map((tx) => (
-                  <div key={tx.id} className="group p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    
-                    {/* Left: Icon & Date */}
-                    <div className="flex items-center gap-4">
-                      <div className={cn(
-                        "w-10 h-10 rounded-full flex items-center justify-center border",
-                        tx.status === 'completed' 
-                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" 
-                          : "bg-amber-500/10 border-amber-500/20 text-amber-500"
-                      )}>
-                        {tx.status === 'completed' ? <ArrowUpRight size={18} /> : <Clock size={18} />}
+                <ApiQuery
+                  uri={`/clans/${clanId}/payouts`}
+                  onSuccess={(dataArr) => setPayoutsData(dataArr)}
+                  pagingType="full"
+                >
+                  <>
+                    {refDataArr.length === 0 && (
+                      <div className="p-8 text-center text-zinc-500 border border-dashed border-zinc-800 rounded-xl">
+                        No data found
                       </div>
-                      <div>
-                        <div className="text-white font-semibold flex items-center gap-2">
-                          Withdrawal
-                          <span className="text-[10px] px-1.5 py-0.5 rounded border border-zinc-700 bg-zinc-800 text-zinc-400 font-mono uppercase">
-                            USDC
-                          </span>
-                        </div>
-                        <div className="text-xs text-zinc-500 flex items-center gap-1 mt-0.5">
-                          <Calendar size={10} /> {tx.date}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right: Amount & Status */}
-                    <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-white font-mono">
-                          -${tx.amount.toFixed(2)}
-                        </div>
-                        <div className="flex items-center justify-end gap-1 text-[10px] text-zinc-500 font-mono">
-                          FEE: $0.25
-                        </div>
-                      </div>
-
-                      <div className="text-right min-w-[100px]">
-                        {tx.status === 'completed' ? (
-                           <a href="#" className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-medium hover:bg-emerald-500/20 transition-colors">
-                             <CheckCircle2 size={12} /> Paid
-                             <ExternalLink size={10} className="opacity-50" />
-                           </a>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-medium animate-pulse">
-                             <Clock size={12} /> Processing
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                  </div>
-                ))}
+                    )}
+                    {payoutsData.map((data: any, i) => (
+                      <PayoutHistoryItem
+                        key={i}
+                        data={data}
+                      />
+                    ))}
+                  </>
+                </ApiQuery>
               </div>
             </div>
           )}

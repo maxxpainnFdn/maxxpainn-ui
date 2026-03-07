@@ -103,9 +103,9 @@ export default function ClanDetails() {
 
   const goBack = () => navigate("/clans")
 
-  const updatePage =  async (clanData) => {
-
-    if(clanData){
+  const updatePage = async (clanData: ClanData | null = null) => {
+    
+    if(clanData != null){
       setClan(clanData)
     } else {
       await fetchClanData()
@@ -113,8 +113,9 @@ export default function ClanDetails() {
 
     setPageKey(Math.random() + Date.now())
   }
-
-
+  
+  const onPageUpdate = updatePage;
+  
   return (
     <>
       <Helmet>
@@ -231,7 +232,7 @@ export default function ClanDetails() {
                 <Tabs
                   items={[
                     { id: "overview", label: "Overview",  icon: Target,  component: OverviewTab, args:  { clan }  },
-                    { id: "earning",  label: "Earning",   icon: Diamond, component: EarningsTab, args: { clan }  },
+                    { id: "earning",  label: "Earning",   icon: Diamond, component: EarningsTab, args: { clan, onPageUpdate }  },
                     { id: "stories",  label: "Stories",   icon: Book,     component: () => <div>Stories</div>   },
                     { id: "activity", label: "Activity",  icon: Activity, component: () => <div>Activities</div>  },
                     { id: "members",  label: "Members",   icon: Group,    component: () => <div>Members</div>  },

@@ -19,7 +19,7 @@ export default function MintReferralTxRow({ data }: { data: MintReferralTx }) {
   
   const minterAddrUrl = utils.getExplorerUrl(mintInfo.networkId, `address/${minter.address}`)
   
-  console.log("")
+  //console.log("")
   
   return (
     <div
