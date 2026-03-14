@@ -1,7 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import ClanActivities from "../ClanActivities";
 import ClanInviteCard from "../ClanInviteCard";
-import ClanMembers from "../ClanMembers";
 import ChiefCard from "../ChiefCard";
 import ClanStats from "../ClanStats";
 
@@ -50,7 +48,6 @@ export default function OverviewTab({ clan }) {
             </CardContent>
           </Card>
 
-          <ClanActivities clanId={clan.id} />
         </div>
 
       {/** end Grid */}

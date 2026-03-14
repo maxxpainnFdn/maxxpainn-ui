@@ -212,6 +212,7 @@ export default function EarningsTab({ clan, onPageUpdate }: { clan: ClanData, on
               <p className="text-xs mb-1 text-zinc-500">Connected Wallet</p>
               <button
                 className="flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-sm transition-all bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+                disabled={unClaimedAmount == 0}
               >
                 {utils.maskAddress(accountAddr, 8, 8)}
               </button>

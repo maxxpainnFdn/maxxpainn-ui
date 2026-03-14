@@ -2,8 +2,10 @@
 export interface PayoutHistory {
   id: number
   clanId: number
-  amount: number
-  currency: string
+  rewardAmount: number
+  settlementAmount: number
+  rewardCurrency: string
+  settlementCurrency: string
   networkId: string
   recipient: string
   status: string

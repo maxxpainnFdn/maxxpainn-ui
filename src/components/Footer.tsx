@@ -7,8 +7,10 @@
  */
 
 import React from 'react';
-import { Twitter, Send, MessageCircle, Zap } from 'lucide-react';
+import {  MessageCircle, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SiTelegram, SiX, SiReddit, SiMedium, SiYoutube } from '@icons-pack/react-simple-icons';
+import socials from "@/config/socials"
 
 const FOOTER_COLS = [
   {
@@ -41,14 +43,17 @@ const FOOTER_COLS = [
 ];
 
 const SOCIALS = [
-  { Icon: Twitter,       href: "#", label: "Twitter"  },
-  { Icon: Send,          href: "#", label: "Telegram" },
-  { Icon: MessageCircle, href: "#", label: "Discord"  },
+  { Icon: SiX,        href: `https://x.com/${socials.x}`, label: "X (Prev. Twitter)"  },
+  { Icon: SiTelegram, href: `https://t.me/${socials.telegram}`, label: "Telegram" },
+  { Icon: SiReddit, href: socials.reddit, label: "Reddit" },
+  { Icon: SiMedium, href: socials.medium, label: "Medium" },
+  { Icon: SiYoutube, href: socials.youtube, label: "Youtube"  },
+  { Icon: MessageCircle, href: `https://mailto:${socials.email}`, label: "Email"  },
 ];
 
 export default function Footer() {
   return (
-    <footer className="bg-maxx-bg0 border-t border-maxx-violet/12 relative z-10 pb-10">
+    <footer className="bg-maxx-bg0 border-t border-maxx-violet/12 relative z-10 pb-10 mt-10">
       <div className="max-w-7xl mx-auto px-6 pt-14 pb-8">
 
         {/* ── MAIN GRID ── */}

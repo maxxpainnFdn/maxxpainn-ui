@@ -29,13 +29,8 @@ import ChangeUsernameDialog from "@/components/profile/ChangeUsernameDialog";
 import { AccountData } from "@/types/AccountData";
 import ShareDialog from "@/components/shareDialog/ShareDialog";
 import FollowButton from "@/components/followButton/FollowButton";
+import Tabs from "@/components/tabs/Tabs";
 
-const TABS = [
-  { id: "overview",  label: "Overview",  icon: Target   },
-  { id: "clans",     label: "Clans",     icon: Crown    },
-  { id: "badges",    label: "Badges",    icon: Medal    },
-  { id: "activity",  label: "Activity",  icon: Activity },
-];
 
 export default function UserProfilePage() {
   const queryParams = useParams();
@@ -159,8 +154,10 @@ export default function UserProfilePage() {
                   </div>
 
                   {/* Profile card — overlaps cover */}
-                  <div className="relative mx-0 -mt-14 bg-maxx-bg1/90 backdrop-blur-xl border border-maxx-violet/20 rounded-xl p-6 md:p-8
-                                  shadow-[0_8px_40px_color-mix(in_srgb,black_60%,transparent),0_0_0_1px_color-mix(in_srgb,var(--maxx-violet)_8%,transparent)]">
+                  <div className="
+                    relative mx-0 -mt-14 bg-maxx-bg1/90 backdrop-blur-xl border border-maxx-violet/20 rounded-br-xl rounded-bl-xl p-6 md:p-8
+                    shadow-[0_8px_40px_color-mix(in_srgb,black_60%,transparent),0_0_0_1px_color-mix(in_srgb,var(--maxx-violet)_8%,transparent)]
+                  ">
                     {/* Top accent line */}
                     <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-maxx-violet/50 via-maxx-pink/25 to-transparent rounded-t-xl" />
 
@@ -357,55 +354,27 @@ export default function UserProfilePage() {
                   </div>
                 </div>
 
-                {/* ══════════════════════════════════════
-                    TABS
-                ══════════════════════════════════════ */}
                 <div className="mb-6">
-                  {/* Tab bar */}
-                  <div className="flex items-end gap-0 border-b border-maxx-violet/15">
-                    {TABS.map((tab) => {
-                      const isActive = activeTab === tab.id;
-                      return (
-                        <button
-                          key={tab.id}
-                          onClick={() => setActiveTab(tab.id)}
-                          className={cn(
-                            "relative flex items-center gap-2 px-5 py-3.5 text-sm font-bold uppercase tracking-wider transition-all duration-200 whitespace-nowrap",
-                            isActive
-                              ? "text-maxx-white"
-                              : "text-maxx-sub hover:text-maxx-mid"
-                          )}
-                        >
-                          <tab.icon className={cn("w-4 h-4", isActive ? "text-maxx-pink" : "")} />
-                          {tab.label}
-
-                          {/* Active underline */}
-                          {isActive && (
-                            <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-maxx-violet via-maxx-pink to-transparent rounded-t-sm" />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <Tabs
+                    items={[
+                      {
+                        id: "overview",
+                        label: "Overview",
+                        icon: Target,
+                        component: OverviewContent,
+                        args: { 
+                          totalMint:      utils.toShortNumber(accountInfo.mintCount),
+                          amountMinted:   utils.toShortNumber(accountInfo.mintedAmount),
+                          totalReferral:  utils.toShortNumber(accountInfo.totalReferral),
+                          totalFollowers: utils.toShortNumber(accountInfo.followerCount)
+                        }
+                      },
+                      { id: "clans",    label: "Clans",    icon:  Crown, component: ClansContent, args: { accountId: accountInfo.id }  },
+                      { id: "badges",   label: "Badges",   icon:  Medal, component: BadgesContent, args: { accountId: accountInfo.id } },
+                      { id: "activity", label: "Activity", icon:  Activity, component: ActivityContent, args:  { accountId: accountInfo.id } },
+                    ]}
+                  />
                 </div>
-
-                {/* ══════════════════════════════════════
-                    TAB CONTENT
-                ══════════════════════════════════════ */}
-                <div className="animate-fade-up" key={activeTab}>
-                  {activeTab === "overview" && (
-                    <OverviewContent
-                      totalMints={utils.toShortNumber(accountInfo.mintCount)}
-                      amountMinted={utils.toShortNumber(accountInfo.mintedAmount)}
-                      totalReferral={utils.toShortNumber(accountInfo.totalReferral)}
-                      totalFollowers={utils.toShortNumber(accountInfo.followerCount)}
-                    />
-                  )}
-                  {activeTab === "clans"    && <ClansContent    accountId={accountInfo.id} />}
-                  {activeTab === "badges"   && <BadgesContent   accountId={accountInfo.id} />}
-                  {activeTab === "activity" && <ActivityContent accountId={accountInfo.id} />}
-                </div>
-
               </div>
             </main>
           </>

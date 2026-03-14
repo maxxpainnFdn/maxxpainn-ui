@@ -15,12 +15,13 @@ import { ClanData } from "@/types/ClanData";
 import { Activity, ArrowLeft, Book, Diamond, Flame, Group, Target, Trophy, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import ClanActivities from "@/components/clanDetails/ClanActivities";
 import JoinClanBtn from "@/components/joinClanBtn/JoinClanBtn";
 import { Helmet } from "react-helmet-async";
 import Tabs from "@/components/tabs/Tabs";
 import OverviewTab from "@/components/clanDetails/tabs/OverviewTab";
 import EarningsTab from "@/components/clanDetails/tabs/EarningsTab";
+import ClanActivityTab from "@/components/clanDetails/tabs/ClanActivityTab";
+import ClanMembersTab from "@/components/clanDetails/tabs/ClanMembersTab";
 import { useWalletCore } from "@/hooks/useWalletCore";
 
 
@@ -233,9 +234,9 @@ export default function ClanDetails() {
                   items={[
                     { id: "overview", label: "Overview",  icon: Target,  component: OverviewTab, args:  { clan }  },
                     { id: "earning",  label: "Earning",   icon: Diamond, component: EarningsTab, args: { clan, onPageUpdate }  },
-                    { id: "stories",  label: "Stories",   icon: Book,     component: () => <div>Stories</div>   },
-                    { id: "activity", label: "Activity",  icon: Activity, component: () => <div>Activities</div>  },
-                    { id: "members",  label: "Members",   icon: Group,    component: () => <div>Members</div>  },
+                    //{ id: "stories",  label: "Stories",   icon: Book,     component: () => <div>Stories</div>   },
+                    { id: "activity", label: "Activity",  icon: Activity,  component: ClanActivityTab, args:  { clan }   },
+                    { id: "members",  label: "Members",   icon: Group,     component: ClanMembersTab, args:  { clan }  },
                   ]}
                 />
               </div>

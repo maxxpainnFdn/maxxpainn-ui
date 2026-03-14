@@ -36,13 +36,13 @@ export default function BadgesContent({ accountId }) {
             icon={Trophy}
           />
         ) : (
-          <div className="flex flex-wrap  justify-center gap-2">
+          <div className="flex flex-wrap  justify-center gap-2 mb-10">
             {badges.map((badge: BadgeProps) => (
               <div className="w-[280px]" key={badge.id}>
-              <Badge
-                key={badge.id}
-                badge={{ ...badge, }}
-              />
+                <Badge
+                  key={badge.id}
+                  badge={{ ...badge, }}
+                />
               </div>
             ))}
 

@@ -24,7 +24,7 @@ export default function OverviewContent({
         <StatsCard
           icon={Zap}
           title="Mint Count"
-          value={totalMints}
+          value={totalMints || 0}
           color="magenta"
           //trend=""
         />

@@ -197,7 +197,7 @@ export const Badge = ({ badge }: { badge: BadgeProps }) => {
   return (
     <div
       ref={containerRef}
-      onMouseMove={handleMouseMove}
+      //onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={handleClick}

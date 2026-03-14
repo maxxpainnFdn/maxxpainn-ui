@@ -6,7 +6,8 @@ export default function PayoutHistoryItem({ data }: { data: PayoutHistory }) {
   
   const status = data.status.toLowerCase()
   const recipientExplorerUrl = utils.getAccountExplorerUrl(data.networkId, data.recipient)
-  
+  const sigExplorerUrl = (status !== "completed") ? "" : utils.getExplorerUrl(data.networkId, `tx/${data.signature}`)
+
   return (
     <div key={data.id} className="group p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       {/* Left: Icon & Date */}
@@ -23,7 +24,7 @@ export default function PayoutHistoryItem({ data }: { data: PayoutHistory }) {
           <div className="text-white font-semibold flex items-center gap-2">
             <a href={recipientExplorerUrl} target="_blank">{ utils.maskAddress(data.recipient, 8, 6) }</a>
             <span className="text-[10px] px-1.5 py-0.5 rounded border border-zinc-700 bg-zinc-800 text-zinc-400 font-mono uppercase">
-              USDC
+              { data.settlementCurrency }
             </span>
           </div>
           <div className="text-xs text-zinc-500 flex items-center gap-1 mt-0.5">
@@ -36,18 +37,23 @@ export default function PayoutHistoryItem({ data }: { data: PayoutHistory }) {
       <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
         <div className="text-left sm:text-right">
           <div className="text-lg font-bold text-white font-mono">
-            -${Number(data.amount).toFixed(2)}
+            -${Number(data.rewardAmount).toFixed(2)}
           </div>
-          <div className="flex items-center justify-end gap-1 text-[10px] text-zinc-500 font-mono">
-            FEE: { data.fee } { data.currency }
-          </div>
+          { status == "completed" && (
+            <div className="flex items-center justify-end gap-1 text-[10px] uppercase text-zinc-500 font-mono">
+              {data.settlementAmount} {data.settlementCurrency}
+            </div>
+          )}
         </div>
 
         <div className="text-right min-w-[100px]">
           {status === 'completed' ? (
-             <a href="#" className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-medium hover:bg-emerald-500/20 transition-colors">
-               <CheckCircle2 size={12} /> Paid
-               <ExternalLink size={10} className="opacity-50" />
+            <a href={sigExplorerUrl}
+              target="_blank"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-sm font-medium hover:bg-emerald-500/20 transition-colors"
+            >
+              <CheckCircle2 className="w-4 h-4" /> Paid
+               <ExternalLink className="opacity-50 w-4 h-4" />
              </a>
           ) : (
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-medium animate-pulse">
