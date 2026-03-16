@@ -11,7 +11,7 @@ import authConfig from '@/config/auth';
 import { Status } from '@/core/Status';
 import http from "@/core/HttpClient"
 import utils from '@/lib/utils';
-import EventBus from '@/core/EventBus';
+import { AccountData } from '@/types/AccountData';
 
 interface UseAuthReturn {
   isAuthenticated: boolean;
@@ -37,14 +37,14 @@ export function useAuth(): UseAuthReturn {
     const [isLoading, setIsLoading] = useState(true);
     const [isSigningIn, setIsSigningIn] = useState(false);
     const [authSession, setAuthSession] = useAtom(authSessionInfoAtom)
-    const setUserAccountInfo = useSetAtom(userAccountInfoAtom)
+    const [userAccountInfo, setUserAccountInfo] = useAtom(userAccountInfoAtom)
     const isAuthenticated = useAtomValue(isAuthenticatedAtom)
     
     const getSessions = () => {
         try{
-            return JSON.parse(localStorage.getItem(authConfig.sessionStorageKey) || "{}")
+          return JSON.parse(localStorage.getItem(authConfig.sessionStorageKey) || "{}")
         } catch(e){
-            return {}
+          return {}
         }
     }
     
@@ -58,22 +58,24 @@ export function useAuth(): UseAuthReturn {
 
     const initialize = () => {
 
-        if (!isConnected || address == null) return;
-    
-        let sessions = getSessions()
-        
-        const sessKey = utils.uuidFromSeed(address)
-        
-        let session = sessions[sessKey] || null
-        
-        if (!session) {
-            //console.log("Session not found")
-            setAuthSession(null)
-            openModal()
-            return;
-        }
+      if (!isConnected || address == null) return;
+  
+      let sessions = getSessions()
+      
+      const sessKey = utils.uuidFromSeed(address)
+      
+      let session = sessions[sessKey] || null
+      
+      if (!session) {
+        //console.log("Session not found")
+        setAuthSession(null)
+        openModal()
+        return;
+      }
+      
+      getUserAccountInfo()
 
-        setAuthSession(sessions[sessKey])
+      setAuthSession(sessions[sessKey])
     }
     
     useEffect(() => { initialize() }, []);
@@ -136,7 +138,7 @@ export function useAuth(): UseAuthReturn {
         //console.log("nonceStatus===>", nonceStatus)
     
         if(nonceStatus.isError()){
-            return Status.error(`Nonce Error: ${nonceStatus.getMessage()}`)
+          return Status.error(`Nonce Error: ${nonceStatus.getMessage()}`)
         }
     
         const nonce = nonceStatus.getData() as string;
@@ -157,35 +159,35 @@ export function useAuth(): UseAuthReturn {
         const signature = bs58.encode(signatureBytes);
     
         const formData = {
-            accountAddress,
-            signature,
-            message,
-            nonce,
-            chainId
+          accountAddress,
+          signature,
+          message,
+          nonce,
+          chainId
         }
     
         const resultStatus = await http.post("/auth/verify", formData)
     
         if(resultStatus.isError()){
-            return Status.error(resultStatus.getMessage())
+          return Status.error(resultStatus.getMessage())
         }
     
         const sessionAndAcctData = resultStatus.getData() as SessionWithAccountData;
     
         if (sessionAndAcctData.isAuthenticated) {
     
-            const { accountInfo, ...sessData } = sessionAndAcctData;
-    
-            // set account info
-            setUserAccountInfo(accountInfo)
-    
-            // set active session globally
-            setAuthSession(sessData);
-    
-            // update the session pool
-            updateSessions(accountAddress, sessData)
-            
-            return Status.success();
+          const { accountInfo, ...sessData } = sessionAndAcctData;
+  
+          // set account info
+          setUserAccountInfo(accountInfo)
+  
+          // set active session globally
+          setAuthSession(sessData);
+  
+          // update the session pool
+          updateSessions(accountAddress, sessData)
+          
+          return Status.success();
         }
 
         return Status.error("Failed to verify signature, please try again");
@@ -249,6 +251,46 @@ export function useAuth(): UseAuthReturn {
 
     return Status.successData(authData.accessToken)
   }
+  
+  const getUserAccountInfo = async (): Promise<AccountData | null> => {
+    
+    if (!isAuthenticated) {
+      setUserAccountInfo(null)
+      return null;
+    }
+    
+    if (userAccountInfo != null) {
+      return userAccountInfo
+    }
+      
+    const accessTokenStatus = await getAccessToken()
+    
+    if (!accessTokenStatus) {
+      setUserAccountInfo(null)
+      return null
+    }
+
+    if (accessTokenStatus.isError()) {
+      setUserAccountInfo(null)
+      return null
+    }
+
+    const accessToken = accessTokenStatus.getData() as string;
+
+    const headers = { "Authorization": `Bearer ${accessToken}`,}
+
+    const userInfoStatus = await http.get("/account", {}, headers);
+    
+    if (userInfoStatus.isError()) {
+      setUserAccountInfo(null)
+      return null
+    }
+    
+    const data = userInfoStatus.getData() as AccountData | null
+    setUserAccountInfo(data)
+    
+    return data
+  }
 
   // Sign out
   const signOut = useCallback(async () => {
@@ -266,6 +308,7 @@ export function useAuth(): UseAuthReturn {
     isLoading,
     isSigningIn,
     session: authSession,
+    getUserAccountInfo,
     signIn,
     signOut,
     getAccessToken

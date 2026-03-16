@@ -8,53 +8,6 @@ import JoinClanBtn from "@/components/joinClanBtn/JoinClanBtn";
 import Button from "@/components/button/Button";
 import tinycolor from "tinycolor2";
 
-/* ── Inject once ─────────────────────────────────────────────── */
-let _ccInjected = false;
-function injectCardStyles() {
-  if (_ccInjected || typeof document === "undefined") return;
-  _ccInjected = true;
-  const s = document.createElement("style");
-  s.textContent = `
-    /* staggered entrance */
-    @keyframes _cc-enter {
-      from { opacity: 0; transform: translateY(24px) scale(0.96); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    /* shimmer sweep on image */
-    @keyframes _cc-shimmer {
-      to { transform: translateX(200%) skewX(-12deg); }
-    }
-    ._cc-shim {
-      position: absolute; inset: 0;
-      overflow: hidden; pointer-events: none; z-index: 2;
-    }
-    ._cc-shim::after {
-      content: '';
-      position: absolute; inset: -50% 0;
-      transform: translateX(-100%) skewX(-12deg);
-      background: linear-gradient(
-        90deg,
-        transparent 20%,
-        rgba(255,255,255,0.04) 38%,
-        rgba(255,255,255,0.13) 50%,
-        rgba(255,255,255,0.04) 62%,
-        transparent 80%
-      );
-    }
-    .group:hover ._cc-shim::after {
-      animation: _cc-shimmer 0.8s ease forwards;
-    }
-
-    /* stats glow on hover */
-    ._cc-stats { transition: all 0.3s ease; }
-    .group:hover ._cc-stats {
-      border-color: rgba(139,92,246,0.2);
-      background: rgba(139,92,246,0.05);
-    }
-  `;
-  document.head.appendChild(s);
-}
 
 /* ── Types ───────────────────────────────────────────────────── */
 export interface ClanCardProps {
@@ -79,10 +32,10 @@ const ClanCard = memo(
     const [clan, setClan] = useState(_clan);
     const [isMember, setIsMember] = useState(_clan.isMember);
 
-    useEffect(injectCardStyles, []);
 
     const accentColor1 = clan.accentColor[0];
     const accentColor2 = clan.accentColor[1];
+    
     const clanUrl = `/clans/${clan.slug}-${clan.id}`;
 
     const ac1Dark = tinycolor(accentColor1).darken(20).toString();

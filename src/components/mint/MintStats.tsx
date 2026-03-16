@@ -7,29 +7,29 @@ export default function ClaimRankStats({ stats }) {
 
     const statsMeta = {
         globalRank:     { 
-            title:      "Global Rank",
-            color: 'purple',
-            icon: Target
+          title: "Global Rank",
+          color: 'ice',
+          icon: Target
         },
         eam:   { 
             title: "EAM",
-            color: 'yellow',
+            color: 'gold',
             icon: Zap
         },
         mintDifficulty: { 
             title:   "Mint Difficulty",
-            color: 'red',
+            color: 'neon',
             icon: Shield
         },
         tokenSupply:    { 
             title: "Current Supply",
-            color: 'green',
+            color: 'indigo',
             icon: TrendingUp
         }
     }
 
     return (
-         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+         <div className="grid grid-cols-2 md:grid-cols-4 gap-2  mx-auto">
             { Object.keys(stats).map(key => {
 
                 let meta = statsMeta[key]

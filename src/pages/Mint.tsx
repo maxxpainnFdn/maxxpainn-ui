@@ -59,8 +59,15 @@ export default function Mint() {
   const [maxLockTermDays, setMaxLockTermDays] = useState(0);
   const [mintRewardInfo, setMintRewardInfo] = useState<MintRewardInfo>();
   const [selectedClanId, setSelectedClanId] = useState(0);
+  const [referralClanInfo, setReferralClanInfo] = useState<ClanData | null>(null)
+  const [referralUserAccountId, setReferralUserAccountId] = useState<number>(0)
+  const [isFetchingRefClan, setIsFetchingRefClan] = useState<boolean>(false)
 
   let programPdas: ProgramPdas;
+  
+  useEffect(()=>{
+    processReferralInfo()
+  }, [])
 
   useEffect(() => {
     fetchOnChainAccounts();
@@ -75,11 +82,56 @@ export default function Mint() {
     );
     setMintRewardInfo(mintReward);
   }, [selectedWaitTermDays, globalRank]);
+  
+  const processReferralInfo = async () => {
+    try {
+      
+      setIsFetchingRefClan(true)
+
+      const refInfoStr = localStorage.getItem("referral_info") || null
+            
+      if (refInfoStr == null) return;
+      
+      let refInfoJson: Record<string, number>;
+     
+      try { refInfoJson = JSON.parse(refInfoStr) } catch (e) { return; }
+      
+      let clanId = refInfoJson.clanId || null
+      let refAccountId = Number(refInfoJson.accountId || 0);
+      
+      if(!Number.isNaN(refAccountId)){
+        setReferralUserAccountId(refAccountId)
+      }
+      
+      if (clanId  == null) return;
+      
+      clanId = Number(clanId)
+       
+      // lets fetch the clan Info 
+      const clanInfoStatus = await api.get(`/clans/${clanId}`)
+      
+      if (clanInfoStatus.isError()) return;
+      
+      const clanInfo = clanInfoStatus.getData() as ClanData | null;
+            
+      if (clanInfo == null) return;
+      
+      setReferralClanInfo(clanInfo)
+      setSelectedClanId(clanInfo.id)
+      
+    } catch (e: any) {
+      utils.logError("Mint#processReferralInfo",e)
+    } finally {
+      setIsFetchingRefClan(false)
+    }
+  }
 
   const fetchOnChainAccounts = async () => {
     try {
+      
       setPageLoading(true);
       setPageError("");
+      
       if (!isConnected) return;
 
       const programPdas = await web3.getProgramPdas(networkId);
@@ -90,6 +142,7 @@ export default function Mint() {
       );
 
       const idl = "maxxpainn";
+      
       const resultStatus = await web3.fetchAccountsInfo({
         network: networkId,
         accounts: {
@@ -107,6 +160,7 @@ export default function Mint() {
 
       const acctsInfoObj: Record<string, DecodedAccountInfo> = resultStatus.getData();
       const userRankInfo = acctsInfoObj.userRankInfo || null;
+      
       if (userRankInfo != null) {
         navigate("/mint/claim");
         return true;
@@ -125,6 +179,7 @@ export default function Mint() {
         setPageError("Smart contract hasn't been initialized yet. Please reach out to the dev team.");
         return;
       }
+      
       if (!mainConfig.canMint) {
         setPageError("Minting is temporarily unavailable. Please try again soon.");
         return;
@@ -132,11 +187,14 @@ export default function Mint() {
 
       let _globalRank = Number(protocolState?.globalRank?.toString() || "0");
       let maxLockPeriodSecs = MintCore.maxLockPeriodSecondsForRank(_globalRank + 1);
+      
       setMaxLockTermDays(Math.floor(maxLockPeriodSecs / 86400));
       setMainConfig(mainConfig);
       setGlobalRank(_globalRank);
+      
       setTokenInfo(_tokenInfo);
       setPageInited(true);
+      
     } catch (e) {
       utils.logError("Mint#fetchOnChainAccounts:", e);
       setPageError(utils.systemError);
@@ -157,6 +215,7 @@ export default function Mint() {
 
   const processFormSubmit = async (data: ClaimRankForm) => {
     try {
+      
       if (!isConnected) { toast.error("Connect wallet to continue"); return; }
       if (!selectedClanId || selectedClanId == 0) { toast.error("Select clan to continue"); return; }
 
@@ -178,7 +237,7 @@ export default function Mint() {
 
       const programPdas = await web3.getProgramPdas(networkId);
       const clanId = new BN(selectedClanId);
-      const referrerIdBN = new BN(0);
+      const referrerIdBN = new BN(referralUserAccountId);
 
       const txStatus = await web3.sendTx({
         network: networkId,
@@ -277,7 +336,7 @@ export default function Mint() {
               <LoadingView
                 error={pageError}
                 onReload={fetchOnChainAccounts}
-                loading={pageLoading}
+                loading={ pageLoading || isFetchingRefClan }
                 className="min-h-[50vh]"
               >
                 <>
@@ -285,25 +344,25 @@ export default function Mint() {
                     <div>
 
                       {/* ── PAGE HEADER ── */}
-                      <div className="mb-10 animate-fade-up">
+                      <div className="text-center mb-10 animate-fade-up">
                         <div className="eyebrow justify-center sm:justify-start mb-3">
                           <span className="eyebrow-dot" />
                           FREE-TO-MINT · SOLANA
                         </div>
-                        <h1 className="font-sans font-black text-[clamp(2.8rem,9vw,7rem)] leading-[0.94] tracking-tight text-maxx-white uppercase">
+                        <h1 className="font-sans font-black text-[clamp(2.8rem,9vw,6.5rem)] leading-[0.94] tracking-tight text-maxx-white uppercase">
                           MINT{" "}
                           <span className="bg-grad-accent bg-clip-text text-transparent">
                             ${tokenConfig.symbol}
                           </span>
                         </h1>
-                        <p className="font-sans text-base md:text-lg text-maxx-bright leading-relaxed mt-3 max-w-xl">
+                        <div className="text-center font-sans text-base md:text-lg text-maxx-bright leading-relaxed mt-3">
                           Initiate the mint, wait your selected term, then claim —
                           longer waits earn more.
-                        </p>
+                        </div>
                       </div>
 
                       {/* ── STATS STRIP ── */}
-                      <div className="mb-10 animate-fade-up delay-1">
+                      <div className="w-full mb-10 animate-fade-up delay-1">
                         <MintStats
                           stats={{
                             globalRank:     utils.toShortNumber(globalRank),
@@ -344,6 +403,8 @@ export default function Mint() {
                                   Select Your Clan
                                 </label>
                                 <ClansModal
+                                  defaultClan={referralClanInfo}
+                                  disabled={ (referralClanInfo != null) || loading }
                                   onChange={(clan: ClanData) => setSelectedClanId(clan.id)}
                                 />
                               </div>

@@ -18,6 +18,11 @@ export default function Routes() {
         // for test
         //{ uri: "/mint2", component: "Mint2" },
 
+        //referral
+        { uri: "/r/:clanId", component: "Referral" },
+        { uri: "/r/:clanId/:userAccountId", component: "Referral" },
+        
+        
         { uri: "/leaderboard", component: "Leaderboard" },
         { uri: "/faq", component: "FAQ" },
         { uri: "/roadmap", component: "Roadmap" },

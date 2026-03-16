@@ -9,13 +9,22 @@ import ClanCard from "../clans/ClanCard";
 import Modal from "../modal/Modal";
 
 export interface ClansModalProps {
-    children?: ReactNode | any;
-    onChange: (clan: ClanData) => void;
+  children?: ReactNode | any;
+  disabled?: boolean;
+  defaultClan?: ClanData | null;
+  onChange: (clan: ClanData) => void;
+  
 }
 
-export default function ClansModal({ children, onChange }: ClansModalProps) {
+export default function ClansModal({
+  children,
+  disabled = false,
+  defaultClan = null,
+  onChange
+}: ClansModalProps) {
+  
     const [isDialogOpen, setDialogOpen] = useState(false);
-    const [selectedClan, setSelectedClan] = useState(null);
+    const [selectedClan, setSelectedClan] = useState(defaultClan);
     const [clans, setClans] = useState([]);
     const [searchKeyword, setSearchKeyword] = useState("");
     const [sortBy, setSortBy] = useState("newest");
@@ -45,8 +54,8 @@ export default function ClansModal({ children, onChange }: ClansModalProps) {
 
     return (
         <>
-            <div onClick={() => setDialogOpen(true)}>
-              {children ?? <ClansModalTriggerBtn selectedClan={selectedClan} />}
+            <div onClick={() => { if (disabled) return; setDialogOpen(true); }}>
+              {children ?? <ClansModalTriggerBtn selectedClan={selectedClan} disabled={disabled}  />}
             </div>
 
             <Modal
