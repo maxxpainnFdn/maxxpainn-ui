@@ -1,21 +1,60 @@
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
-export interface TabsProps {
+export interface TabItemProps {
   id: string;
-  name: string;
+  label: string;
   icon: any;
   component: any;
   args: Record<string, any>
 }
 
-export default function Tabs({ items = [] }: TabsProps[]) {
+export interface TabsProps {
+  items: TabItemProps[],
+  sticky?: boolean
+}
+
+export default function Tabs({ items = [], sticky = true }: TabsProps ) {
   
   const [activeTab, setActiveTab] = useState<string>((items[0]?.id || ""));
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const tabsRef = useRef<HTMLDivElement | null>(null);
+  
+  useEffect(() => {
+    if (!sticky) return;
+  
+    const sentinel = sentinelRef.current;
+    const tabs = tabsRef.current;
+  
+    if (!sentinel || !tabs) return;
+  
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const isStuck = !entry.isIntersecting;
+        tabs.classList.toggle("is-stuck", isStuck);
+      },
+      {
+        root: null,
+        threshold: 0,
+        rootMargin: "-65px 0px 0px 0px",
+      }
+    );
+  
+    observer.observe(sentinel);
+  
+    return () => observer.disconnect();
+  }, [sticky]);
+  
+  const stickyClass = (sticky) 
+    ? "sticky top-[65px] z-10 [&.is-stuck]:bg-maxx-bg1/80 [&.is-stuck]:backdrop-blur [&.is-stuck]:shadow"
+    : ""
 
   return (
     <>
-      <div className="flex items-end gap-0 border-b border-maxx-violet/15 overflow-x-auto nav-scroll-container">
+      {sticky && <div ref={sentinelRef} />}
+      <div ref={tabsRef}
+        className={`${stickyClass}  flex items-end gap-0 border-b border-maxx-violet/15 overflow-x-auto nav-scroll-container`}
+      >
         {items.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
