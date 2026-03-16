@@ -25,7 +25,7 @@ export const MobileNav = ({ navItems }) => {
     'hover:border-purple-500/50 hover:text-white hover:bg-purple-500/5 ' +
     'active:bg-violet-500/10 transition-all duration-200 whitespace-nowrap cursor-pointer select-none';
 
-  const scrollNav = (direction) => {
+  const scrollNav = (direction: string) => {
     const el = scrollRef.current;
     if (!el) return;
     el.scrollTo({

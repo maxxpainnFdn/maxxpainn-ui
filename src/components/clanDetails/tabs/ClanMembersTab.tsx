@@ -18,16 +18,17 @@ export default function ClanMembersTab({ clan }, { clan: ClanData }) {
   const accentColor = clan.accentColor1;
 
   return (
-    <Card className="bg-gradient-to-br from-card via-card to-card/50 border border-border/40 shadow-xl">
-      <CardContent className="p-6">
+    <Card className="w-full sbg-gradient-to-br from-card via-card to-card/50 border border-border/40 shadow-xl">
+      <CardContent className="p-6 w-full">
         <h2 className="text-2xl font-black mb-6">Members</h2>
-        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+        <div className="w-full grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
             <ApiQuery
               uri={`/clans/${clanId}/members`}
               errorProps={{ className: "!scale-70", titleClassName: "font-medium !text-2xl" }}
               onSuccess={onQuerySuccess}
               key={clanId}
               pagingType="full"
+              loaderProps={{ className: "w-full"}}
             >   
               <>
                 {(members || []).map((member, index) => {
