@@ -220,9 +220,15 @@ export default function Mint() {
       if (!selectedClanId || selectedClanId == 0) { toast.error("Select clan to continue"); return; }
 
       let waitPeriod = Number(data.term);
+      
       if (waitPeriod < mintConfig.minLockDays) { toast.error(`Wait period cannot be lower than ${mintConfig.minLockDays}`); return; }
       if (waitPeriod > maxLockTermDays) { toast.error(`Wait period cannot exceed ${maxLockTermDays}`); return; }
 
+      if (painStory.trim() == "") {
+        toast.error("Pain story input is required");
+        return; 
+      }
+      
       setLoading(true);
       const programId = await web3.getProgramId(networkId);
 
@@ -275,6 +281,7 @@ export default function Mint() {
 
       toast.success("Mint initiated successfully");
       navigate("/mint/claim");
+      
     } catch (e) {
       utils.logError("ClaimRank#processFormSubmit:", e);
       toast.error(utils.systemError);
@@ -466,8 +473,7 @@ export default function Mint() {
                               {/* ── PAIN STORY ── */}
                               <div>
                                 <label className="text-sm font-semibold tracking-wider uppercase text-maxx-mid block mb-2.5">
-                                  Your Pain Story{" "}
-                                  <span className="text-maxx-dim normal-case font-normal">(Optional)</span>
+                                  Your Pain Story
                                 </label>
                                 <Textarea
                                   className="

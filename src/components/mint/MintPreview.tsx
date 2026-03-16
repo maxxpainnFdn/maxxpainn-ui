@@ -1,5 +1,6 @@
 import React from 'react';
 import { Info, TrendingUp, Clock, Network, Layers } from 'lucide-react';
+import { tokenConfig } from '@/config/token';
 
 export interface MintPreviewData {
   baseReward: number;
@@ -125,12 +126,12 @@ export default function MintPreview({
       <div className="h-px bg-maxx-violet/15 mb-5" />
 
       {/* min reward callout */}
-      <div className="bg-maxx-violet/5 border border-maxx-violet/20 rounded-md p-4 flex items-end justify-between gap-3">
+      <div className="bg-maxx-violet/5 border border-maxx-violet/20 rounded-md p-4 flex flex-col text-center md:text-start md:flex-row items-center md:items-end justify-between gap-3">
         <div>
-          <div className="font-mono text-[0.65rem] tracking-widest uppercase text-maxx-sub mb-1">
+          <div className="text-sm font-semibold  text-maxx-sub mb-1">
             Minimum Reward
           </div>
-          <div className="font-mono text-[0.7rem] text-maxx-mid leading-relaxed">
+          <div className="font-mono text-[0.8rem] text-maxx-mid leading-relaxed">
             Based on your selected wait period
           </div>
         </div>
@@ -138,8 +139,8 @@ export default function MintPreview({
           <div className="font-sans font-black text-[clamp(1.3rem,3.5vw,1.8rem)] leading-none bg-grad-accent bg-clip-text text-transparent">
             {Number(minRewardAmount).toLocaleString()}
           </div>
-          <div className="font-mono text-[0.62rem] text-maxx-sub tracking-widest uppercase mt-0.5">
-            $PAINN
+          <div className="text-[0.65rem] font-semibold  text-maxx-sub tracking-widest uppercase mt-0.5">
+            ${tokenConfig.symbol}
           </div>
         </div>
       </div>
