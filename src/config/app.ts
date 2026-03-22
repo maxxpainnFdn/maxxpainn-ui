@@ -7,5 +7,6 @@ export default {
     description:  "MaxxPainn: a free-to-mint Solana protocol championing free, fair and equal token distribution.",
     url:          domainUrl,
     logo:         `${domainUrl}/logo.png`,
-    tokenBuyUrl:  "#"
+    tokenBuyUrl:  "#",
+    imageCdn:     "https://api.maxxpainn.com"
 }

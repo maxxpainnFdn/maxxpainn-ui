@@ -1,11 +1,10 @@
 import { IAccount } from "@/types/IAccount";
 import { Card, CardContent } from "../ui/card";
 import {  Crown } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import ImageAvatar from "../ImageAvatar";
-import { avataaars, avataaarsNeutral } from "@dicebear/collection";
 import { Link } from "react-router-dom";
+import utils from "@/lib/utils";
 
 export default function ChiefCard({ accountInfo, accentColor }: { accountInfo: IAccount, accentColor: string }) {
 
@@ -34,10 +33,9 @@ export default function ChiefCard({ accountInfo, accentColor }: { accountInfo: I
             <ImageAvatar 
               className="relative h-32 w-32 mx-auto border-4 shadow-2xl" 
               style={{ borderColor: accentColor }}
-              src={accountInfo.photo || ""}
+              src={utils.getServerImage(accountInfo.photo, "profile/photo", "normal")}
               alt="Creator"
               seed={accountInfo.address}
-              avatarType={avataaars}
             />
           </div>
           <Link to={`/profile/@${accountInfo.username}`} target="_blank">

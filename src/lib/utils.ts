@@ -7,6 +7,7 @@ import { BN } from "@coral-xyz/anchor";
 import { format, formatDistanceToNow, differenceInDays } from "date-fns";
 import { v5 as uuidv5, v4 as uuidv4 } from 'uuid';
 import { getNetworkById } from "@/config/networks";
+import app from "@/config/app";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -69,7 +70,8 @@ export default class utils {
   }
 
   static getServerImage(image: string, group: string, size: string): string {
-    let url = `${api.endpoint}/files/images/${group}/${size}/${image}`;
+    let imageHost = (app.imageCdn || "") != "" ? app.imageCdn : api.endpoint;
+    let url = `${imageHost}/files/images/${group}/${size}/${image}`;
     return url;
   }
 

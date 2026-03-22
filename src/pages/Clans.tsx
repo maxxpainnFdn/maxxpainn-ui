@@ -9,7 +9,6 @@ import CreateClan from "@/components/clans/CreateClan";
 import ClansSorter from "@/components/clans/ClansSorter";
 import ClansSearch from "@/components/clans/ClansSearch";
 import { Helmet } from "react-helmet-async";
-import { SearchableSelect } from "@/components/ui/searchable-select";
 import ClanCategorySelect from "@/components/clans/ClanCategorySelect";
 
 /* ── Inject once ── */

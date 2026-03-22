@@ -68,7 +68,8 @@ export class Status<T = unknown> {
     return this.message;
   }
 
-  getData(): T | null {
-    return this.data as T;
+  getData<T>(): T | null {
+    return this.data as unknown as T;
   }
+  
 }

@@ -1,151 +1,180 @@
+import utils, { cn } from "@/lib/utils";
+import { Bookmark, Coins, Heart, MessageCircle, MoreHorizontal, Repeat2, Share2, TrendingDown } from "lucide-react";
 import { useState } from "react";
-import PostMintChips from "./PostMintChips";
-import { BadgeCheck, Bookmark, Heart, MessageSquare, MoreHorizontal, Repeat2, Share2, Shield } from "lucide-react";
+import CommentRow from "./CommentRow";
+import { Post } from "@/types/Post";
+import ImageAvatar from "../ImageAvatar";
+import LikeBtn from "./LikeBtn";
 
-const fmtDay = d => d >= 365 ? `${(d / 365).toFixed(1)}y` : d >= 30 ? `${Math.round(d / 30)}mo` : `${d}d`;
-const fmtN   = n => n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n);
+export interface PostCardProps {
+  data: Post;
+}
 
-/* ═══════════════════════════════════════════════════════════════
-   SUB-COMPONENTS
-═══════════════════════════════════════════════════════════════ */
-
-/* ── Avatar ── */
-const Avatar = ({ initials, verified, clan }) => (
-  <div className="relative flex-shrink-0">
-    <div className={`w-10 h-10  bg-grad-btn flex items-center justify-center font-mono font-black text-sm text-maxx-white rounded-full`}>
-      {initials}
-    </div>
-    {verified && (
-      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-maxx-bg1 border border-maxx-pink rounded-full flex items-center justify-center">
-        <BadgeCheck className="w-2.5 h-2.5 text-maxx-pink" />
-      </div>
-    )}
-  </div>
-);
-
-/* ── Clan badge ── */
-const ClanBadge = ({ clan }) => (
-  <span className={`inline-flex items-center gap-1.5 font-mono text-xs tracking-wider uppercase px-2.5 py-1 rounded-full border font-bold ${clan.tw.text} ${clan.tw.border} ${clan.tw.bg}`}>
-    <Shield className="w-3 h-3" />
-    {clan.name}
-  </span>
-);
-
-
-
-/* ── Action button ── */
-const ActBtn = ({ icon: Icon, count, active, activeCls, onClick, filled }) => {
-  const [pop, setPop] = useState(false);
-  const go = () => { setPop(true); setTimeout(() => setPop(false), 220); onClick(); };
-  return (
-    <button
-      onClick={go}
-      className={`flex items-center gap-1.5 font-mono text-xs transition-all duration-150
-        ${active ? activeCls : "text-maxx-sub hover:text-maxx-bright"}
-        ${pop ? "scale-125" : "hover:scale-110"}`}
-    >
-      <Icon
-        className="w-3.5 h-3.5"
-        fill={filled && active ? "currentColor" : "none"}
-        strokeWidth={filled && active ? 0 : 1.8}
-      />
-      {count !== undefined && <span>{fmtN(count)}</span>}
-    </button>
-  );
-};
-
-
-export default function PostCard({ post, onLike, onRepost, onBookmark }) {
+export default function PostCard({ data: post }: PostCardProps) {
   
-  const [expanded, setExpanded] = useState(false);
-  const paras = post.text.split("\n").filter(Boolean);
-  const isLong = paras.length > 3 || post.text.length > 280;
+  const onLike = () => {}
+  const onRepost = () => {}
+  const onBookmark = () => { }
+  
+  console.log("post===>", post)
+    
+  const isR = post.type.toLowerCase() === "pain_story";
+  const hasComments = false;
+  const PREVIEW_COUNT = 2;
+  const visibleComments = []//post.commentList.slice(0, PREVIEW_COUNT);
+  const hiddenCount = 0;//post.commentList.length - PREVIEW_COUNT;
+  
+  const author = post.account;
+  const hasLiked = false;
+  const hasReposted = false
+  
+  const clan = post.clan;
+  
 
   return (
-    <article className="group relative bg-maxx-bg1/80 border border-maxx-violet/15 rounded-lg overflow-hidden hover:border-maxx-violet/35 transition-all duration-300">
-      {/* top accent */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-maxx-violet/60 via-maxx-pink/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    <div className="_sp-fu group">
+      {/* POST CARD */}
+      <div
+        className={cn(
+          "relative overflow-hidden bg-maxx-bg2/90 border border-maxx-violet/[0.14] transition-[border-color,box-shadow] duration-300",
+          " group-hover:shadow-[0_8px_40px_rgba(139,92,246,0.08)]",
+          hasComments ? "rounded-t-[18px]  border-b-[0]" : "rounded-[18px]",
+          "px-5 pt-[18px] pb-4"
+        )}
+      >
+        {/* Top shimmer — appears on hover */}
+        <div className={cn(
+          "absolute top-0 left-0 right-0 h-px pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300",
+          isR
+            ? "bg-gradient-to-r from-transparent via-maxx-pink to-transparent"
+            : "bg-gradient-to-r from-transparent via-maxx-violet to-transparent"
+        )} />
 
-      <div className="p-5 flex gap-3">
 
-        {/* avatar col */}
-        <div className="flex flex-col items-center flex-shrink-0">
-          <Avatar initials={post.author.initials} verified={post.author.verified} />
-          <div className="flex-1 w-px bg-maxx-violet/15 mt-3 min-h-[16px]" />
+        {/* Author row */}
+        <div className="flex items-center gap-3 mb-3">
+          <ImageAvatar
+            className=" h-[40px] w-[40px] mx-auto border-4 shadow-2xl" 
+            src={utils.getServerImage(author.photo, "profile/photo", "tiny")}
+            alt=""
+            seed={author.address}
+            size={40}
+          />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap mb-0.5">
+              <span className="font-semibold text-maxx-white text-[0.95rem] truncate">{author.username}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-maxx-dim text-[0.78rem]">{utils.getRelativeDate(post.createdAt)}</span>
+            </div>
+          </div>
+          <button className="text-maxx-dim hover:text-maxx-sub transition-colors p-1 flex-shrink-0 -mt-0.5 bg-transparent border-none cursor-pointer">
+            <MoreHorizontal size={15} />
+          </button>
         </div>
+        
 
-        {/* content */}
-        <div className="flex-1 min-w-0">
-
-          {/* author row */}
-          <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5 mb-2.5">
-            <span className="font-sans font-bold text-base text-maxx-white">
-              @{post.author.handle}
-            </span>
-            <span className="pill">Rank #{post.author.rank.toLocaleString()}</span>
-            <span className="text-maxx-sub text-sm">·</span>
-            <span className="font-mono text-xs text-maxx-sub">{post.ts}</span>
-            <div className="ml-auto">
-              <button className="text-maxx-sub/50 hover:text-maxx-mid transition-colors">
-                <MoreHorizontal className="w-4 h-4" />
-              </button>
+        {/* Content */}
+        <p className="text-maxx-mid leading-[1.8] font-light mb-4 text-[0.9375rem] pl-[52px]">
+          {post.content}
+          
+          <div className="flex my-2">
+            <div>
+              {clan && (
+                <a href={`/clans/${clan.slug}-${clan.id}`}
+                  className="flex items-center gap-1 font-mono rounded-md pe-1.5 py-0.5 no-underline bg-maxx-violet/10 text-maxx-violet-lt text-[0.68rem] tracking-[0.04em] uppercase hover:bg-maxx-violet/[0.15] transition-colors">
+                  <span className="text-[0.8rem]">
+                    <ImageAvatar
+                      src={utils.getServerImage(clan.image, "clans", "tiny")}
+                      fallbackText={clan.name}
+                      className="w-[24px] h-[24px] object-cover text-sm font-bold rounded"
+                      fallbackTextClass="bg-maxx-bg/50 text-maxx-white rounded-none"
+                    />
+                  </span>
+                  <span className="ps-0.5">{post.clan.name}</span>
+                </a>
+              )}
             </div>
           </div>
+        </p>
 
-          {/* clan */}
-          <div className="mb-3">
-            <ClanBadge clan={post.clan} />
+        {/* Divider */}
+        <div className="mb-3 h-px bg-white/[0.06]" />
+
+        {/* Actions */}
+        <div className="flex items-center justify-between pl-[50px]">
+          <div className="flex items-center">
+            
+            <LikeBtn
+              likeType="post"
+              hasLiked={hasLiked}
+              totalLikes={post.likesCount}
+            />
+
+            <a href={`/stories/${post.id}`}
+              className="inline-flex items-center gap-1.5 font-mono font-bold rounded-lg px-3 py-2 no-underline transition-all text-maxx-sub hover:text-maxx-violet hover:bg-maxx-violet/5">
+              <MessageCircle size={16} /> {post.commentsCount > 0 && <span className="text-maxx-sub text-[0.78rem]">{post.commentsCount}</span> }
+            </a>
+
+            <button
+              onClick={() => {}}
+              className={cn("inline-flex items-center gap-1.5 font-mono font-bold rounded-lg px-3 py-2 transition-all bg-transparent border-none cursor-pointer",
+                hasReposted ? "text-maxx-emerald" : "text-maxx-sub hover:text-maxx-emerald hover:bg-maxx-emerald/5"
+              )}
+            >
+              <Repeat2 size={16} /> {post.repostsCount > 0 && <span className="text-maxx-sub text-[0.78rem]">{post.repostsCount}</span> }
+            </button>
+
+            <button className="inline-flex items-center gap-1.5 font-mono font-bold rounded-lg px-3 py-2 transition-all text-maxx-sub hover:text-maxx-mid hover:bg-maxx-violet/5 bg-transparent border-none cursor-pointer">
+              <Share2 size={15} />
+            </button>
           </div>
 
-          {/* body text */}
-          <div className="text-sm text-maxx-bright leading-relaxed font-sans mb-3">
-            {(expanded ? paras : paras.slice(0, 3)).map((p, i) => (
-              <p key={i} className={i > 0 ? "mt-2" : ""}>{p}</p>
-            ))}
-            {isLong && (
-              <button
-                onClick={() => setExpanded(e => !e)}
-                className="font-mono text-xs text-maxx-violet hover:text-maxx-violetLt mt-2 block transition-colors"
-              >
-                {expanded ? "Show less" : "Show more →"}
-              </button>
+          <button
+            onClick={() => {}}
+            className={cn("inline-flex items-center gap-1.5 font-mono font-bold rounded-lg px-3 py-2 transition-all bg-transparent border-none cursor-pointer",
+              post.bookmarked ? "text-maxx-violet" : "text-maxx-sub hover:text-maxx-violet hover:bg-maxx-violet/5"
             )}
-          </div>
-
-          {/* mint chips */}
-          {post.mint && (
-            <div className="mb-4">
-              <PostMintChips amount={post.mint.amount} waitDays={post.mint.waitDays} />
-            </div>
-          )}
-
-          {/* actions */}
-          <div className="flex items-center justify-between pt-3 border-t border-maxx-violet/10">
-            <div className="flex items-center gap-5">
-              <ActBtn icon={MessageSquare} count={post.stats.comments}
-                active={false} activeCls="" onClick={() => {}} />
-              <ActBtn icon={Repeat2}
-                count={post.stats.reposts + (post.reposted ? 1 : 0)}
-                active={post.reposted} activeCls="text-emerald-400"
-                onClick={() => onRepost(post.id)}
-              />
-              <ActBtn icon={Heart}
-                count={post.stats.likes + (post.liked ? 1 : 0)}
-                active={post.liked} activeCls="text-maxx-pink"
-                filled onClick={() => onLike(post.id)} />
-            </div>
-            <div className="flex items-center gap-4">
-              <ActBtn icon={Bookmark}
-                count={post.stats.bookmarks}
-                active={post.bookmarked} activeCls="text-maxx-violet"
-                filled onClick={() => onBookmark(post.id)} />
-              <button className="text-maxx-sub/60 hover:text-maxx-bright transition-colors">
-                <Share2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
+          >
+            <Bookmark size={15} fill={post.bookmarked ? "currentColor" : "none"} />
+          </button>
         </div>
       </div>
-    </article>
+
+      {/* COMMENT THREAD */}
+      {hasComments && (
+        <div className="bg-maxx-bg0/85 border border-maxx-violet/[0.14] border-t-0 rounded-b-[18px] px-5 pt-1 pb-2">
+          <div className="flex items-center gap-3 pt-3 mb-3 border-t border-white/[0.05]">
+            <span className="font-mono text-maxx-dim uppercase tracking-widest text-[0.65rem]">
+              {post.comments} {post.comments === 1 ? "reply" : "replies"}
+            </span>
+          </div>
+
+          {visibleComments.map((c: any, i: number) => (
+            <CommentRow
+              key={c.id}
+              comment={c}
+              isLast={i === visibleComments.length - 1 && hiddenCount === 0}
+              postId={post.id}
+              onLike={()=>{}}
+            />
+          ))}
+
+          {hiddenCount > 0 && (
+            <a
+              href={`/stories/${post.id}`}
+              className="flex items-center gap-2.5 font-mono no-underline rounded-xl px-3 py-2.5 mb-2 transition-all text-maxx-violet hover:text-maxx-violet-lt hover:bg-maxx-violet/[0.06] text-[0.78rem]"
+            >
+              <div className="flex -space-x-1.5">
+                {post.commentList.slice(PREVIEW_COUNT).slice(0, 3).map((c: any) => (
+                  <Av key={c.id} initials={c.avatar} color={c.color} size={20} round />
+                ))}
+              </div>
+              Show {hiddenCount} more {hiddenCount === 1 ? "reply" : "replies"} →
+            </a>
+          )}
+        </div>
+      )}
+    </div>
   );
-};
+}
