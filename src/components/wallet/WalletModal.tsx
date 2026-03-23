@@ -57,8 +57,8 @@ export default function WalletModal({ open, onOpenChange }: WalletViewProps) {
       onOpenChange={handleModalClose}
       title={ modalMeta.title }
       description={ modalMeta.description }
-      size="480"
-      className="max-h-[85vh] min-w-[280px] rounded-xl"
+      desktopClass="w-[500px] max-w-[100%] rounded-xl"
+      className="max-h-[85vh]"
     >
       {isConnected ? (
         <ConnectedWalletView

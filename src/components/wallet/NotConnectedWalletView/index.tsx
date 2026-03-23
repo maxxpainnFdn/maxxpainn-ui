@@ -10,11 +10,16 @@ import InstalledWallets from './InstalledWallets';
 import NotInstalledWallets from './NotInstalledWallets';
 import WalletSecurityWarning from './WalletSecurityWarning';
 import WalletError from './WalletError';
-import EventBus from '@/core/EventBus';
 import { isMobile } from 'react-device-detect';
 import { useWalletCore } from '@/hooks/useWalletCore';
 import utils from '@/lib/utils';
 import walletConfig from '@/config/wallet';
+import { currentNetworkAtom, currentNetworkIdAtom } from '@/store'
+import { useAtomValue } from 'jotai';
+import { NetworkConfig } from '@/types/NetworkConfig';
+import Networks from './Networks';
+import { ChevronRight } from 'lucide-react';
+
 
 interface NotConnectedWalletViewProps {
   modalOpen?: boolean;
@@ -29,6 +34,8 @@ export const NotConnectedWalletView = ({
   const { wallets, select, connect, isConnecting, wallet: selectedWallet } = useWalletCore();
   const [connectingWallet, setConnectingWallet] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedNetwork, setSelectedNetwork] = useState<NetworkConfig|null>(null)
+  
 
   // handle the modal open or close
   useEffect(()=>{
@@ -108,27 +115,72 @@ export const NotConnectedWalletView = ({
     connectWallet();
   }, [selectedWallet, connectingWallet, modalOpen]);
 
-
   return (
     <div> {/** Content */}
       {/* Error Message */}
-
+      
       <WalletError error={error} setError={setError} />
-
-      <div className="space-y-2">
-        <InstalledWallets
-          connecting={isConnecting}
-          connectingWallet={connectingWallet}
-          wallets={wallets}
-          onWalletSelect={handleWalletSelect}
+      
+      {selectedNetwork == null ? (
+        <Networks 
+          onSelect={(network: NetworkConfig) => setSelectedNetwork(network) }
         />
-
-        <NotInstalledWallets
-          wallets={wallets}
-        />
-
+      ) : (
+        <div className="space-y-2">
+            <button className={`
+                w-full flex
+                justify-between align-middle
+                p-4 mb-5
+                bg-black/5 border border-white/10 rounded-xl
+                hover:bg-purple-400/10 hover:border-purple-500/50
+                hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]
+                group
+              `}
+              onClick={(e) => setSelectedNetwork(null)}
+            >
+            <div>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
+                Selected Network
+              </p>
+              <div className="flex items-center gap-3">
+                <div className={`
+                  w-3 h-3 rounded-full
+                  ${ selectedNetwork.isTestnet
+                      ? 'bg-yellow-500'
+                      : 'bg-green-500'
+                  }
+                `} />
+                <span className="text-white font-bold">
+                  {selectedNetwork.name}
+                </span>
+                {selectedNetwork.isTestnet  && (
+                  <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-500 text-xs font-bold rounded-full">
+                    Testnet
+                  </span>
+                )}
+              </div>
+            </div>
+            <ChevronRight className={` w-5 h-5 text-white/30 group-hover:text-purple-400 group-hover:translate-x-1`} />
+          </button>
+          
+          <InstalledWallets
+            connecting={isConnecting}
+            connectingWallet={connectingWallet}
+            wallets={wallets}
+            onWalletSelect={handleWalletSelect}
+          />
+  
+          <NotInstalledWallets
+            wallets={wallets}
+          />
+  
+        </div>
+      )}
+      
+      <div className="mt-3">
         <WalletSecurityWarning />
       </div>
+       
     </div>
   );
 };

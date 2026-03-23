@@ -1,4 +1,4 @@
-import { AlertCircle, Zap } from "lucide-react";
+import { AlertCircle, ArrowLeft, Zap } from "lucide-react";
 import WalletOptionCard from "./WalletOptionCard";
 import { WalletReadyState } from "@solana/wallet-adapter-base";
 
@@ -21,6 +21,7 @@ export default function InstalledWallets ({
       {/* Installed Wallets */}
       {installedWallets.length > 0 && (
         <div className="space-y-3">
+      
           <div className="pb-3 flex items-center gap-2 px-1">
             <Zap className="w-4 h-4 text-green-400" />
             <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">

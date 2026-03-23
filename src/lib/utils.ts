@@ -31,7 +31,7 @@ export default class utils {
     firstLen: number = 2,
     lastLen: number = 2,
   ): string {
-    if (address.trim() === "") return "";
+    if (!address || address == null || address.trim() === "") return "";
 
     return (
       address.substring(0, firstLen) + ".." + address.slice(-lastLen) // ✅ replaces substr

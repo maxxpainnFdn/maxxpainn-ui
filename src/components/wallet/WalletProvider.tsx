@@ -38,6 +38,11 @@ export const WalletProvider = ({
     }
   }, [])
 
+  
+  useEffect(() => {
+    setPageKey(prev => (prev++))
+  }, [currentNetwork])
+  
   ///console.log("currentNetwork===>", currentNetwork)
 
   const wallets = useMemo(() => [

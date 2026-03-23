@@ -41,7 +41,7 @@ export const useWalletCore = (): UseWalletCoreResult => {
 
   const [isConnected, setIsConnected] = useState(connected && publicKey != null)
   const currentNetworkId = useAtomValue(currentNetworkIdAtom);
-
+  
 
   useEffect(()=> {
     setIsConnected(connected && publicKey != null)

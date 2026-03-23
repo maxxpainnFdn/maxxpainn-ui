@@ -24,8 +24,8 @@ export default function WalletOptionCard ({
       disabled={disabled}
       className={`
         w-full flex items-center gap-4 p-4
-        bg-gray-900/50 border border-white/10 rounded-xl
-        hover:bg-gray-800/80 hover:border-purple-500/50
+        bg-black/5 border border-white/10 rounded-xl
+        hover:bg-purple-400/10 hover:border-purple-500/50
         hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]
         active:scale-[0.98]
         transition-all duration-300 group
@@ -36,7 +36,7 @@ export default function WalletOptionCard ({
       {/* Wallet Icon */}
       <div className={`
         relative w-12 h-12 rounded-xl
-        bg-gradient-to-br from-gray-800 to-gray-900
+        bg-gradient-to-br from-violet-900/20 to-violet-950/20
         border border-white/10
         flex items-center justify-center overflow-hidden
         group-hover:border-purple-500/30
@@ -93,7 +93,7 @@ export default function WalletOptionCard ({
         w-5 h-5 transition-all duration-300
         ${isConnecting
           ? 'text-purple-400 opacity-0'
-          : 'text-gray-600 group-hover:text-purple-400 group-hover:translate-x-1'
+          : 'text-white/30 group-hover:text-purple-400 group-hover:translate-x-1'
         }
       `} />
     </button>
