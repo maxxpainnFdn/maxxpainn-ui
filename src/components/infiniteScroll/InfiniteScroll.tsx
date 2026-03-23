@@ -29,6 +29,7 @@ export default function InfiniteScroll({
   const [loadingError, setLoadingError] = useState<string>("")
   
   useEffect(() => {
+    setDataArr([])
     fetchData(1, false)
   }, [])
   
