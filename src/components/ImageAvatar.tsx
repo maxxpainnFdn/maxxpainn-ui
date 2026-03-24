@@ -31,7 +31,7 @@ export default function ImageAvatar({
 
     const getDicebearAvatar = () => (
          createAvatar(avatarType, {
-            seed, 
+            seed: (seed ?? ""), 
             radius: 0        
         }).toDataUri()
     );
