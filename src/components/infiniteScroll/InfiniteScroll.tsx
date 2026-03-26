@@ -13,7 +13,7 @@ export interface InfiniteScrollProps {
   className?: string;
 }
 
-const PULL_THRESHOLD = 80; // px needed to trigger refresh
+const PULL_THRESHOLD = 80;
 
 export default function InfiniteScroll({
   uri,
@@ -29,7 +29,6 @@ export default function InfiniteScroll({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Pull-to-refresh state
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const touchStartY = useRef(0);
@@ -42,6 +41,12 @@ export default function InfiniteScroll({
     threshold: 0,
     triggerOnce: false,
   });
+
+  useEffect(() => {
+    // Disable Chrome's native pull-to-refresh
+    document.body.style.overscrollBehaviorY = 'none';
+    return () => { document.body.style.overscrollBehaviorY = ''; };
+  }, []);
 
   useEffect(() => {
     isMounted.current = true;
@@ -85,9 +90,7 @@ export default function InfiniteScroll({
     setIsRefreshing(false);
   };
 
-  // Touch handlers
   const onTouchStart = (e: React.TouchEvent) => {
-    // Only allow pull when already at the top
     if (window.scrollY > 0) return;
     touchStartY.current = e.touches[0].clientY;
     isPulling.current = true;
@@ -100,7 +103,8 @@ export default function InfiniteScroll({
       setPullDistance(0);
       return;
     }
-    // Rubber-band resistance
+    // Prevent the page from scrolling while pulling
+    e.preventDefault();
     setPullDistance(Math.min(delta * 0.4, PULL_THRESHOLD * 1.5));
   };
 
@@ -122,7 +126,6 @@ export default function InfiniteScroll({
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      {/* Pull-to-refresh indicator */}
       <div
         style={{
           height: isRefreshing ? PULL_THRESHOLD : pullDistance,
@@ -134,7 +137,10 @@ export default function InfiniteScroll({
         {isRefreshing ? (
           <Spinner size={20} />
         ) : (
-          <span className="text-sm text-gray-400 transition-opacity" style={{ opacity: pullDistance > 10 ? 1 : 0 }}>
+          <span
+            className="text-sm text-gray-400 transition-opacity"
+            style={{ opacity: pullDistance > 10 ? 1 : 0 }}
+          >
             {pullTriggered ? '↑ Release to refresh' : '↓ Pull to refresh'}
           </span>
         )}
