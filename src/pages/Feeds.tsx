@@ -20,20 +20,11 @@ import LeftSidebar from "@/components/feeds/LeftSidebar";
 import SearchModal from "@/components/feeds/SearchModal";
 import ComposeModal from "@/components/feeds/ComposeModal";
 import ComposeTrigger from "@/components/feeds/ComposeTrigger";
-import SubHeader from "@/components/feeds/SubHeader";
+//import SubHeader from "@/components/feeds/SubHeader";
 import InfiniteScroll from "@/components/infiniteScroll/InfiniteScroll";
 import PostCard from "@/components/feeds/PostCard";
 import Navigation from "@/components/nav/Navigation";
 
-
-/* ─────────────────────────────────────────────────────────────────
-   TABS
-───────────────────────────────────────────────────────────────── */
-const MAIN_TABS = [
-  { id: "foryou",   label: "For You"  },
-  { id: "clans",    label: "Clans"    },
-  { id: "trending", label: "Trending" },
-];
 
 /* ─────────────────────────────────────────────────────────────────
    PAGE

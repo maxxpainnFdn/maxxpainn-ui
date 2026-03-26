@@ -2,5 +2,9 @@
 export interface PagingInfo {
   currentPage: number;
   pageCount: number;
-  lastPage: number;
+  isFirstPage: boolean;
+  isLastPage: boolean;
+  previousPage: number | null;
+  nextPage: number | null;
+  totalCount: number;
 }

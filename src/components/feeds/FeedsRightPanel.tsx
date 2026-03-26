@@ -50,7 +50,7 @@ export default function FeedsRightPanel() {
         <div className="px-4 pt-4 pb-3">
           <div className="flex items-center gap-2 mb-3">
             <Shield size={13} className="text-maxx-violet" />
-            <span className="font-mono font-bold text-maxx-bright uppercase tracking-wider text-[0.72rem]">Active Clans</span>
+            <span className="font-mono font-bold text-maxx-bright uppercase tracking-wider text-[0.72rem]">Top Clans</span>
           </div>
           <div className="flex flex-col gap-1">
             {CLANS.map(c => (

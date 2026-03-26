@@ -26,10 +26,8 @@ function SBtn({ label, Icon, isActive, onClick, size = "md" }: { label: string; 
 export default function LeftSidebar({ activeTab, setActiveTab }: any) {
   
   const navItems = [
-    { id: "foryou",   label: "For You",          Icon: Flame      },
-    { id: "clans",    label: "Clans",            Icon: Castle     },
     { id: "trending", label: "Trending",         Icon: TrendingUp },
-    { id: "rewarded", label: "Rewarded Stories", Icon: Award      },
+    { id: "hot", label: "Hot", Icon: Flame      },
     { id: "saved",    label: "Saved",            Icon: Bookmark   },
   ];
 

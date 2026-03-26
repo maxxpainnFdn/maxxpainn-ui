@@ -16,7 +16,7 @@ export default function PostCard({ data: post }: PostCardProps) {
   const onRepost = () => {}
   const onBookmark = () => { }
   
-  console.log("post===>", post)
+  //console.log("post===>", post)
     
   const isR = post.type.toLowerCase() === "pain_story";
   const hasComments = false;
