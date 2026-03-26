@@ -36,6 +36,26 @@ export default function InfiniteScroll({
 
   const pagingInfoRef = useRef<PagingInfo | null>(null);
   const isMounted = useRef(true);
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+  
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isPulling.current || isRefreshing) return;
+      const delta = e.touches[0].clientY - touchStartY.current;
+      if (delta < 0) {
+        setPullDistance(0);
+        return;
+      }
+      e.preventDefault(); // ← works now because listener is non-passive
+      setPullDistance(Math.min(delta * 0.4, PULL_THRESHOLD * 1.5));
+    };
+  
+    el.addEventListener('touchmove', handleTouchMove, { passive: false });
+    return () => el.removeEventListener('touchmove', handleTouchMove);
+  }, [isRefreshing]);
 
   const { ref: sentinelRef, inView } = useInView({
     threshold: 0,
@@ -121,9 +141,10 @@ export default function InfiniteScroll({
 
   return (
     <div
+      ref={containerRef}           // ← add this
       className={className}
       onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
+      // onTouchMove={onTouchMove} ← remove this
       onTouchEnd={onTouchEnd}
     >
       <div
