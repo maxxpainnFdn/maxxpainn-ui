@@ -1,0 +1,81 @@
+import ApiQuery from "@/components/apiQuery/ApiQuery";
+import Button from "@/components/button/Button";
+import PostCard from "@/components/posts/PostCard";
+import { useApi } from "@/hooks/useApi";
+import { Post } from "@/types/Post";
+import { ArrowLeft, ChevronLeft } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
+export default function PostItem() {
+  
+  const { postId } = useParams();
+  const navigate = useNavigate();
+  const api = useApi();
+  
+  const [loading, setLoading] = useState<boolean>(false)
+  const [pageError, setPageError] = useState<string>("")
+  const [initialized, setInitialized] = useState<boolean>(false)
+  const [post, setPost] = useState<Post|null>(null)
+  
+  useEffect(() => {
+    
+    setPageError("")
+    setInitialized(false)
+    
+    if (postId != null) {
+      const postIdNo = Number(postId)
+      if (Number.isNaN(postIdNo) || postIdNo <= 0) {
+        setPageError("Invalid Post")
+        setInitialized(true)
+        return;
+      }
+      
+      setInitialized(true)
+    }
+  })
+  
+  return (
+    <div>
+      <Button
+        variant="ghost"
+        onClick={() => navigate('/posts')}
+        className="mb-6 hover:bg-accent transition-colors items-center"
+      >
+        <ChevronLeft className="mr-1 h-5 w-5" />
+        Posts
+      </Button>
+      
+      {initialized && (
+        <div>
+          {pageError != ""
+            ? <div className="flex justify-center">
+              <div className="bg-white/5 p-5 w-[80%] text-center rounded-xl">
+                {pageError}
+              </div>
+            </div>
+            : <>
+              <ApiQuery
+                uri={`/posts/${postId}`}
+                onSuccess={(data) => setPost(data)}
+              >
+                { post == null ?
+                  <div className="flex justify-center">
+                    <div className="bg-white/5 p-5 w-[80%] text-center rounded-xl">
+                      Post not found
+                    </div>
+                  </div>
+                  :
+                  <PostCard
+                    data={post}
+                    onClick={(e) => e.preventDefault() }
+                  />
+                }
+              </ApiQuery>
+            </>
+          }
+        </div>
+      )}
+    </div>
+  )
+}

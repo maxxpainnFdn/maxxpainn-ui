@@ -54,6 +54,7 @@
     "@solana/web3.js": "^1.98.4",
     "@solflare-wallet/metamask-wallet-standard": "^1.0.11",
     "@tanstack/react-query": "^5.56.2",
+    "@tanstack/react-virtual": "^3.13.23",
     "blaze-slider": "^1.9.3",
     "buffer": "^6.0.3",
     "class-variance-authority": "^0.7.1",

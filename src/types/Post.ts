@@ -21,4 +21,7 @@ export interface Post {
   repostsCount: number;
   collectionId: number | null;
   tags: string[];
+  likes?: Record<string, any>[] | null;
+  comments?: Record<string, any>[] | null;
+  bookmarks?: Record<string, any>[] | null;
 }

@@ -5,18 +5,20 @@ import CommentRow from "./CommentRow";
 import { Post } from "@/types/Post";
 import ImageAvatar from "../ImageAvatar";
 import LikeBtn from "./LikeBtn";
+import BookmarkBtn from "./BookmarkBtn";
 
 export interface PostCardProps {
   data: Post;
+  onClick?: (e: React.MouseEvent<HTMLDivElement>, post: Post) => void;
 }
 
-export default function PostCard({ data: post }: PostCardProps) {
+export default function PostCard({ data: post, onClick }: PostCardProps) {
   
   const onLike = () => {}
   const onRepost = () => {}
   const onBookmark = () => { }
   
-  //console.log("post===>", post)
+  console.log("post===>", post)
     
   const isR = post.type.toLowerCase() === "pain_story";
   const hasComments = false;
@@ -25,14 +27,20 @@ export default function PostCard({ data: post }: PostCardProps) {
   const hiddenCount = 0;//post.commentList.length - PREVIEW_COUNT;
   
   const author = post.account;
-  const hasLiked = false;
+  const hasLiked = (post.likes && post.likes.length > 0);
+  const hasBookmarked = (post.bookmarks && post.bookmarks.length > 0);
   const hasReposted = false
   
   const clan = post.clan;
   
+  const handleOnClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!e.target || !(e.target as HTMLElement).closest('.action-btn')) {
+      onClick?.(e, post)
+    }
+  }
 
   return (
-    <div className="_sp-fu group">
+    <div className="_sp-fu group my-1" onClick={handleOnClick}>
       {/* POST CARD */}
       <div
         className={cn(
@@ -53,16 +61,20 @@ export default function PostCard({ data: post }: PostCardProps) {
 
         {/* Author row */}
         <div className="flex items-center gap-3 mb-3">
-          <ImageAvatar
-            className=" h-[40px] w-[40px] mx-auto border-4 shadow-2xl" 
-            src={utils.getServerImage(author.photo, "profile/photo", "tiny")}
-            alt=""
-            seed={author.address}
-            size={40}
-          />
+          <a className="action-btn" href={`/profile/${author.username}`} target="_blank">
+            <ImageAvatar
+              className=" h-[40px] w-[40px] mx-auto border-4 shadow-2xl" 
+              src={utils.getServerImage(author.photo, "profile/photo", "tiny")}
+              alt=""
+              seed={author.address}
+              size={40}
+            />
+          </a>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-0.5">
-              <span className="font-semibold text-maxx-white text-[0.95rem] truncate">{author.username}</span>
+              <a className="action-btn" href={`/profile/${author.username}`} target="_blank">
+                <span className="font-semibold text-maxx-white text-[0.95rem] truncate">{author.username}</span>
+              </a>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-maxx-dim text-[0.78rem]">{utils.getRelativeDate(post.createdAt)}</span>
@@ -82,16 +94,16 @@ export default function PostCard({ data: post }: PostCardProps) {
             <div>
               {clan && (
                 <a href={`/clans/${clan.slug}-${clan.id}`}
-                  className="flex items-center gap-1 font-mono rounded-md pe-1.5 py-0.5 no-underline bg-maxx-violet/10 text-maxx-violet-lt text-[0.68rem] tracking-[0.04em] uppercase hover:bg-maxx-violet/[0.15] transition-colors">
+                  className="action-btn flex items-center gap-1 font-mono rounded-md pe-1.5  no-underline bg-maxx-violet/10 text-maxx-violet-lt text-[0.68rem] tracking-[0.04em] uppercase hover:bg-maxx-violet/[0.15] transition-colors">
                   <span className="text-[0.8rem]">
                     <ImageAvatar
                       src={utils.getServerImage(clan.image, "clans", "tiny")}
                       fallbackText={clan.name}
-                      className="w-[24px] h-[24px] object-cover text-sm font-bold rounded"
+                      className="w-[20px] h-[20px] object-cover text-sm font-bold rounded"
                       fallbackTextClass="bg-maxx-bg/50 text-maxx-white rounded-none"
                     />
                   </span>
-                  <span className="ps-0.5">{post.clan.name}</span>
+                  <span className="ps-1">{post.clan.name}</span>
                 </a>
               )}
             </div>
@@ -106,38 +118,37 @@ export default function PostCard({ data: post }: PostCardProps) {
           <div className="flex items-center">
             
             <LikeBtn
-              likeType="post"
+              contentType="post"
+              contentId={post.id}
               hasLiked={hasLiked}
               totalLikes={post.likesCount}
             />
 
             <a href={`/stories/${post.id}`}
-              className="inline-flex items-center gap-1.5 font-mono font-bold rounded-lg px-3 py-2 no-underline transition-all text-maxx-sub hover:text-maxx-violet hover:bg-maxx-violet/5">
+              className="action-btn inline-flex items-center gap-1.5 font-mono font-bold rounded-lg px-3 py-2 no-underline transition-all text-maxx-sub hover:text-maxx-violet hover:bg-maxx-violet/5">
               <MessageCircle size={16} /> {post.commentsCount > 0 && <span className="text-maxx-sub text-[0.78rem]">{post.commentsCount}</span> }
             </a>
 
+            {/* 
             <button
               onClick={() => {}}
-              className={cn("inline-flex items-center gap-1.5 font-mono font-bold rounded-lg px-3 py-2 transition-all bg-transparent border-none cursor-pointer",
+              className={cn("action-btn inline-flex items-center gap-1.5 font-mono font-bold rounded-lg px-3 py-2 transition-all bg-transparent border-none cursor-pointer",
                 hasReposted ? "text-maxx-emerald" : "text-maxx-sub hover:text-maxx-emerald hover:bg-maxx-emerald/5"
               )}
             >
               <Repeat2 size={16} /> {post.repostsCount > 0 && <span className="text-maxx-sub text-[0.78rem]">{post.repostsCount}</span> }
             </button>
-
-            <button className="inline-flex items-center gap-1.5 font-mono font-bold rounded-lg px-3 py-2 transition-all text-maxx-sub hover:text-maxx-mid hover:bg-maxx-violet/5 bg-transparent border-none cursor-pointer">
+            */}
+            
+            <button className="action-btn inline-flex items-center gap-1.5 font-mono font-bold rounded-lg px-3 py-2 transition-all text-maxx-sub hover:text-maxx-mid hover:bg-maxx-violet/5 bg-transparent border-none cursor-pointer">
               <Share2 size={15} />
             </button>
           </div>
 
-          <button
-            onClick={() => {}}
-            className={cn("inline-flex items-center gap-1.5 font-mono font-bold rounded-lg px-3 py-2 transition-all bg-transparent border-none cursor-pointer",
-              post.bookmarked ? "text-maxx-violet" : "text-maxx-sub hover:text-maxx-violet hover:bg-maxx-violet/5"
-            )}
-          >
-            <Bookmark size={15} fill={post.bookmarked ? "currentColor" : "none"} />
-          </button>
+          <BookmarkBtn
+            postId={post.id}
+            isBookmarked={hasBookmarked}
+          />
         </div>
       </div>
 

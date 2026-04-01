@@ -5,47 +5,29 @@
  * and 4 radial-gradient glows (no Tailwind equivalent).
  */
 
-import { useState, useRef, useEffect } from "react";
-import {
-  Flame,
-  Clock,
-  Skull,
-  Search,
-  Menu,
-} from "lucide-react";
-import PostTypePicker from "@/components/feeds/PostTypePicker";
-import FeedsRightPanel from "@/components/feeds/FeedsRightPanel";
-import MobileSidebarDrawer from "@/components/feeds/MobileSidebarDrawer";
-import LeftSidebar from "@/components/feeds/LeftSidebar";
-import SearchModal from "@/components/feeds/SearchModal";
-import ComposeModal from "@/components/feeds/ComposeModal";
-import ComposeTrigger from "@/components/feeds/ComposeTrigger";
-//import SubHeader from "@/components/feeds/SubHeader";
-import InfiniteScroll from "@/components/infiniteScroll/InfiniteScroll";
-import PostCard from "@/components/feeds/PostCard";
+import { Suspense, useState } from "react";
+import PostTypePicker from "@/components/posts/PostTypePicker";
+import FeedsRightPanel from "@/components/posts/FeedsRightPanel";
+import MobileSidebarDrawer from "@/components/posts/MobileSidebarDrawer";
+import LeftSidebar from "@/components/posts/LeftSidebar";
+import SearchModal from "@/components/posts/SearchModal";
+import ComposeModal from "@/components/posts/ComposeModal";
 import Navigation from "@/components/nav/Navigation";
+import { Outlet } from "react-router-dom";
+import Spinner from "@/components/spinner/Spinner";
 
 
 /* ─────────────────────────────────────────────────────────────────
    PAGE
 ───────────────────────────────────────────────────────────────── */
-export default function StoriesPage() {
+export default function PostsLayout() {
+  
   const [activeTab, setActiveTab]   = useState("foryou");
   const [showTypePicker, setShowTP] = useState(false);
   const [composeType, setCompType] = useState<"normal" | "rewarded" | null>(null);
   const [showComposeModal, setShowCM] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [showSidebar, setShowSB]    = useState(false);
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "/" && !["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).tagName)) { e.preventDefault(); setShowSearch(true); }
-      if (e.key === "Escape") { setShowSearch(false); setShowTP(false); setCompType(null); }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, []);
-  
 
   return (
     <div className="min-h-screen bg-maxx-bg0 overflow-x-hidden pt-[0px]">
@@ -57,9 +39,7 @@ export default function StoriesPage() {
       <div className="fixed top-1/3 -left-20 w-[480px] h-[480px] pointer-events-none z-0"
         style={{ background: "radial-gradient(circle,rgba(139,92,246,0.05) 0%,transparent 65%)" }} />
 
-      {/* Sub-header 
-      <SubHeader onMenuClick={e => setShowSB(true)} />
-      */}
+      {/* Sub-header  <SubHeader onMenuClick={e => setShowSB(true)} /> */}
       
        <Navigation />
       
@@ -69,24 +49,21 @@ export default function StoriesPage() {
         <LeftSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
         <main className="flex-1 min-w-0">
-          
-          <ComposeTrigger onClick={() => setShowTP(true)} />
-        
-          <div>
-            <InfiniteScroll
-              uri="/posts"
-              className="flex flex-col gap-4"
-              renderer={PostCard}
-              rendererArgs={{}}
-            />
-          </div>
+          <Suspense fallback={<Spinner />}>
+            <Outlet />
+          </Suspense>
         </main>
 
         <FeedsRightPanel />
       </div>
 
       {/* Modals */}
-      {showSidebar    && <MobileSidebarDrawer activeTab={activeTab} setActiveTab={setActiveTab} onClose={() => setShowSB(false)} />}
+      {showSidebar && (<MobileSidebarDrawer
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onClose={() => setShowSB(false)}
+        />
+      )}
       <PostTypePicker
         isOpen={showTypePicker}
         onSelect={t => {

@@ -1,86 +1,147 @@
 import Spinner from "@/components/spinner/Spinner";
 import EventBus from "@/core/EventBus";
 import usePageView from "@/hooks/usePageView";
-import { lazy, Suspense, useEffect, FC } from "react";
-import { BrowserRouter, Routes as ReactRoutes, Route, useNavigate } from "react-router-dom";
+import PostsLayout from "@/layouts/PostsLayout";
 
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  FC,
+  ReactNode
+} from "react";
 
-export default function Routes() {
+import {
+  BrowserRouter,
+  Routes as ReactRoutes,
+  Route,
+  useNavigate
+} from "react-router-dom";
 
-    // note the components should be in src/pages
-    const routesArr = [
-        { uri: "/", component: "Index" },
-        { uri: "/manifesto", component: "Manifesto" },
-        { uri: "/mint", component: "Mint" },
-        { uri: "/mint/claim", component: "ClaimToken" },
-        { uri: "/staking", component: "Staking" },
-        { uri: "/feeds", component: "Feeds" },
-        // for test
-        //{ uri: "/mint2", component: "Mint2" },
+/**
+ * 🔥 Vite glob import (FIXES dynamic import issue)
+ */
+const pages = import.meta.glob("../pages/**/*.tsx");
 
-        //referral
-        { uri: "/r/:clanId", component: "Referral" },
-        { uri: "/r/:clanId/:userAccountId", component: "Referral" },
-        
-        
-        { uri: "/leaderboard", component: "Leaderboard" },
-        { uri: "/faq", component: "FAQ" },
-        { uri: "/roadmap", component: "Roadmap" },
-        { uri: "/clans", component: "Clans" },
-        { uri: "/clans/:slugId", component: "ClanDetails" },
-        { uri: "/profile/:usernameOrAddress", component: "Profile" },
-        { uri: "/account", component: "Profile" },
-        { uri: "/privacy", component: "Privacy" },
-        { uri: "/terms", component: "Terms" },
+/**
+ * 🧠 Safe lazy loader
+ */
+const load = (path: string) => {
+  const key = `../pages/${path}.tsx`;
 
-        { uri: "/whitepaper", component: "Whitepaper" },
+  const importer = pages[key];
 
-        { uri: "*", component: "NotFound" },
-    ];
+  if (!importer) {
+    console.error("Missing page:", key);
+    return lazy(() => import("../pages/NotFound.tsx"));
+  }
 
+  return lazy(importer as any);
+};
 
+/**
+ * 🧱 Route config
+ */
+const routesArr = [
+  { path: "/", component: "Index" },
+  { path: "/manifesto", component: "Manifesto" },
+  { path: "/mint", component: "Mint" },
+  { path: "/mint/claim", component: "ClaimToken" },
+  { path: "/staking", component: "Staking" },
+
+  // ✅ Layout route
+  {
+    path: "/posts",
+    layout: PostsLayout,
+    children: [
+      { index: true, component: "posts/PostsHome" },
+      { path: "/posts/:postId", component: "posts/PostItem" }
+    ]
+  },
+
+  { path: "/r/:clanId", component: "Referral" },
+  { path: "/r/:clanId/:userAccountId", component: "Referral" },
+
+  { path: "/leaderboard", component: "Leaderboard" },
+  { path: "/faq", component: "FAQ" },
+  { path: "/roadmap", component: "Roadmap" },
+  { path: "/clans", component: "Clans" },
+  { path: "/clans/:slugId", component: "ClanDetails" },
+  { path: "/profile/:usernameOrAddress", component: "Profile" },
+  { path: "/account", component: "Profile" },
+  { path: "/privacy", component: "Privacy" },
+  { path: "/terms", component: "Terms" },
+  { path: "/whitepaper", component: "Whitepaper" },
+
+  { path: "*", component: "NotFound" }
+];
+
+/**
+ * 🔁 Recursive route builder
+ */
+function renderRoutes(routes: any[]): ReactNode {
+  return routes.map((route, idx) => {
+    // 🧱 Layout route
+    if (route.layout && route.children) {
+      const Layout = route.layout;
+
+      return (
+        <Route key={idx} path={route.path} element={<Layout />}>
+          {renderRoutes(route.children)}
+        </Route>
+      );
+    }
+
+    // 📄 Normal route
+    const Component = load(route.component);
 
     return (
-        <BrowserRouter>
-             <NavigationComp />
-            <ReactRoutes>
-                { routesArr.map((item, idx) => {
-
-                    const Component = lazy(() => import(`../pages/${item.component}.tsx`));
-
-                    return (
-                        <Route key={idx}
-                            path={item.uri}
-                            element={
-                                <Suspense fallback={<Spinner className="w-screen h-screen" />}>
-                                    <Component />
-                                </Suspense>
-                            }
-                        />
-                    )
-                })}
-            </ReactRoutes>
-        </BrowserRouter>
-    )
+      <Route
+        key={idx}
+        path={route.index ? undefined : route.path}
+        index={route.index}
+        element={
+          <Suspense fallback={<Spinner className="w-screen h-screen" />}>
+            <Component />
+          </Suspense>
+        }
+      />
+    );
+  });
 }
 
+/**
+ * 🚀 Main Router
+ */
+export default function Routes() {
+  return (
+    <BrowserRouter>
+      <NavigationComp />
 
+      <ReactRoutes>
+        {renderRoutes(routesArr)}
+      </ReactRoutes>
+    </BrowserRouter>
+  );
+}
+
+/**
+ * 🔁 Navigation bridge (EventBus → Router)
+ */
 const NavigationComp: FC = () => {
+  const navigate = useNavigate();
 
-  const navigate = useNavigate()
-  
-  // analytics
-  usePageView(); 
+  usePageView();
 
-  useEffect(()=>{
-    EventBus.on("navigate", (uri) => {
-      navigate(uri)
-    })
+  useEffect(() => {
+    const handler = (uri: string) => navigate(uri);
+
+    EventBus.on("navigate", handler);
 
     return () => {
-      EventBus.off("navigate")
-    }
-  })
+      EventBus.off("navigate", handler);
+    };
+  }, [navigate]);
 
-  return <></>
-}
+  return null;
+};
