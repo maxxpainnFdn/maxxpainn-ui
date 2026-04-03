@@ -8,7 +8,7 @@ import LikeBtn from "./LikeBtn";
 import BookmarkBtn from "./BookmarkBtn";
 import CommentBox from "./CommentBox";
 import { AccountData } from "@/types/AccountData";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import CommentsSummary from "./CommentListShort";
 import CommentList from "./CommentList";
 
@@ -98,6 +98,12 @@ export default function PostCard({
               </a>
             </div>
             <div className="flex items-center gap-2">
+              {clan && (
+                <Link className="text-maxx-sub font-semibold tracking-wide text-[0.75rem] truncate"
+                  to={`/posts/clan/${clan.slug}-${clan.id}`}>
+                  c/{clan.slug}
+                </Link>
+              )}
             </div>
           </div>
           
@@ -109,27 +115,8 @@ export default function PostCard({
         </div>
 
         {/* Content */}
-        <p className="text-maxx-mid mb-4 text-[0.9375rem]">
+        <p className="text-maxx-mid my-5 text-[0.9375rem]">
           {post.content}
-
-          <div className="flex my-2 mt-4">
-            <div>
-              {clan && (
-                <a href={`/posts/clan/${clan.slug}-${clan.id}`}
-                  className="action-btn flex items-center gap-1 font-mono rounded-md pe-1.5 no-underline bg-maxx-violet/10 text-maxx-violet-lt text-[0.68rem] tracking-[0.04em] uppercase hover:bg-maxx-violet/[0.15] transition-colors">
-                  <span className="text-[0.8rem]">
-                    <ImageAvatar
-                      src={utils.getServerImage(clan.image, "clans", "tiny")}
-                      fallbackText={clan.name}
-                      className="w-[20px] h-[20px] object-cover text-sm font-bold rounded"
-                      fallbackTextClass="bg-maxx-bg/50 text-maxx-white rounded-none"
-                    />
-                  </span>
-                  <span className="ps-1">{post.clan.name}</span>
-                </a>
-              )}
-            </div>
-          </div>
         </p>
 
         {/* Divider */}
@@ -172,7 +159,11 @@ export default function PostCard({
           />
         </div>
         
-        {commentOpen && (
+        { (isPostPage && (post.commentsCount > 0 || currentUser)) && (
+          <div className="my-3 h-px bg-white/[0.06]" />
+        )}
+        
+        {isPostPage && currentUser && (
           <CommentBox
             postId={post.id}
             currentUser={currentUser}
@@ -186,9 +177,24 @@ export default function PostCard({
                 postId={post.id}
                 commentsList={post.comments}
               />
-              :
-              <CommentList postId={post.id} />
+            :
+              <>
+                <CommentList
+                  postId={post.id}
+                  totalComments={post.commentsCount}
+                />
+              </>  
             }
+          </>
+        )}
+        
+        {isPostPage && post.commentsCount >= 3 && currentUser && (
+          <>
+            <div className="my-3 h-px bg-white/[0.06]" />
+            <CommentBox
+              postId={post.id}
+              currentUser={currentUser}
+            />
           </>
         )}
       </div> 

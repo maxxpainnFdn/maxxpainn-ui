@@ -8,13 +8,16 @@ import { AccountData } from "@/types/AccountData";
 import { useApi } from "@/hooks/useApi";
 import toast from "@/hooks/toast";
 import Spinner from "../spinner/Spinner";
+import { CommentData } from "@/types/CommentData";
 
 interface PostInputBoxProps {
   postId: number;
-  currentUser: AccountData
+  currentUser: AccountData;
+  onComment?: (comment: CommentData)=>void;
 }
 
-export default function CommentBox({ postId, currentUser }: PostInputBoxProps) {
+export default function CommentBox({ postId, currentUser, onComment }: PostInputBoxProps) {
+  
   
   const api = useApi()
   
@@ -83,6 +86,7 @@ export default function CommentBox({ postId, currentUser }: PostInputBoxProps) {
     }
     
     //onsole.log("resultStatus===>", resultStatus)
+    onComment?.(resultStatus.getData())
     
     clearInputBox();
   };
@@ -120,12 +124,11 @@ export default function CommentBox({ postId, currentUser }: PostInputBoxProps) {
   const isOverLimit = remaining < 0;
   const isNearLimit = remaining <= 30 && !isOverLimit;
   const canSubmit = (text.trim().length > 0 || mediaFiles.length > 0) && !isOverLimit;
+  
+  if(!currentUser) return (<></>)
 
   return (
     <div className="pt-3 pb-4">
-      {/* Subtle divider */}
-      <div className="mb-3 h-px bg-white/[0.06]" />
-
       
       <div className=" flex gap-3 items-start">
         {/* Avatar */}
