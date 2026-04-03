@@ -10,5 +10,6 @@ export interface CommentData {
   parentId: number | null
   postId: number;
   repliesCount: number;
+  likes?: Record<string, any>[] | null;
   updatedAt: Date;
 }

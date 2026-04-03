@@ -1,7 +1,7 @@
 import utils, { cn } from "@/lib/utils";
 import { CommentData } from "@/types/CommentData";
-import { Heart, MessageCircle } from "lucide-react";
 import ImageAvatar from "../ImageAvatar";
+import LikeBtn from "@/components/posts/LikeBtn";
 
 export interface CommentRowProps {
   data: CommentData
@@ -11,8 +11,8 @@ export default function CommentCard({ data: comment }: CommentRowProps) {
   
   const isLast = true;
   const author = comment.account;
-  const liked = false;
-  const likes = 0;
+  const hasLiked = (comment.likes && comment.likes.length > 0);
+  const likesCount = comment.likesCount;
   
   return (
     <div className="flex">
@@ -41,17 +41,13 @@ export default function CommentCard({ data: comment }: CommentRowProps) {
         <p className="text-maxx-mid  mb-2.5 text-[0.9rem]">
           {comment.content}
         </p>
-        <div className="flex items-center gap-0 -ml-2">
-          <button
-            onClick={() => {}}
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 transition-all bg-transparent border-none cursor-pointer font-medium text-[0.75rem] hover:bg-white/[0.04]",
-              liked ? "text-maxx-pink" : "text-maxx-sub"
-            )}
-          >
-            <Heart size={13} fill={liked ? "currentColor" : "none"} />
-            {likes > 0 ? utils.toShortNumber(likes) : "Like"}
-          </button>
+        <div className="flex items-center gap-0 -ml-2 -mt-2">
+          <LikeBtn
+            contentType="comment"
+            contentId={comment.id}
+            hasLiked={hasLiked}
+            totalLikes={likesCount}
+          />
         </div>
       </div>
     </div>
