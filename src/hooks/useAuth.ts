@@ -21,17 +21,18 @@ interface UseAuthReturn {
   signIn: () => Promise<Status>;
   signOut: () => Promise<void>;
   getAccessToken: () => Promise<Status>;
+  getUserAccountInfo: () => Promise<AccountData | null>;
 }
 
 export function useAuth(): UseAuthReturn {
 
     const {
-        isConnected,
-        address,
-        signMessage,
-        wallet,
-        networkId,
-        openModal
+      isConnected,
+      address,
+      signMessage,
+      wallet,
+      networkId,
+      openModal
     } = useWalletCore();
     
     const [isLoading, setIsLoading] = useState(true);
@@ -80,11 +81,10 @@ export function useAuth(): UseAuthReturn {
     
     useEffect(() => { initialize() }, []);
     
-    useEffect(()=> {
-        initialize()
-    }, [isConnected, address])
+  useEffect(() => {
+    initialize()
+  }, [isConnected, address])
     
-
   // Listen for wallet disconnect
   useEffect(() => {
 

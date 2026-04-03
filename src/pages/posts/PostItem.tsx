@@ -6,9 +6,16 @@ import { Post } from "@/types/Post";
 import { ArrowLeft, ChevronLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import useAuth from "@/hooks/useAuth";
+import { useAtomValue } from "jotai";
+import { userAccountInfoAtom } from "@/store";
+
 
 export default function PostItem() {
   
+  const auth = useAuth()
+  const userAccountInfo = useAtomValue(userAccountInfoAtom)
+
   const { postId } = useParams();
   const navigate = useNavigate();
   const api = useApi();
@@ -17,6 +24,17 @@ export default function PostItem() {
   const [pageError, setPageError] = useState<string>("")
   const [initialized, setInitialized] = useState<boolean>(false)
   const [post, setPost] = useState<Post|null>(null)
+  
+  useEffect(() => {
+   /* console.log("auth.isAuthenticated===>", auth.isAuthenticated)
+    if (auth.isAuthenticated) {
+      auth.getUserAccountInfo().then(result => {
+        console.log("result===>", result)
+      })
+      }*/
+    
+    //console.log("userAccountInfo===>", userAccountInfo)
+  }, [])
   
   useEffect(() => {
     
@@ -68,7 +86,8 @@ export default function PostItem() {
                   :
                   <PostCard
                     data={post}
-                    onClick={(e) => e.preventDefault() }
+                    onClick={(e) => e.preventDefault()}
+                    currentUser={userAccountInfo}
                   />
                 }
               </ApiQuery>

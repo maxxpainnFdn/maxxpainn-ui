@@ -215,14 +215,14 @@ export default function InfiniteScroll({
                 <div ref={sentinelRef} className="py-6 flex flex-col items-center gap-2">
                   {loading && !isRefreshing && <Spinner size={16} />}
 
-                  {!loading && error && retriesRef.current >= MAX_RETRIES && (
+                  {!loading && error && (
                     <>
                       <span className="text-sm text-red-400">{error}</span>
                       <Button
                         variant="outline"
                         onClick={handleLoadMore}
                       >
-                        Load more
+                        Retry
                       </Button>
                     </>
                   )}
@@ -242,6 +242,7 @@ export default function InfiniteScroll({
           );
         })}
       </div>
+
     </div>
   );
 }
