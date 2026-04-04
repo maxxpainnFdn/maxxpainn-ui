@@ -42,6 +42,13 @@ export default function PostItem() {
     setInitialized(false)
     
     if (postId != null) {
+      
+      if (!/[0-9]+/.test(postId)) {
+        setPageError("Invalid URL")
+        setInitialized(true)
+        return;
+      }
+      
       const postIdNo = Number(postId)
       if (Number.isNaN(postIdNo) || postIdNo <= 0) {
         setPageError("Invalid Post")

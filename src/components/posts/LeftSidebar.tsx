@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Flame, Castle, TrendingUp, Award, Bookmark, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const CLANS = [
   { id: "luna-fallen",   name: "Luna Fallen",   emoji: "🌙", members: 4821,  posts: 1204 },
@@ -8,27 +9,13 @@ const CLANS = [
   { id: "liq-gang",      name: "Liq Gang",      emoji: "⚡", members: 3390,  posts: 987  },
 ];
 
-function SBtn({ label, Icon, isActive, onClick, size = "md" }: { label: string; Icon: any; isActive: boolean; onClick: () => void; size?: "sm" | "md" }) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "flex items-center w-full rounded-xl transition-all text-left bg-transparent border-none cursor-pointer font-sans font-semibold",
-        isActive ? "bg-maxx-violet/[0.12] text-maxx-white" : "text-maxx-sub hover:text-maxx-mid hover:bg-white/[0.03]",
-        size === "md" ? "gap-2.5 px-3 py-2.5 text-[0.9rem]" : "gap-3 px-4 py-3 text-[0.95rem]"
-      )}>
-      <Icon size={size === "md" ? 15 : 16} className={cn("shrink-0", isActive ? "text-maxx-violet" : "text-maxx-dim")} />
-      {label}
-    </button>
-  );
-}
 
-export default function LeftSidebar({ activeTab, setActiveTab }: any) {
+export default function LeftSidebar() {
   
   const navItems = [
-    { id: "trending", label: "Trending",         Icon: TrendingUp },
-    { id: "hot", label: "Hot", Icon: Flame      },
-    { id: "saved",    label: "Saved",            Icon: Bookmark   },
+    { id: "trending", uri: '/posts/trending', label: "Trending", Icon: TrendingUp },
+    { id: "hot", uri: '/posts/hot', label: "Hot", Icon: Flame      },
+    { id: "saved", uri: '/posts/saved', label: "Saved", Icon: Bookmark   },
   ];
 
   return (
@@ -36,9 +23,24 @@ export default function LeftSidebar({ activeTab, setActiveTab }: any) {
       <div className="mb-5">
         <div className="eyebrow mb-2"><span className="eyebrow-dot" />Feed</div>
         <div className="flex flex-col gap-0.5">
-          {navItems.map(({ id, label, Icon }) => (
-            <SBtn key={id} label={label} Icon={Icon} isActive={activeTab === id} onClick={() => setActiveTab(id)} />
-          ))}
+          {navItems.map(item => {
+            
+            const isActive = false;
+            const Icon = item.Icon;
+            
+            return (
+              <Link
+                to={item.uri}
+                className={cn(
+                  "flex items-center w-full rounded-xl transition-all text-left bg-transparent border-none cursor-pointer font-sans font-semibold",
+                  isActive ? "bg-maxx-violet/[0.12] text-maxx-white" : "text-maxx-sub hover:text-maxx-mid hover:bg-white/[0.03]",
+                  "gap-2.5 px-3 py-2.5 text-[0.9rem]"
+                )}>
+                <Icon size={15} className={cn("shrink-0", isActive ? "text-maxx-violet" : "text-maxx-dim")} />
+                {item.label}
+              </Link>
+            )
+          })}
         </div>
       </div>
       <div>

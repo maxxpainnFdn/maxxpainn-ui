@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import Spinner from '../spinner/Spinner';
@@ -7,6 +7,10 @@ import { useApi } from '@/hooks/useApi';
 import { Post } from '@/types/Post';
 import Button from '../button/Button';
 
+export type InfiniteScrollRef = {
+  addData: (data: any) => void;
+};
+
 export interface InfiniteScrollProps {
   uri: string;
   query?: Record<string, any>;
@@ -14,22 +18,24 @@ export interface InfiniteScrollProps {
   rendererArgs?: Record<string, any> | null;
   className?: string;
   estimatedItemHeight?: number;
+  onInitialized?: (dataArr: any, setDataArr: any) => void;
 }
 
 const PULL_THRESHOLD = 80;
 const MAX_RETRIES = 3;
 
-export default function InfiniteScroll({
+const InfiniteScroll = forwardRef<InfiniteScrollRef, InfiniteScrollProps>(({
   uri,
   query = {},
   renderer,
   rendererArgs = {},
   className = '',
   estimatedItemHeight = 100,
-}: InfiniteScrollProps) {
+}, ref) => {
+    
   const api = useApi();
 
-  const [dataArr, setDataArr] = useState<Post[]>([]);
+  const [dataArr, setDataArr] = useState<any[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -58,7 +64,8 @@ export default function InfiniteScroll({
   });
 
   const virtualItems = virtualizer.getVirtualItems();
-
+  
+  
   // Disable Chrome native pull-to-refresh
   useEffect(() => {
     document.body.style.overscrollBehaviorY = 'none';
@@ -154,9 +161,18 @@ export default function InfiniteScroll({
     if (pullDistance >= PULL_THRESHOLD) handleRefresh();
     setPullDistance(0);
   };
+  
+  const addData = (data: any) => {
+    setDataArr(prev => ([data, ...prev]));
+    virtualizer.scrollToIndex(0, { align: 'start', behavior: 'smooth' });
+  }
 
   const pullTriggered = pullDistance >= PULL_THRESHOLD;
   const Renderer = renderer;
+  
+  useImperativeHandle(ref, () => ({
+    addData
+  }));
 
   return (
     <div
@@ -245,4 +261,6 @@ export default function InfiniteScroll({
 
     </div>
   );
-}
+});
+
+export default InfiniteScroll;

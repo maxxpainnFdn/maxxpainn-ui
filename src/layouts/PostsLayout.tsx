@@ -46,7 +46,7 @@ export default function PostsLayout() {
       {/* Body */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 mt-10 pt-12 pb-16 flex gap-5 items-start">
         
-        <LeftSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <LeftSidebar  />
 
         <main className="flex-1 min-w-0">
           <Suspense fallback={<Spinner />}>

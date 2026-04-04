@@ -4,16 +4,19 @@ import { cn } from "@/lib/utils";
 import { Bookmark } from "lucide-react";
 import {  useState } from "react";
 import Spinner from "../spinner/Spinner";
+import { Post } from "@/types/Post";
 
 
 export interface BookmarkBtnProps {
   postId: number;
   isBookmarked: boolean;
+  onChange?: (isBookmarked: boolean) => void;
 }
 
 export default function BookmarkBtn({
   postId,
-  isBookmarked
+  isBookmarked,
+  onChange
 }: BookmarkBtnProps) {
   
   const api = useApi()
@@ -42,6 +45,7 @@ export default function BookmarkBtn({
       return;
     }
         
+    onChange?.(action)
     setHasBookmarked(action)
   }
   

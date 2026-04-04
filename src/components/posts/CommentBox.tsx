@@ -9,6 +9,7 @@ import { useApi } from "@/hooks/useApi";
 import toast from "@/hooks/toast";
 import Spinner from "../spinner/Spinner";
 import { CommentData } from "@/types/CommentData";
+import EventBus from "@/core/EventBus";
 
 interface PostInputBoxProps {
   postId: number;
@@ -87,6 +88,7 @@ export default function CommentBox({ postId, currentUser, onComment }: PostInput
     
     //onsole.log("resultStatus===>", resultStatus)
     onComment?.(resultStatus.getData())
+    EventBus.emit(`onComment_${postId}`, resultStatus.getData())
     
     clearInputBox();
   };
@@ -159,9 +161,9 @@ export default function CommentBox({ postId, currentUser, onComment }: PostInput
               disabled={isPosting}
               rows={1}
               className={cn(
-                "w-full bg-transparent text-maxx-mid placeholder-maxx-dim/50 text-[0.875rem] leading-[1.7]",
+                "w-full bg-transparent text-maxx-mid placeholder-maxx-dim/50 text-[0.9rem]",
                 "resize-none px-4 pt-3 pb-2 outline-none rounded-2xl",
-                "font-light",
+                "font-medium",
               )}
             />
 

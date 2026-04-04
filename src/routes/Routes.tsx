@@ -55,7 +55,8 @@ const routesArr = [
     layout: PostsLayout,
     children: [
       { index: true, component: "posts/PostsHome" },
-      { path: "/posts/:postId", component: "posts/PostItem" }
+      { path: "/posts/saved", component: "posts/Bookmarks" },
+      { path: "/posts/:postId", component: "posts/PostItem" },
     ]
   },
 

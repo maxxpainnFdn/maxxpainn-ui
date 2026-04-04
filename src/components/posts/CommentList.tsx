@@ -1,12 +1,25 @@
 import utils from "@/lib/utils";
-import InfiniteScroll from "../infiniteScroll/InfiniteScroll";
+import InfiniteScroll, { InfiniteScrollRef } from "../infiniteScroll/InfiniteScroll";
 import CommentCard from "./CommentCard";
 import CommentsSorter from "./CommentsSorter";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import EventBus from "@/core/EventBus";
 
 export default function CommentList({ postId, totalComments }) {
   
   const [sort, setSort] = useState("newest");
+  
+  const scrollRef = useRef<InfiniteScrollRef>(null);
+
+  
+  useEffect(() => {
+    
+    EventBus.on(`onComment_${postId}`, (commentData) => {
+      scrollRef.current.addData(commentData)
+    })
+    
+    return () => EventBus.off(`onComment_${postId}`)
+  },[])
 
   return (
     <div className="">
@@ -22,6 +35,7 @@ export default function CommentList({ postId, totalComments }) {
         key={`${postId}_${sort}`}
         className="mt-5"
         renderer={CommentCard}
+        ref={scrollRef}
       />
     </div>
   )

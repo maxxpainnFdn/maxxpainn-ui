@@ -21,16 +21,21 @@ export interface PostCardProps {
   data: Post;
   currentUser?: AccountData;
   onClick?: (e: React.MouseEvent<HTMLDivElement>, post: Post) => void;
-  showFullComments?: boolean
+  onBookmarkStateChange?: (isBookmarked: boolean, post: Post) => void;
 }
 
 export default function PostCard({
     data: post,
     currentUser,
     onClick,
-    showFullComments=false
+    onBookmarkStateChange
   }: PostCardProps
 ) {
+  
+  
+  const [commentsCount, setCommentsCount] = useState(post.commentsCount)
+  
+  //console.log("commentsCount===>", commentsCount)
 
   //console.log("currentUser===>", currentUser)
   const navigate = useNavigate()
@@ -143,8 +148,8 @@ export default function PostCard({
               )}
             >
               <MessageCircle size={16} />
-              {post.commentsCount > 0 && (
-                <span className="text-[0.78rem]">{post.commentsCount}</span>
+              {commentsCount > 0 && (
+                <span className="text-[0.78rem]">{commentsCount}</span>
               )}
             </button>
 
@@ -156,10 +161,13 @@ export default function PostCard({
           <BookmarkBtn
             postId={post.id}
             isBookmarked={hasBookmarked}
+            onChange={(state: boolean) => {
+              onBookmarkStateChange?.(state, post)
+            }}
           />
         </div>
         
-        { (isPostPage && (post.commentsCount > 0 || currentUser)) && (
+        { (isPostPage && (commentsCount > 0 || currentUser)) && (
           <div className="my-3 h-px bg-white/[0.06]" />
         )}
         
@@ -167,10 +175,13 @@ export default function PostCard({
           <CommentBox
             postId={post.id}
             currentUser={currentUser}
+            onComment={() => {
+              setCommentsCount(prev => (prev+1))
+            }}
           />
         )}
         
-        {(post.commentsCount > 0 && 
+        {(commentsCount > 0 && 
           <>
             { !isPostPage ?
               <CommentsSummary
@@ -181,14 +192,14 @@ export default function PostCard({
               <>
                 <CommentList
                   postId={post.id}
-                  totalComments={post.commentsCount}
+                  totalComments={commentsCount}
                 />
               </>  
             }
           </>
         )}
         
-        {isPostPage && post.commentsCount >= 3 && currentUser && (
+        {isPostPage && commentsCount >= 3 && currentUser && (
           <>
             <div className="my-3 h-px bg-white/[0.06]" />
             <CommentBox
