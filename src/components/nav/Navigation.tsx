@@ -34,6 +34,7 @@ export default function Navigation() {
   }, []);
 
   const navItems = [
+    { name: 'Stories',     href: '/posts' },
     { name: 'FAQ',     href: '/faq'     },
     { name: 'Clans',   href: '/clans'   },
     { name: 'Staking', href: '/staking' },
