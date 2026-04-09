@@ -21,13 +21,17 @@ export interface PostCardProps {
   currentUser?: AccountData;
   onClick?: (e: React.MouseEvent<HTMLDivElement>, post: Post) => void;
   onBookmarkStateChange?: (isBookmarked: boolean, post: Post) => void;
+  className?: string;
+  bodyClassName?: string;
 }
 
 export default function PostCard({
     data: post,
     currentUser,
     onClick,
-    onBookmarkStateChange
+    onBookmarkStateChange,
+    className = "",
+    bodyClassName = "",
   }: PostCardProps
 ) {
   
@@ -73,7 +77,8 @@ export default function PostCard({
         className={cn(
           "relative overflow-hidden bg-maxx-bg2/90 border border-maxx-violet/[0.14] transition-[border-color,box-shadow] duration-300",
           "group-hover:shadow-[0_8px_40px_rgba(139,92,246,0.08)]",
-          "px-5 pt-[18px] pb-4 rounded-[18px]"
+          "px-5 pt-[18px] pb-4 rounded-[18px]",
+          className
         )}
       >
         {/* Top shimmer */}
@@ -119,7 +124,7 @@ export default function PostCard({
         </div>
 
         {/* Content */}
-        <p className="text-maxx-mid my-5 text-[0.9375rem]">
+        <p className={cn("text-maxx-mid my-5 text-[0.9375rem]", bodyClassName)}>
           {post.content}
         </p>
 

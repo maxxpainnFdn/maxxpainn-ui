@@ -13,7 +13,7 @@ const CLANS = [
 
 const navItems = [
   { id: "Posts", uri: '/posts', label: "Posts", Icon: Flame      },
-  { id: "trends", uri: '/posts/trends', label: "Trends", Icon: TrendingUp },
+  //{ id: "trends", uri: '/posts/trends', label: "Trends", Icon: TrendingUp },
   { id: "saved", uri: '/posts/saved', label: "Saved", Icon: Bookmark },
   { id: "profile", uri: '/account', label: "Profile", Icon: User   },
 ];

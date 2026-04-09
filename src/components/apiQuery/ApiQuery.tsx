@@ -65,7 +65,7 @@ export default function ApiQuery({
 
         let resultData: any = resultStatus.getData();
         
-        console.log("resultData===>", resultData)
+       // console.log("resultData===>", resultData)
 
         let isObj = (typeof resultData == 'object')
 

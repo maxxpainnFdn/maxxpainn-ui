@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Skull, Zap, Flame, ArrowRight, FileText, Map, Book, TrendingDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import utils from '@/lib/utils';
 
 const STORIES = [
   "LOST 80 SOL IN LUNA COLLAPSE",
@@ -10,13 +11,21 @@ const STORIES = [
   "BRIDGE EXPLOIT: 24 ETH TO VOID",
 ];
 
-export default function Hero() {
+export default function Hero({ appStats }: { appStats: any }) {
+    
   const [storyIdx, setStoryIdx] = useState(0);
   const barRef = useRef<HTMLDivElement>(null);
   const valRef = useRef<HTMLSpanElement>(null);
   const levelRef = useRef(0);
   const lastRef = useRef(0);
   const rafRef = useRef<number>(0);
+  
+  const statsMeta = {
+    tokenSupply:    { v: "0", suffix: "+", l: "Tokens Distributed", text: "text-maxx-white" },
+    totalAccounts:  { suffix: "+", l: "Degens United", text: "text-maxx-violetLt" },
+    mintsAvailable: { v: "∞", suffix: "", l: "Free Mints Available", text: "text-maxx-white" },
+    totalRevenge:   { v: "24/7", suffix: "", l: "Revenge Mode", text: "text-maxx-pinkLt" }
+  }
 
   useEffect(() => {
     const tick = (timestamp: number) => {
@@ -131,17 +140,23 @@ export default function Hero() {
       {/* Stats Strip */}
       <div className="border-y border-maxx-violet/15">
         <div className="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-4">
-          {[
-            { v: "$2.1T+", l: "Crypto Losses Tracked", text: "text-maxx-pinkLt" },
-            { v: "1M+", l: "Degens United", text: "text-maxx-violetLt" },
-            { v: "∞", l: "Free Mints Available", text: "text-maxx-white" },
-            { v: "24/7", l: "Revenge Mode", text: "text-maxx-pinkLt" },
-          ].map((s, i) => (
-            <div key={i} className={`p-6 text-center border-maxx-violet/15 ${i % 2 === 0 ? 'bg-maxx-violet/5' : 'bg-transparent'} sm:border-r ${i === 1 || i === 3 ? 'border-r-0' : ''} ${i < 2 ? 'border-b sm:border-b-0' : ''}`}>
-              <div className={`font-sans font-black text-[clamp(2rem,4vw,3rem)] leading-none ${s.text}`}>{s.v}</div>
-              <div className="font-mono text-[0.72rem] tracking-widest uppercase text-maxx-mid mt-1.5">{s.l}</div>
-            </div>
-          ))}
+          {Object.keys(statsMeta).map((key, i)=> {
+            const m = statsMeta[key]
+            let v = (!appStats) ? "" : appStats[key] ?? m.v ?? ""
+            
+            //console.log(v,`===>`, typeof v === "number")
+            
+            if(v && ["tokenSupply", "totalAccounts"].includes(key)) {
+              v = utils.toShortNumber(v)
+            }
+            
+            return (
+              <div key={i} className={`p-6 text-center border-maxx-violet/15 ${i % 2 === 0 ? 'bg-maxx-violet/5' : 'bg-transparent'} sm:border-r ${i === 1 || i === 3 ? 'border-r-0' : ''} ${i < 2 ? 'border-b sm:border-b-0' : ''}`}>
+                <div className={`font-sans font-black text-[clamp(2rem,4vw,3rem)] leading-none ${m.text}`}>{v}{m.suffix}</div>
+                <div className="font-mono text-[0.72rem] tracking-widest uppercase text-maxx-mid mt-1.5">{m.l}</div>
+              </div>
+            )
+          })}
         </div>
       </div>
 
