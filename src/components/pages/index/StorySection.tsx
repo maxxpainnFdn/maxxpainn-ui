@@ -3,8 +3,36 @@ import { ChevronRight, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const PAIN_EVENTS = [
-  { code: "LUNA-001", emoji: "🌙", name: "The Luna Massacre", loss: "$60B", year: "2022", color: "#818cf8", tagline: "Do Kwon promised the moon. Delivered a crater.", detail: "280,000 BTC couldn't stop the death spiral. Algorithmic stablecoins met reality and reality won." },
-  { code: "FTX-002", emoji: "💔", name: "FTX Betrayal", loss: "$8B", year: "2022", color: "#f87171", tagline: "The golden boy was just a fraud in a hoodie.", detail: "SBF's media tour couldn't hide the $8 billion hole. Customers trusted, regulators slept, billions vanished." },
+  { 
+    code: "DEFI-007", 
+    emoji: "🌀", 
+    name: "DeFi Protocol Death Spirals", 
+    loss: "$60B+", 
+    year: "2021–2023", 
+    color: "#818cf8", 
+    tagline: "Luna, UST, Iron Finance, Basis Cash — code turned to craters.", 
+    detail: "Algorithmic stablecoins and unstable tokenomics collapsed across multiple protocols: Luna/UST, Iron Finance/TITAN, Basis Cash, ESD, and more. Billions vanished as promises of magic money proved fragile." 
+  },
+  { 
+    code: "HACK-005", 
+    emoji: "💀", 
+    name: "Mega DeFi Hacks", 
+    loss: "$20B+", 
+    year: "2016–2023", 
+    color: "#f87171", 
+    tagline: "PolyNetwork, Wormhole, Ronin… billions siphoned in the night.", 
+    detail: "Smart contract exploits, cross-chain bridge hacks, and misconfigurations drained billions across multiple platforms, leaving investors scrambling." 
+  },
+  { 
+    code: "SCAM-006", 
+    emoji: "🎭", 
+    name: "Ponzi & Exit Scams", 
+    loss: "$15B+", 
+    year: "2017–2023", 
+    color: "#fbbf24", 
+    tagline: "BitConnect, PlusToken, OneCoin — the hall of fame of fraud.", 
+    detail: "From promise-heavy MLM schemes to classic Ponzi mechanics, unsuspecting investors lost fortunes while founders vanished." 
+  },
   { code: "RUG-003", emoji: "🪦", name: "Endless Rug Pulls", loss: "$10B+", year: "ongoing", color: "#ff2d78", tagline: "SafeMoon, Iron Finance, Titan — the graveyard grows.", detail: "Exit liquidity wears many masks: 'revolutionary DeFi', 'community-driven', 'audited by top firms'." },
   { code: "LIQ-004", emoji: "⚡", name: "Liquidation Hell", loss: "$50B+", year: "every cycle", color: "#8b5cf6", tagline: "One red candle. Years of savings. Gone in milliseconds.", detail: "100x leverage feels genius until it isn't. The cascade: funding rate spikes, bots fire, liquidations run." },
 ];

@@ -9,7 +9,6 @@ import BookmarkBtn from "./BookmarkBtn";
 import CommentBox from "./CommentBox";
 import { AccountData } from "@/types/AccountData";
 import { Link, useNavigate } from "react-router-dom";
-import CommentsSummary from "./CommentListShort";
 import CommentList from "./CommentList";
 
 
@@ -181,7 +180,7 @@ export default function PostCard({
           />
         )}
         
-        {(commentsCount > 0 && 
+        {/*(commentsCount > 0 && 
           <>
             { !isPostPage ?
               <CommentsSummary
@@ -197,7 +196,7 @@ export default function PostCard({
               </>  
             }
           </>
-        )}
+        )*/}
         
         {isPostPage && commentsCount >= 3 && currentUser && (
           <>

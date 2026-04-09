@@ -6,6 +6,7 @@ import { PagingInfo } from '@/types/PagingInfo';
 import { useApi } from '@/hooks/useApi';
 import { Post } from '@/types/Post';
 import Button from '../button/Button';
+import { AlertCircle } from 'lucide-react';
 
 export type InfiniteScrollRef = {
   addData: (data: any) => void;
@@ -114,6 +115,8 @@ const InfiniteScroll = forwardRef<InfiniteScrollRef, InfiniteScrollProps>(({
     setError('');
 
     const resultStatus = await api.get(uri, { ...query, pageNo });
+    
+    console.log("resultStatus===>", resultStatus)
 
     if (!isMounted.current) return;
 
@@ -125,8 +128,10 @@ const InfiniteScroll = forwardRef<InfiniteScrollRef, InfiniteScrollProps>(({
     }
 
     retriesRef.current = 0;
-
-    const dataObj = resultStatus.getData<{ pagingInfo: PagingInfo; data: Post[] }>();
+    
+    const dataObj = resultStatus.getData<{ pagingInfo: PagingInfo; data: any[] }>();
+    
+    
     pagingInfoRef.current = dataObj.pagingInfo;
     setHasMore(dataObj.pagingInfo.nextPage != null);
     setDataArr(prev => (isRefresh ? dataObj.data : [...prev, ...dataObj.data]));
@@ -201,64 +206,71 @@ const InfiniteScroll = forwardRef<InfiniteScrollRef, InfiniteScrollProps>(({
           </span>
         )}
       </div>
-
-      {/* Virtual list container — must have exact total height */}
-      <div
-        style={{
-          height: virtualizer.getTotalSize(),
-          width: '100%',
-          position: 'relative',
-        }}
-      >
-        {virtualItems.map(virtualRow => {
-          const isLoaderRow = virtualRow.index >= dataArr.length;
-
-          return (
-            <div
-              key={virtualRow.key}
-              data-index={virtualRow.index}
-              ref={virtualizer.measureElement} // ← measures actual height for accuracy
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                transform: `translateY(${virtualRow.start}px)`,
-              }}
-            >
-              {isLoaderRow ? (
-                // Sentinel / footer row
-                <div ref={sentinelRef} className="py-6 flex flex-col items-center gap-2">
-                  {loading && !isRefreshing && <Spinner size={16} />}
-
-                  {!loading && error && (
-                    <>
-                      <span className="text-sm text-red-400">{error}</span>
-                      <Button
-                        variant="outline"
-                        onClick={handleLoadMore}
-                      >
-                        Retry
-                      </Button>
-                    </>
-                  )}
-
-                  {!loading && !error && !hasMore && dataArr.length > 0 && (
-                    <span className="text-sm text-gray-400">No more data</span>
-                  )}
-
-                  {!loading && !error && !hasMore && dataArr.length === 0 && (
-                    <span className="text-sm text-gray-400">No data found</span>
+      
+      {(!loading && error == "" && !hasMore && dataArr.length === 0) ? (
+        <div className="flex justify-center">
+          <div className="bg-white/5 p-5 w-[80%] text-center rounded-xl">No data found</div>
+        </div>
+      ) : (
+          <div
+            style={{
+              height: virtualizer.getTotalSize(),
+              width: '100%',
+              position: 'relative',
+            }}
+          >
+              
+            {virtualItems.map(virtualRow => {
+                
+              const isLoaderRow = virtualRow.index >= dataArr.length;
+                
+              //console.log("isLoaderRow===>", isLoaderRow)
+                
+              return (
+                <div
+                  key={virtualRow.key}
+                  data-index={virtualRow.index}
+                  ref={virtualizer.measureElement} // ← measures actual height for accuracy
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    transform: `translateY(${virtualRow.start}px)`,
+                  }}
+                >
+                  {isLoaderRow ? (
+                    // Sentinel / footer row
+                    <div ref={sentinelRef} className="py-6 flex flex-col items-center gap-2">
+                      {loading && !isRefreshing && <Spinner size={16} />}
+      
+                      {!loading && error && (
+                        <div className="flex justify-center w-full">
+                          <div className="bg-white/5 p-5 w-[80%] text-center text-pink-300 pt-8 mb-5 rounded-xl">
+                            <div className="">{error}</div>
+                            <Button
+                              variant="ghost"
+                              onClick={handleLoadMore}
+                            >
+                              Retry
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+      
+                      {!loading && !error && !hasMore && dataArr.length > 0 && (
+                        <span className="text-sm text-gray-400">No more data</span>
+                      )}
+                      
+                    </div>
+                  ) : (
+                    <Renderer data={dataArr[virtualRow.index]} {...rendererArgs} />
                   )}
                 </div>
-              ) : (
-                <Renderer data={dataArr[virtualRow.index]} {...rendererArgs} />
-              )}
-            </div>
-          );
-        })}
-      </div>
-
+              );
+            })}
+          </div>
+      )}
     </div>
   );
 });

@@ -15,7 +15,7 @@ export default function CommentCard({ data: comment }: CommentRowProps) {
   const likesCount = comment.likesCount;
   
   return (
-    <div className="flex">
+    <div className="flex mx-3">
       {/* Thread gutter */}
       <div className="flex flex-col items-center flex-shrink-0 w-11">
         <a className="action-btn" href={`/profile/${author.username}`} target="_blank">
@@ -34,7 +34,7 @@ export default function CommentCard({ data: comment }: CommentRowProps) {
       <div className="flex-1 min-w-0 pb-4 pl-3 pt-0.5">
         <div className="flex items-center gap-2 mb-1.5 flex-wrap">
           <a className="action-btn" href={`/profile/${author.username}`} target="_blank">
-            <span className="font-semibold text-maxx-white text-[0.85rem] truncate">{author.username}</span>
+            <span className="font-semibold text-maxx-white text-[0.82rem] truncate">{author.username}</span>
           </a>
           <span className="text-maxx-dim text-[0.75rem]">{utils.getRelativeDate(comment.createdAt)}</span>
         </div>

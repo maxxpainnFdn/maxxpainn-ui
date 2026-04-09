@@ -128,15 +128,19 @@ const HowItWorksModal = () => {
                   <h3 className="font-black text-maxx-white uppercase tracking-tight text-sm mb-2">
                     Welcome to {app.name}
                   </h3>
-                  <p className="text-sm text-maxx-mid leading-relaxed mb-4">
-                    Inspired by{" "}
-                    <span className="text-maxx-violet font-bold">XEN Network</span>{" "}
-                    but built for{" "}
-                    <span className="text-green-400 font-bold">Solana</span>.{" "}
-                    <span className="font-bold text-maxx-bright">{app.name}</span> is
-                    a free-to-mint token protocol that rewards those brave enough to
-                    endure the pain of time-locked staking.
-                  </p>
+                  <div className="text-sm text-maxx-mid leading-relaxed mb-4">
+                    <p>
+                      <span className="font-bold text-maxx-bright">{app.name}</span> is a native  <span className="text-green-400 font-bold">Solana</span> protocol forged for the survivors of the trenches.
+                      It is a zero-entry extraction layer that turns your market trauma into liquid assets.
+                    </p>
+                    <p className="mt-2">
+                      Share your battle stories to earn your allocation, and let time do the rest.
+                    </p>
+                    <p className="mt-2">
+                      By weaponizing Proof-of-Patience (PoP), the protocol rewards
+                      those with the conviction to endure time-locked staking over those with the deepest pockets.
+                    </p>
+                  </div>
                   <div className="pill inline-flex gap-2">
                     <Gift className="w-3.5 h-3.5 text-green-400" />
                     <span className="text-green-400">100% Free Mint — pay only tx fee</span>

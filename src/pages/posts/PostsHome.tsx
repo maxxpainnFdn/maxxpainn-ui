@@ -22,17 +22,11 @@ import useAuth from "@/hooks/useAuth";
 ───────────────────────────────────────────────────────────────── */
 export default function StoriesPage() {
   
-  const auth = useAuth()
   const navigate = useNavigate()
-  
-  const [showTypePicker, setShowTP] = useState(false);
-  const [composeType, setCompType] = useState<"normal" | "rewarded" | null>(null);
-  const [showSearch, setShowSearch] = useState(false);
-  
   const userAccount = useAtomValue(userAccountInfoAtom)
   
     //console.log("userAccount===>", userAccount)
-
+  /* 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "/" && !["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).tagName)) { e.preventDefault(); setShowSearch(true); }
@@ -41,13 +35,13 @@ export default function StoriesPage() {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, []);
-  
+  */
 
 
   return (
     <div>
       <main className="flex-1 min-w-0 mb-10 pb-10">
-        <ComposeTrigger onClick={() => setShowTP(true)} />
+        <ComposeTrigger />
         <div>
           <InfiniteScroll
             uri="/posts"

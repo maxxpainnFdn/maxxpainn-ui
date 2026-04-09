@@ -351,20 +351,19 @@ export default function Mint() {
                     <div>
 
                       {/* ── PAGE HEADER ── */}
-                      <div className="text-center mb-10 animate-fade-up">
+                      <div className="flex justify-center flex-col items-center text-center mb-10 animate-fade-up">
                         <div className="eyebrow justify-center sm:justify-start mb-3">
                           <span className="eyebrow-dot" />
-                          FREE-TO-MINT · SOLANA
+                          Time-Based Allocation · Solana-Native
                         </div>
                         <h1 className="font-sans font-black text-[clamp(2.8rem,9vw,6.5rem)] leading-[0.94] tracking-tight text-maxx-white uppercase">
-                          MINT{" "}
                           <span className="bg-grad-accent bg-clip-text text-transparent">
-                            ${tokenConfig.symbol}
+                            ${tokenConfig.symbol}{" "}
                           </span>
+                          Allocation
                         </h1>
-                        <div className="text-center font-sans text-base md:text-lg text-maxx-bright leading-relaxed mt-3">
-                          Initiate the mint, wait your selected term, then claim —
-                          longer waits earn more.
+                        <div className="text-center font-sans text-base md:text-lg text-maxx-bright leading-relaxed mt-3 max-w-xl">
+                          Share your story, claim your rank, commit to a duration, and unlock your tokens — longer commitments earn more.
                         </div>
                       </div>
 
@@ -393,7 +392,7 @@ export default function Mint() {
 
                             {/* card header */}
                             <div className="mb-8">
-                              <div className="eyebrow mb-2"><span className="eyebrow-dot" />MINT FORM</div>
+                              <div className="eyebrow mb-2"><span className="eyebrow-dot" />Initialization</div>
                               <h2 className="font-sans font-black text-[clamp(1.6rem,3vw,2.2rem)] uppercase tracking-tight text-maxx-white leading-none">
                                 Claim Your{" "}
                                 <span className="bg-grad-accent bg-clip-text text-transparent">
@@ -505,7 +504,7 @@ export default function Mint() {
                                 className="text-base py-4"
                               >
                                 <Flame size={16} />
-                                Mint Your Tokens
+                                unlock your allocation
                               </Button>
 
                             </form>

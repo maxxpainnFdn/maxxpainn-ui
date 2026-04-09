@@ -9,8 +9,9 @@
 import { Link } from "react-router-dom";
 import Account from "./Account";
 import app from "@/config/app";
-import { Zap, ShoppingCart } from "lucide-react";
+import { Zap, ShoppingCart, Library, Scroll } from "lucide-react";
 import Button from "../button/Button";
+import { tokenConfig } from "@/config/token";
 
 const CLIP_SM = { clipPath: "polygon(0 0, calc(100% - 6px) 0, 100% 100%, 6px 100%)" };
 const CLIP_LG = { clipPath: "polygon(0 0, calc(100% - 8px) 0, 100% 100%, 8px 100%)" };
@@ -28,21 +29,16 @@ export default function BottomNav() {
           <div className="flex items-center gap-2 w-full">
 
             {/* ── BUY ─────────────────────────────────────── */}
-            <a
-              href={app.tokenBuyUrl}
-              className="flex-1"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <Link to="/posts" className="flex-1">
               <Button
                 variant="secondary"
                 className="w-full h-12 justify-center"
                 skewed
               >
-                <span className='hidden sm:inline'><ShoppingCart size={14} /></span>
-                <span>BUY</span>
+                <span className='hidden sm:inline'><Scroll size={14} /></span>
+                <span>Stories</span>
               </Button>
-            </a>
+            </Link>
 
             {/* ── MINT ────────────────────────────────────── */}
             <Link to="/mint" className="flex-[2]">
@@ -52,7 +48,7 @@ export default function BottomNav() {
                 className="w-full h-12 justify-center text-[0.9rem]"
               >
                 <span className='hidden sm:inline'><Zap size={15} fill="currentColor" /></span>
-                <span>MINT {" "}<span className='hidden sm:inline'>FREE</span></span>
+                <span>Claim {" "}<span>${ tokenConfig.symbol }</span></span>
               </Button>
             </Link>
 

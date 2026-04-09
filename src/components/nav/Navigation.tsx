@@ -140,7 +140,7 @@ export default function Navigation() {
                 <>
                   <Link to="/mint"  className="no-underline">
                     <Button variant="primary" className="!px-6 shadow-[0_0_15px_rgba(255,45,120,0.2)]">
-                      MINT
+                      CLAIM $MAXX
                     </Button>
                   </Link>
                   <Account />

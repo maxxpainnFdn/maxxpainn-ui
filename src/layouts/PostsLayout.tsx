@@ -6,12 +6,10 @@
  */
 
 import { Suspense, useState } from "react";
-import PostTypePicker from "@/components/posts/PostTypePicker";
 import FeedsRightPanel from "@/components/posts/FeedsRightPanel";
 import MobileSidebarDrawer from "@/components/posts/MobileSidebarDrawer";
 import LeftSidebar from "@/components/posts/LeftSidebar";
 import SearchModal from "@/components/posts/SearchModal";
-import ComposeModal from "@/components/posts/ComposeModal";
 import Navigation from "@/components/nav/Navigation";
 import { Outlet } from "react-router-dom";
 import Spinner from "@/components/spinner/Spinner";
@@ -23,9 +21,6 @@ import Spinner from "@/components/spinner/Spinner";
 export default function PostsLayout() {
   
   const [activeTab, setActiveTab]   = useState("foryou");
-  const [showTypePicker, setShowTP] = useState(false);
-  const [composeType, setCompType] = useState<"normal" | "rewarded" | null>(null);
-  const [showComposeModal, setShowCM] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [showSidebar, setShowSB]    = useState(false);
 
@@ -64,24 +59,7 @@ export default function PostsLayout() {
           onClose={() => setShowSB(false)}
         />
       )}
-      <PostTypePicker
-        isOpen={showTypePicker}
-        onSelect={t => {
-          setShowTP(false);
-          setCompType(t);
-          setShowCM(true);
-        }}
-        onClose={() => setShowTP(false)}
-      />
-      <ComposeModal
-        isOpen={showComposeModal}
-        type={composeType}
-        onPost={()=>{}}
-        onClose={() => {
-          setCompType(null);
-          setShowCM(false)
-        }}
-      />
+      
       { showSearch  && <SearchModal posts={[]} onClose={() => setShowSearch(false)} />}
     </div>
   );

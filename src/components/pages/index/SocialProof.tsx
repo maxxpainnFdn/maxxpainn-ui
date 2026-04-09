@@ -61,7 +61,7 @@ export default function SocialProof() {
 
         <div className="grid grid-cols-2 sm:grid-cols-4 border border-maxx-violet/15 rounded-sm overflow-hidden">
           {[
-            { l: "Pain Stories", v: "47K+", icon: MessageCircle, col: "text-maxx-pink" },
+            { l: "Stories", v: "47K+", icon: MessageCircle, col: "text-maxx-pink" },
             { l: "Degens United", v: "89K+", icon: Users, col: "text-maxx-violet" },
             { l: "Total Losses", v: "$3.2B+", icon: Shield, col: "text-maxx-pink" },
             { l: "Already Minted", v: "12.8K", icon: Sparkles, col: "text-maxx-violet" },
@@ -72,7 +72,7 @@ export default function SocialProof() {
               <div className="font-mono text-[0.7rem] tracking-widest uppercase text-maxx-mid">{s.l}</div>
             </div>
           ))}
-        </div>
+        </div> 
       </div>
       <div className="h-[52px] bg-[linear-gradient(to_bottom_right,#0f0810_49.5%,#120a10_50%)]" />
     </section>

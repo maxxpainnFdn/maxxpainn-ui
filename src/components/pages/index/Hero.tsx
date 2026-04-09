@@ -55,12 +55,12 @@ export default function Hero() {
         <div className="flex justify-between items-start flex-wrap gap-5 mb-10 animate-fade-up">
           <div>
             <div className="eyebrow">
-              <span className="eyebrow-dot" /> FREE-TO-MINT SPL TOKEN · SOLANA
+              <span className="eyebrow-dot" /> SOLANA-NATIVE Protocol
             </div>
             <div className="flex items-center gap-2 mt-0.5">
               <div className="w-[7px] h-[7px] bg-maxx-pink rounded-full animate-pulse-slow" />
               <span className="font-mono text-[0.72rem] text-maxx-sub tracking-widest uppercase">
-                MINTING LIVE NOW
+                ALLOCATION LIVE NOW
               </span>
             </div>
           </div>
@@ -101,7 +101,9 @@ export default function Hero() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 animate-fade-up [animation-delay:360ms]">
           <div>
             <p className="font-sans font-medium text-[clamp(1rem,2vw,1.15rem)] leading-relaxed text-maxx-bright mb-6">
-              Every degen carries the weight of rugs, liquidations, and betrayals. MAXXPAINN converts that collective trauma into liquid tokens. <strong className="text-maxx-white font-bold">Share your pain story to mint.</strong>
+              Every degen carries the weight of rugs, liquidations, and betrayals.
+              MAXXPAINN converts that collective trauma into liquid tokens.
+              <strong className="text-maxx-white font-bold"> Share your experience to secure your allocation.</strong>
             </p>
             <div className="flex flex-wrap gap-2.5">
               {["100% FREE MINT", "LIQUID TOKENS · NO NFTS", "ON SOLANA", "NO VCs"].map((tag) => (
@@ -112,7 +114,7 @@ export default function Hero() {
 
           <div className="flex flex-col gap-3">
             <Link to="/mint" className="btn-p btn-skewed text-[1.05rem] py-4">
-              <Flame size={18} /> MINT FOR FREE <ArrowRight size={18} />
+              <Flame size={18} />Tell Your Story & Earn <ArrowRight size={18} />
             </Link>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               <Link to="/whitepaper" className="btn-s rounded-lg"><FileText size={14} className="hidden sm:block" /> Whitepaper</Link>
@@ -120,7 +122,7 @@ export default function Hero() {
               <Link to="/manifesto" className="btn-s rounded-lg"><Book size={14} className="hidden sm:block" /> Manifesto</Link>
             </div>
             <p className="font-mono text-[0.72rem] text-maxx-sub tracking-widest text-center uppercase mt-1">
-              No wallet drain · No hidden fees · Pure degen energy
+              No bluff · No hidden fees · Pure degen energy
             </p>
           </div>
         </div>

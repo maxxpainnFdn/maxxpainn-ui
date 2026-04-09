@@ -41,7 +41,7 @@ export default function BookmarkBtn({
     
     if (resultStatus.isError()) {
       toast.error(resultStatus.getMessage())
-      setHasBookmarked(prev => !prev)
+      setHasBookmarked(!action)
       return;
     }
         

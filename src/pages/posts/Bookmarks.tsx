@@ -16,6 +16,8 @@ import { useAtomValue } from "jotai";
 import { userAccountInfoAtom } from "@/store";
 import useAuth from "@/hooks/useAuth";
 import EnsureConnected from "@/components/ensureConnected/EnsureConnected";
+import Button from "@/components/button/Button";
+import { ArrowLeft } from "lucide-react";
 
 
 /* ─────────────────────────────────────────────────────────────────
@@ -33,7 +35,7 @@ export default function Bookmarks() {
   
   const userAccount = useAtomValue(userAccountInfoAtom)
   
-    //console.log("userAccount===>", userAccount)
+  
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -50,7 +52,9 @@ export default function Bookmarks() {
     <div>
       <main className="flex-1 min-w-0 mb-10 pb-10">
         <ComposeTrigger onClick={() => setShowTP(true)} />
-        <div className="font-normal text-[1.5rem] text-maxx-bright my-5">Saved Posts</div>
+        <div className="flex  align-middle">        
+          <div className="font-normal text-[1.2rem] text-maxx-bright my-5">Saved Posts</div>
+        </div>
         <EnsureConnected>
           <div key={pageKey}>
             <InfiniteScroll

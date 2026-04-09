@@ -111,9 +111,9 @@ export default function MintPreview({
 
       {/* header */}
       <div className="mb-5">
-        <div className="eyebrow mb-1"><span className="eyebrow-dot" />REWARD BREAKDOWN</div>
+        <div className="eyebrow mb-1"><span className="eyebrow-dot" />BREAKDOWN</div>
         <h3 className="font-sans font-black text-[1.1rem] uppercase tracking-tight text-maxx-white">
-          Reward Preview
+          Allocation Preview
         </h3>
       </div>
 
@@ -126,10 +126,10 @@ export default function MintPreview({
       <div className="h-px bg-maxx-violet/15 mb-5" />
 
       {/* min reward callout */}
-      <div className="bg-maxx-violet/5 border border-maxx-violet/20 rounded-md p-4 flex flex-col text-center md:text-start md:flex-row items-center md:items-end justify-between gap-3">
+      <div className="bg-maxx-violet/5 border border-maxx-violet/20 rounded-md p-4 flex flex-col   gap-3">
         <div>
           <div className="text-sm font-semibold  text-maxx-sub mb-1">
-            Minimum Reward
+            Minimum Allocation
           </div>
           <div className="font-mono text-[0.8rem] text-maxx-mid leading-relaxed">
             Based on your selected wait period
