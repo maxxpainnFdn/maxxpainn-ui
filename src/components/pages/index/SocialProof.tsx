@@ -19,7 +19,7 @@ export default function SocialProof({ appStats }) {
   }
 
   useEffect(() => {
-    console.log("posts===>", posts);
+    //console.log("posts===>", posts);
   }, [posts]);
 
   return (
@@ -54,7 +54,7 @@ export default function SocialProof({ appStats }) {
 
         <ApiQuery
           uri="/posts"
-          onSuccess={(result) => setPosts(result)}
+          onSuccess={(data) => setPosts(data.slice(0, 4))}
           showError={false}
         >
           <PostSlider posts={posts} />

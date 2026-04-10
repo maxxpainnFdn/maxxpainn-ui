@@ -1,5 +1,5 @@
 import React from 'react';
-import { Scale, Ban, Coins, Flame, Vote, Wallet, FileText, Sparkles, Zap } from 'lucide-react';
+import { Scale, Ban, Coins, Flame, Vote, Wallet, FileText, Sparkles, Zap, Code } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const PRINCIPLES = [
@@ -8,6 +8,7 @@ const PRINCIPLES = [
   { title: "Free Forever", icon: Coins, color: "#8b5cf6", desc: "Your pain is your ticket. We want your rage, not your rent." },
   { title: "Deflationary", icon: Flame, color: "#fb923c", desc: "Aggressive buyback & burn. Supply only goes one way: down." },
   { title: "DAO Governed", icon: Vote, color: "#34d399", desc: "Community calls the shots. No suits, no ties." },
+  { title: "100% Open Source", icon: Code,  color: "#60a5fa", desc: "All code is public on GitHub. Anyone can read, verify, or audit it." }
 ];
 
 const MINT_STEPS = [
@@ -28,7 +29,7 @@ export default function Tokenomics() {
           <div>
             <div className="eyebrow"><span className="eyebrow-dot" />// TOKENOMICS</div>
             <h2 className="font-sans font-black text-[clamp(2.6rem,6.5vw,5rem)] leading-[0.94] uppercase text-maxx-white">
-              NO <span className="bg-grad-accent bg-clip-text text-transparent">BULLSHIT</span>
+              NO <span className="bg-grad-accent bg-clip-text text-transparent">FLUFF</span>
             </h2>
           </div>
           <p className="font-sans font-medium text-[clamp(0.96rem,1.8vw,1.08rem)] text-maxx-bright leading-[1.8] max-w-sm">
@@ -55,7 +56,7 @@ export default function Tokenomics() {
           <div className="md:col-span-2 bg-maxx-violet/5 border border-maxx-violet/15 rounded-sm p-6">
             <span className="eyebrow block mb-4"><span className="eyebrow-dot" />CORE PRINCIPLES</span>
             <div className="grid sm:grid-cols-2 gap-2 mb-2">
-              {PRINCIPLES.slice(0, 4).map((p, i) => {
+              {PRINCIPLES.map((p, i) => {
                 
                 const PIcon = PRINCIPLES[4].icon;
                 
@@ -72,15 +73,17 @@ export default function Tokenomics() {
                 )
               })}
             </div>
-            <div className="flex gap-3 items-center p-3.5 border border-maxx-violet/15 rounded-sm bg-white/[0.015] hover:bg-white/5 transition-colors">
-              <div className="w-8 h-8 rounded-sm border flex items-center justify-center shrink-0" style={{ backgroundColor: `${PRINCIPLES[4].color}18`, borderColor: `${PRINCIPLES[4].color}35`, color: PRINCIPLES[4].color }}>
-                <P4Icon size={14} />
+            {/* 
+              <div className="flex gap-3 items-center p-3.5 border border-maxx-violet/15 rounded-sm bg-white/[0.015] hover:bg-white/5 transition-colors">
+                <div className="w-8 h-8 rounded-sm border flex items-center justify-center shrink-0" style={{ backgroundColor: `${PRINCIPLES[4].color}18`, borderColor: `${PRINCIPLES[4].color}35`, color: PRINCIPLES[4].color }}>
+                  <P4Icon size={14} />
+                </div>
+                <div>
+                  <div className="font-sans font-bold text-[0.875rem] uppercase tracking-wide text-maxx-white mb-0.5">{PRINCIPLES[4].title}</div>
+                  <p className="text-[0.875rem] text-maxx-bright leading-[1.65]">{PRINCIPLES[4].desc}</p>
+                </div>
               </div>
-              <div>
-                <div className="font-sans font-bold text-[0.875rem] uppercase tracking-wide text-maxx-white mb-0.5">{PRINCIPLES[4].title}</div>
-                <p className="text-[0.875rem] text-maxx-bright leading-[1.65]">{PRINCIPLES[4].desc}</p>
-              </div>
-            </div>
+              */}
           </div>
 
           {/* How to Mint */}
@@ -101,7 +104,7 @@ export default function Tokenomics() {
               ))}
             </div>
             <Link to="/mint" className="btn-p justify-center text-[0.9rem] p-3 mt-3">
-              <Flame size={14} /> START MINTING FREE
+              <Flame size={14} /> CLAIM YOUR ALLOCATION 
             </Link>
           </div>
 
@@ -139,7 +142,7 @@ export default function Tokenomics() {
               </p>
             </div>
             <Link to="/mint" className="btn-p justify-center text-[0.88rem] p-3 mt-6 relative z-10">
-              <Zap size={14} /> FREE MINT
+              <Zap size={14} /> Enter the Gauntlet
             </Link>
           </div>
         </div>

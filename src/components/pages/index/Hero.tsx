@@ -64,12 +64,12 @@ export default function Hero({ appStats }: { appStats: any }) {
         <div className="flex justify-between items-start flex-wrap gap-5 mb-10 animate-fade-up">
           <div>
             <div className="eyebrow">
-              <span className="eyebrow-dot" /> SOLANA-NATIVE Protocol
+              <span className="eyebrow-dot" /> SOLANA-NATIVE 
             </div>
             <div className="flex items-center gap-2 mt-0.5">
               <div className="w-[7px] h-[7px] bg-maxx-pink rounded-full animate-pulse-slow" />
               <span className="font-mono text-[0.72rem] text-maxx-sub tracking-widest uppercase">
-                ALLOCATION LIVE NOW
+                ALLOCATION LIVE 
               </span>
             </div>
           </div>
@@ -131,7 +131,7 @@ export default function Hero({ appStats }: { appStats: any }) {
               <Link to="/manifesto" className="btn-s rounded-lg"><Book size={14} className="hidden sm:block" /> Manifesto</Link>
             </div>
             <p className="font-mono text-[0.72rem] text-maxx-sub tracking-widest text-center uppercase mt-1">
-              No bluff · No hidden fees · Pure degen energy
+              No bluff · 100% OpenSource · Pure degen energy
             </p>
           </div>
         </div>
