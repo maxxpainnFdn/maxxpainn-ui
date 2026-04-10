@@ -19,7 +19,7 @@ const FOOTER_COLS = [
       { label: "How It Works", to: "/how-it-works" },
       { label: "Mint",         to: "/mint"         },
       { label: "Clans",        to: "/clans"        },
-      { label: "Leaderboard",  to: "/leaderboard"  },
+     // { label: "Leaderboard",  to: "/leaderboard"  },
       { label: "Staking",      to: "/staking"      },
     ],
   },
