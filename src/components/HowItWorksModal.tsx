@@ -32,41 +32,41 @@ const steps = [
   {
     icon: Wallet,
     title: "Connect Wallet",
-    description: "Connect your Solana wallet to begin your pain journey.",
+    description: "Connect your Solana wallet to access the platform and start your journey.",
     tw: {
       icon: "text-maxx-violet",
       badge: "bg-maxx-violet/10 border-maxx-violet/25",
-      num:  "text-maxx-violet/40",
+      num: "text-maxx-violet/40",
     },
   },
   {
     icon: Castle,
-    title: "Select Clan",
-    description: "Show your loyalty. Select the clan you want to mint with.",
+    title: "Choose Your Clan",
+    description: "Pick a clan to represent your story and join its community.",
     tw: {
       icon: "text-blue-400",
       badge: "bg-blue-500/10 border-blue-500/20",
-      num:  "text-blue-400/40",
+      num: "text-blue-400/40",
     },
   },
   {
     icon: Clock,
-    title: "Lock Duration",
-    description: "Choose how long you're willing to endure the pain.",
+    title: "Set Lock Duration",
+    description: "Decide how long your tokens will stay locked before you can claim them.",
     tw: {
       icon: "text-maxx-pink",
       badge: "bg-maxx-pink/10 border-maxx-pink/20",
-      num:  "text-maxx-pink/40",
+      num: "text-maxx-pink/40",
     },
   },
   {
     icon: Gift,
-    title: "Wait & Withdraw",
-    description: `Patience pays off — claim your ${app.name} tokens.`,
+    title: "Earn & Claim",
+    description: `After the lock period ends, claim your ${app.name} tokens instantly.`,
     tw: {
       icon: "text-green-400",
       badge: "bg-green-500/10 border-green-500/20",
-      num:  "text-green-400/40",
+      num: "text-green-400/40",
     },
   },
 ];
@@ -103,10 +103,7 @@ const HowItWorksModal = () => {
 
           {/* ── HEADER ── */}
           <DialogHeader className="relative z-1 px-6 py-5 border-b border-maxx-violet/15 shrink-0">
-            <div className="eyebrow justify-center">
-              <span className="eyebrow-dot" />
-              FREE-TO-MINT · SOLANA
-            </div>
+            
             <DialogTitle className="text-2xl md:text-4xl font-black tracking-tighter text-center uppercase leading-none">
               <span className="text-maxx-white">HOW IT </span>
               <span className="bg-grad-accent bg-clip-text text-transparent">
@@ -128,22 +125,24 @@ const HowItWorksModal = () => {
                   <h3 className="font-black text-maxx-white uppercase tracking-tight text-sm mb-2">
                     Welcome to {app.name}
                   </h3>
-                  <div className="text-sm text-maxx-mid leading-relaxed mb-4">
+                  <div className="text-md text-maxx-mid mb-4">
                     <p>
-                      <span className="font-bold text-maxx-bright">{app.name}</span> is a native  <span className="text-green-400 font-bold">Solana</span> protocol forged for the survivors of the trenches.
-                      It is a zero-entry extraction layer that turns your market trauma into liquid assets.
+                      <span className="font-bold text-maxx-bright">{app.name}</span> is a native{" "}
+                      <span className="text-green-400 font-bold">Solana</span> protocol built for users who’ve been through the trenches.
+                      It turns real crypto experiences and losses into token allocation opportunities.
                     </p>
+                  
                     <p className="mt-2">
-                      Share your battle stories to earn your allocation, and let time do the rest.
+                      Share your story, lock your position, and earn allocation based on participation — not capital size.
                     </p>
+                  
                     <p className="mt-2">
-                      By weaponizing Proof-of-Patience (PoP), the protocol rewards
-                      those with the conviction to endure time-locked staking over those with the deepest pockets.
+                      Powered by Proof-of-Patience (PoP), the protocol rewards conviction over capital: the longer you commit and endure time-locked staking, the higher your reward weight.
                     </p>
                   </div>
                   <div className="pill inline-flex gap-2">
                     <Gift className="w-3.5 h-3.5 text-green-400" />
-                    <span className="text-green-400">100% Free Mint — pay only tx fee</span>
+                    <span className="text-green-400">100% Free Allocation — pay only tx fee</span>
                   </div>
                 </div>
               </div>
@@ -186,30 +185,31 @@ const HowItWorksModal = () => {
                   <h3 className="font-black text-maxx-white uppercase tracking-tight text-sm mb-1.5">
                     Supply-Based Difficulty
                   </h3>
+              
                   <p className="text-sm text-maxx-mid leading-relaxed">
-                    Our protocol includes a dynamic, on-chain difficulty adjustment
-                    system. As total supply increases, minting becomes progressively
-                    more expensive. Over time it becomes more cost-effective to{" "}
-                    <span className="text-green-400 font-bold">
-                      purchase tokens from the market
-                    </span>{" "}
-                    rather than minting — creating natural price support and
-                    incentivizing early participation.
+                    The protocol adjusts minting cost based on total supply. As supply increases,
+                    minting becomes progressively more expensive on-chain.
+                  </p>
+              
+                  <p className="text-sm text-maxx-mid leading-relaxed mt-2">
+                    Eventually, it becomes cheaper to{" "}
+                    <span className="text-green-400 font-bold">buy tokens on the market</span>{" "}
+                    than to mint them — creating natural price support and rewarding early participants.
                   </p>
                 </div>
               </div>
             </div>
 
             {/* CTA */}
-            <div className="pt-2 pb-1">
+            <div className="pt-2 pb-1  flex justify-center">
               <Button
                 variant="primary"
-                fullWidth
+                skewed
                 onClick={() => setOpen(false)}
                 className="h-12 shadow-[0_0_20px_rgba(255,45,120,0.2)]"
               >
                 <Zap size={16} fill="currentColor" />
-                Start Minting Now
+                Claim your allocation now
                 <ChevronRight size={16} />
               </Button>
             </div>

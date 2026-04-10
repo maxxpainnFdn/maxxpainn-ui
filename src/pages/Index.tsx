@@ -15,22 +15,41 @@ const LazySection = ({ children }: { children: React.ReactNode }) => (
   </Suspense>
 );
 
+let _appStatsCache;
+
 const Index = () => {
   
   const api = useApi()
   const [appStats, setAppStats] = useState(null)
   
-  api.get('/app-stats').then((res) => {
-    setAppStats(res.data)
-    window.appData = res.data
-  })
-  
- 
+
   useEffect(() => {
-    if (!appStats && window.appStats) {
-      setAppStats(window.appStats)
+    if (!appStats && _appStatsCache) {
+      setAppStats(_appStatsCache)
     }
-  }, [appStats]);
+    api.get('/app-stats').then((res) => {
+      setAppStats(res.data)
+      _appStatsCache = res.data
+    })
+  }, [])
+
+  
+  useEffect(() => {
+    
+    setTimeout(() => {
+      
+      const hash = window.location.hash;
+      if (!hash) return;
+    
+      const id = hash.slice(1);
+
+      requestAnimationFrame(() => {
+        const el = document.getElementById(id);
+        el?.scrollIntoView({ behavior: "smooth" });
+      });
+    }, 500);
+    
+  }, []);
   
   return (
     <div className="min-h-screen bg-maxx-bg0 overflow-x-hidden relative">

@@ -102,7 +102,7 @@ export default function Navigation() {
               {/* Docs dropdown */}
               <div className="relative group h-full flex items-center">
                 <button className={`${linkClass} flex items-center gap-1.5 cursor-pointer bg-transparent border-none`}>
-                  Docs
+                  More
                   <ChevronDown className="h-[14px] w-[14px] group-hover:rotate-180 transition-transform duration-300" />
                 </button>
 

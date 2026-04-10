@@ -21,7 +21,7 @@ export default function Hero({ appStats }: { appStats: any }) {
   const rafRef = useRef<number>(0);
   
   const statsMeta = {
-    tokenSupply:    { v: "0", suffix: "+", l: "Tokens Distributed", text: "text-maxx-white" },
+    tokenSupply:    { v: "0", suffix: "+", l: "Tokens Allocated", text: "text-maxx-white" },
     totalAccounts:  { suffix: "+", l: "Degens United", text: "text-maxx-violetLt" },
     mintsAvailable: { v: "∞", suffix: "", l: "Free Mints Available", text: "text-maxx-white" },
     totalRevenge:   { v: "24/7", suffix: "", l: "Revenge Mode", text: "text-maxx-pinkLt" }

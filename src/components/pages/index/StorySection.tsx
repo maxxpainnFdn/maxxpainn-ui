@@ -157,7 +157,7 @@ export default function StorySection() {
               FROM ASHES, <span className="text-maxx-violet">WE RISE</span>
             </h3>
             <p className="text-maxx-bright text-[clamp(0.9rem,1.8vw,1rem)] leading-relaxed">
-              MAXXPAINN is our collective middle finger to the system.
+              MAXXPAINN is our collective pushback against the system.
             </p>
           </div>
           <Link to="/mint" className="btn-p">

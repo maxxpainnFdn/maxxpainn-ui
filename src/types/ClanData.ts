@@ -15,6 +15,7 @@ export interface ClanData {
     accentColor2?:          string;
     totalMembers:           number;
     totalMints:             number;
+    postCount:              number;
     isMember?:              boolean;
     rewardPerMintUsd:       number;
     totalEarnedUsd:         number;

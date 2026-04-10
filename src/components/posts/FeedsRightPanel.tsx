@@ -1,19 +1,16 @@
 import { BarChart2, ChevronRight, Shield, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
+import ApiQuery from "../apiQuery/ApiQuery";
+import { useState } from "react";
+import ImageAvatar from "../ImageAvatar";
+import { ClanData } from "@/types/ClanData";
+import utils from "@/lib/utils";
 
-
-const CLANS = [
-  { id: "luna-fallen",   name: "Luna Fallen",   emoji: "🌙", members: 4821,  posts: 1204 },
-  { id: "ftx-creditors", name: "FTX Creditors", emoji: "💔", members: 11203, posts: 3891 },
-  { id: "rug-survivors", name: "Rug Survivors", emoji: "🪦", members: 7654,  posts: 2110 },
-  { id: "liq-gang", name: "Liq Gang", emoji: "⚡", members: 3390, posts: 987 },
-  { id: "luna-fallen",   name: "Luna Fallen",   emoji: "🌙", members: 4821,  posts: 1204 },
-  { id: "ftx-creditors", name: "FTX Creditors", emoji: "💔", members: 11203, posts: 3891 },
-  { id: "rug-survivors", name: "Rug Survivors", emoji: "🪦", members: 7654,  posts: 2110 },
-  { id: "liq-gang",      name: "Liq Gang",      emoji: "⚡", members: 3390,  posts: 987  },
-];
 
 export default function FeedsRightPanel() {
+  
+  const [ topClans, setTopClans ] = useState<ClanData[]>([])
+  
   return (
     <div className="hidden xl:flex flex-col gap-3 flex-shrink-0 w-[268px] sticky top-[116px]">
 
@@ -24,21 +21,35 @@ export default function FeedsRightPanel() {
             <Shield size={13} className="text-maxx-violet" />
             <span className="font-mono font-bold text-maxx-bright uppercase tracking-wider text-[0.72rem]">Top Clans</span>
           </div>
-          <div className="flex flex-col gap-1">
-            {CLANS.map(c => (
-              <a key={c.id} href={`/clans/${c.id}`}
-                className="flex items-center justify-between py-2 px-2 no-underline rounded-lg transition-colors hover:bg-maxx-violet/[0.06] group/clan">
-                <div className="flex items-center gap-2.5">
-                  <span className="text-[1.1rem]">{c.emoji}</span>
-                  <div>
-                    <div className="font-semibold text-maxx-bright group-hover/clan:text-maxx-white transition-colors text-[0.85rem]">{c.name}</div>
-                    <div className="text-maxx-sub text-[0.72rem]">{c.members.toLocaleString()} members</div>
+          <ApiQuery
+            uri="/clans"
+            query={{  }}
+            onSuccess={(dataArr) => setTopClans(dataArr.slice(0, 10))}
+            onError={err => console.log("RightNav Clans:"+ err)}
+            showError={false}
+            loaderProps={{ clasName: "flex justify-center", spinerSize: 16 }}
+          >
+            <div className="flex flex-col gap-1">
+              {topClans.map((c,k) => (
+                <a key={k} href={`/clans/${c.id}`}
+                  className="flex items-center justify-between py-2 px-2 no-underline rounded-lg transition-colors hover:bg-maxx-violet/[0.06] group/clan">
+                  <div className="flex items-center gap-2.5">
+                    <ImageAvatar
+                      src={utils.getServerImage(c.image, "clans", "tiny")}
+                      fallbackText={c.name}
+                      className="w-[22px] h-[22px] object-cover text-sm font-bold rounded-full  shadow-xl"
+                      fallbackTextClass="bg-maxx-bg/50 text-maxx-white rounded-lg"
+                    />
+                    <div>
+                      <div className="font-semibold text-maxx-bright group-hover/clan:text-maxx-white transition-colors text-[0.85rem]">{c.name}</div>
+                      <div className="text-maxx-sub text-[0.72rem]">{c.totalMembers} members</div>
+                    </div>
                   </div>
-                </div>
-                <ChevronRight size={13} className="text-maxx-dim group-hover/clan:text-maxx-violet transition-colors" />
-              </a>
-            ))}
-          </div>
+                  <ChevronRight size={13} className="text-maxx-dim group-hover/clan:text-maxx-violet transition-colors" />
+                </a>
+              ))}
+            </div>
+          </ApiQuery>
         </div>
       </div>
 

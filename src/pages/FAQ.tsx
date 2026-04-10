@@ -11,7 +11,7 @@ import {
   Target, Settings, Blocks, Users, BookOpen,
   ChevronDown, ArrowRight,
 } from "lucide-react";
-import { SiTelegram, SiX } from "@icons-pack/react-simple-icons";
+import { SiMedium, SiTelegram, SiX } from "@icons-pack/react-simple-icons";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import Footer from "@/components/Footer";
@@ -31,7 +31,9 @@ const faqs = [
       bg:     "bg-blue-400/5",
     },
     question: "What is MAXXPAINN?",
-    answer: "MAXXPAINN is a free-to-mint token protocol built on the Solana blockchain, inspired by the viral mechanics of XEN Network. It allows anyone to mint tokens 100% free, promoting fair distribution and organic community growth.",
+    answer: `
+    MaxxPainn is a native Solana protocol built for users who’ve been through the trenches. It turns real crypto experiences and losses into token allocation opportunities.
+    `,
   },
   {
     category: "ELIGIBILITY",
@@ -42,8 +44,8 @@ const faqs = [
       border: "border-l-maxx-pink",
       bg:     "bg-maxx-pink/5",
     },
-    question: "What qualifies me as a 'degen' for the free mint?",
-    answer: "If you have a Solana wallet, you're in. No whitelist, no gatekeeping — just pure degen energy. Anyone with a wallet qualifies to mint for free on the protocol.",
+    question: "What qualifies me as a 'degen' for the free allocation?",
+    answer: "If you have a Solana wallet & a story, you're in. No whitelist, no gatekeeping — just pure degen energy.",
   },
   {
     category: "MINTING",
@@ -54,8 +56,11 @@ const faqs = [
       border: "border-l-maxx-violet",
       bg:     "bg-maxx-violet/5",
     },
-    question: "How do I claim my free MAXXPAINN Tokens?",
-    answer: "First, initiate the mint process. After that, you'll need to wait for the selected wait period to expire before you can withdraw your MAXXPAINN tokens. 🔥 Patience is pain; but pain is gain.",
+    question: "How do I claim my free $MAXX tokens?",
+    answer: `
+    To begin, claim your rank by joining a clan, sharing your story, and selecting a mint date (wait period).
+    Once the wait period expires, you’ll be able to mint your allocated tokens.
+    `,
   },
   {
     category: "TECHNICAL",
@@ -66,7 +71,7 @@ const faqs = [
       border: "border-l-blue-400",
       bg:     "bg-blue-400/5",
     },
-    question: "What blockchain is MAXXPAINN on?",
+    question: "Which blockchain is MAXXPAINN on?",
     answer: "MAXXPAINN is currently deployed exclusively on the Solana blockchain, taking full advantage of its speed, low fees, and degen-friendly ecosystem.",
   },
   {
@@ -79,7 +84,8 @@ const faqs = [
       bg:     "bg-yellow-400/5",
     },
     question: "What utility does my MAXXPAINN tokens have?",
-    answer: "MAXXPAINN currently has no utility — it's a pure degen experiment. There are no promises, no guarantees — just vibes, speculation, and pain.",
+    answer: `MAXXPAINN tokens are planned to be used for tipping and rewarding stories within the community, 
+    and for future governance that will allow holders to vote on ecosystem and clan decisions.`,
   },
   {
     category: "SUPPLY",
@@ -91,7 +97,7 @@ const faqs = [
       bg:     "bg-emerald-400/5",
     },
     question: "How many MAXXPAINN tokens will exist?",
-    answer: "The total supply of MAXXPAINN is not fixed. However, as more tokens are minted, the cost to mint increases due to our on-chain algorithm that factors in rising computational and storage costs. Over time, minting becomes more painful — and more expensive.",
+    answer: "MAXXPAINN has a dynamic supply. Tokens are minted through a bonding curve that makes each mint progressively more expensive, and the protocol may also buy back and burn tokens over time to reduce supply.",
   },
   {
     category: "ROADMAP",
@@ -157,8 +163,8 @@ const socialLinks = [
     tw:    "text-maxx-pink bg-maxx-pink/10 border-maxx-pink/30 hover:bg-maxx-pink/20 hover:border-maxx-pink/50",
   },
   {
-    url:   `https://x.com/${socialConfig.medium}`,
-    icon:  <BookOpen size={16} />,
+    url:   `${socialConfig.medium}`,
+    icon:  <SiMedium size={16} />,
     label: "Blog Posts",
     tw:    "text-emerald-400 bg-emerald-400/10 border-emerald-400/30 hover:bg-emerald-400/20 hover:border-emerald-400/50",
   },
@@ -332,12 +338,12 @@ const Faq = () => {
                   <div className="pt-8 border-t border-maxx-violet/15">
                     <div className="eyebrow justify-center mb-4">
                       <span className="eyebrow-dot" />
-                      Ready to mint?
+                      Ready to claim?
                     </div>
                     <Link to="/mint">
                       <Button variant="primary" skewed className="shadow-[0_0_30px_rgba(255,45,120,0.2)]">
                         <Flame size={16} />
-                        CLAIM YOUR FREE MINT
+                        CLAIM YOUR ALLOCATION NOW
                         <ArrowRight size={16} />
                       </Button>
                     </Link>

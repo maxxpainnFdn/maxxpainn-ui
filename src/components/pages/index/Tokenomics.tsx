@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Scale, Ban, Coins, Flame, Vote, Wallet, FileText, Sparkles, Zap, Code } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { tokenConfig } from '@/config/token';
 
 const PRINCIPLES = [
   { title: "Fair Launch", icon: Scale, color: "#ff2d78", desc: "No pre-sales, no insider allocations. Every degen starts equal." },
@@ -12,9 +13,13 @@ const PRINCIPLES = [
 ];
 
 const MINT_STEPS = [
-  { n: "01", icon: Wallet, title: "CONNECT", sub: "Link your Solana wallet — any will do" },
-  { n: "02", icon: FileText, title: "SHARE PAIN", sub: "Tell your crypto horror story in full" },
-  { n: "03", icon: Sparkles, title: "MINT", sub: "Receive liquid $PAINN tokens instantly" },
+  { n: "01", icon: Wallet, title: "CONNECT WALLET", sub: "Any Solana wallet. No barriers." },
+
+  { n: "02", icon: FileText, title: "DROP YOUR STORY", sub: "Your worst crypto loss, fully verified" },
+
+  { n: "03", icon: FileText, title: "LOCK ALLOCATION", sub: "Choose your mint window and secure rank" },
+
+  { n: "04", icon: Sparkles, title: "MINT", sub: `Your ${tokenConfig.symbol} allocation unlocks on schedule` },
 ];
 
 export default function Tokenomics() {
@@ -22,7 +27,7 @@ export default function Tokenomics() {
   const P4Icon = PRINCIPLES[4].icon;
   
   return (
-    <section className="bg-maxx-bg3 relative">
+    <section className="bg-maxx-bg3 relative" id="tokenomics">
       <div className="max-w-7xl mx-auto px-6 py-20">
         
         <div className="grid md:grid-cols-2 gap-6 items-end mb-10">
@@ -138,7 +143,7 @@ export default function Tokenomics() {
                 <span className="bg-grad-accent bg-clip-text text-transparent">POWER</span>
               </div>
               <p className="text-[0.88rem] text-maxx-bright leading-[1.7]">
-                No wallet drain. No hidden fees. Your story is all you need.
+                No wallet drain. No hidden fees. Just your story.
               </p>
             </div>
             <Link to="/mint" className="btn-p justify-center text-[0.88rem] p-3 mt-6 relative z-10">

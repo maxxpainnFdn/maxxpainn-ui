@@ -28,14 +28,14 @@ export default function SocialProof({ appStats }) {
 
         <div className="grid md:grid-cols-2 gap-6 items-end mb-12">
           <div>
-            <div className="eyebrow"><span className="eyebrow-dot" />// PAIN FEED</div>
+            <div className="eyebrow"><span className="eyebrow-dot" />// STORIES</div>
             <h2 className="font-sans font-black text-[clamp(2.6rem,6.5vw,5rem)] leading-[0.94] uppercase text-maxx-white">
-              OUR SHARED<br /><span className="text-maxx-pink"> TRAUMA.</span>
+              OUR SHARED<br /><span className="text-maxx-pink"> STRUGGLES.</span>
             </h2>
           </div>
           <div>
             <p className="font-sans font-medium text-[clamp(0.96rem,1.8vw,1.08rem)] text-maxx-bright leading-[1.8] mb-4">
-              The SocialFi layer where degens share verified loss stories and mint tokens from their pain. Every post is proof of hurt.
+              A SocialFi layer where degens turn verified loss stories into token allocations. Every post is proof of experience.
             </p>
             {appStats && (
               <div className="flex gap-2 flex-wrap">
