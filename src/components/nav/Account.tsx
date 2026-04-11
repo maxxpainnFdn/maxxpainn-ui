@@ -31,7 +31,7 @@ export default function Account({ btnProps = {} }) {
           fullWidth
           onClick={() => openModal()}
           disabled={isConnecting}
-          className="h-12 !px-0 sm:!px-5 justify-center"
+          className="justify-center"
         >
           <Wallet
             size={16}
