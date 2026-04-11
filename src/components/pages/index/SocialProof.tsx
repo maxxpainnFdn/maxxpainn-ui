@@ -3,7 +3,7 @@ import { Users, Shield, Sparkles, MessageCircle, ArrowRight, Castle, ChevronLeft
 import { Link } from 'react-router-dom';
 import ApiQuery from '@/components/apiQuery/ApiQuery';
 import utils from '@/lib/utils';
-import PostSlider from '@/components/posts/PostSlider';
+import PostSlider from '@/components/stories/PostSlider';
 
 
 

@@ -6,10 +6,10 @@
  */
 
 import { useState, useRef, useEffect } from "react";
-import ComposeTrigger from "@/components/posts/ComposeTrigger";
+import ComposeTrigger from "@/components/stories/ComposeTrigger";
 //import SubHeader from "@/components/feeds/SubHeader";
 import InfiniteScroll from "@/components/infiniteScroll/InfiniteScroll";
-import PostCard from "@/components/posts/PostCard";
+import PostCard from "@/components/stories/PostCard";
 import { useNavigate } from "react-router-dom";
 import { Post } from "@/types/Post";
 import { useAtomValue } from "jotai";

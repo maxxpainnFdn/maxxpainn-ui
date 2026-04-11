@@ -6,10 +6,10 @@
  */
 
 import { Suspense, useState } from "react";
-import FeedsRightPanel from "@/components/posts/FeedsRightPanel";
-import MobileSidebarDrawer from "@/components/posts/MobileSidebarDrawer";
-import LeftSidebar from "@/components/posts/LeftSidebar";
-import SearchModal from "@/components/posts/SearchModal";
+import RightPanel from "@/components/stories/RightPanel";
+import MobileSidebarDrawer from "@/components/stories/MobileSidebarDrawer";
+import LeftSidebar from "@/components/stories/LeftSidebar";
+import SearchModal from "@/components/stories/SearchModal";
 import Navigation from "@/components/nav/Navigation";
 import { Outlet } from "react-router-dom";
 import Spinner from "@/components/spinner/Spinner";
@@ -18,7 +18,7 @@ import Spinner from "@/components/spinner/Spinner";
 /* ─────────────────────────────────────────────────────────────────
    PAGE
 ───────────────────────────────────────────────────────────────── */
-export default function PostsLayout() {
+export default function StoriesLayout() {
   
   const [activeTab, setActiveTab]   = useState("foryou");
   const [showSearch, setShowSearch] = useState(false);
@@ -41,15 +41,28 @@ export default function PostsLayout() {
       {/* Body */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 mt-10 pt-12 pb-16 flex gap-5 items-start">
         
-        <LeftSidebar  />
+        <div className="hidden lg:block relative flex-shrink-0 w-[210px]">
+          <div className="relative">
+            <div className="fixed top-[100px] w-[210px]">
+              <LeftSidebar />
+            </div>
+          </div>
+        </div>
+        
 
         <main className="flex-1 min-w-0">
           <Suspense fallback={<Spinner />}>
             <Outlet />
           </Suspense>
         </main>
-
-        <FeedsRightPanel />
+        
+        <div className="hidden lg:block flex-shrink-0 w-[268px]">
+          <div className="relative">
+            <div className="fixed top-[100px] w-[268px]">
+              <RightPanel />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Modals */}

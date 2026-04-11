@@ -1,7 +1,7 @@
 import Spinner from "@/components/spinner/Spinner";
 import EventBus from "@/core/EventBus";
 import usePageView from "@/hooks/usePageView";
-import PostsLayout from "@/layouts/PostsLayout";
+import StoriesLayout from "@/layouts/StoriesLayout.tsx";
 
 import {
   lazy,
@@ -51,12 +51,14 @@ const routesArr = [
 
   // ✅ Layout route
   {
-    path: "/posts",
-    layout: PostsLayout,
+    path: "/stories",
+    layout: StoriesLayout,
     children: [
-      { index: true, component: "posts/PostsHome" },
-      { path: "/posts/saved", component: "posts/Bookmarks" },
-      { path: "/posts/:postId", component: "posts/PostItem" },
+      { index: true, component: "stories/PostsHome" },
+      { path: "saved", component: "stories/Bookmarks" },
+      { path: "/my-clans", component: "stories/UserClans" },
+      ///{ path: "/clan/:clanSlug/posts", component: "stories/UserClans" },
+      { path: "posts/:postId", component: "stories/PostItem" },
     ]
   },
 

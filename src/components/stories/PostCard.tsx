@@ -71,7 +71,7 @@ export default function PostCard({
   //console.log("post===>", post)
   
   return (
-    <div className={`_sp-fu group my-1 ${isPostPage ? 'mb-10' : ''}`} onClick={handleOnClick}>
+    <div className={`_sp-fu group my-1 cursor-pointer ${isPostPage ? 'mb-10' : ''}`} onClick={handleOnClick}>
       {/* POST CARD */}
       <div
         className={cn(

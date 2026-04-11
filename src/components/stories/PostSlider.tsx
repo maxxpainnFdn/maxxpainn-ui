@@ -1,4 +1,4 @@
-import PostItem from "@/pages/posts/PostItem";
+import PostItem from "@/pages/stories/PostItem";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";

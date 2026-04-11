@@ -1,6 +1,6 @@
 import ApiQuery from "@/components/apiQuery/ApiQuery";
 import Button from "@/components/button/Button";
-import PostCard from "@/components/posts/PostCard";
+import PostCard from "@/components/stories/PostCard";
 import { useApi } from "@/hooks/useApi";
 import { Post } from "@/types/Post";
 import { ArrowLeft, ChevronLeft } from "lucide-react";

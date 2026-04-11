@@ -6,10 +6,10 @@
  */
 
 import { useState, useRef, useEffect } from "react";
-import ComposeTrigger from "@/components/posts/ComposeTrigger";
+import ComposeTrigger from "@/components/stories/ComposeTrigger";
 //import SubHeader from "@/components/feeds/SubHeader";
 import InfiniteScroll from "@/components/infiniteScroll/InfiniteScroll";
-import PostCard from "@/components/posts/PostCard";
+import PostCard from "@/components/stories/PostCard";
 import { useNavigate } from "react-router-dom";
 import { Post } from "@/types/Post";
 import { useAtomValue } from "jotai";
@@ -49,7 +49,7 @@ export default function StoriesPage() {
             renderer={PostCard}
             rendererArgs={{
               currentUser: userAccount,
-              onClick: (_, post: Post) => { navigate(`/posts/${post.id}`) }
+              onClick: (_, post: Post) => { navigate(`/stories/posts/${post.id}`) }
             }}
           />
         </div>
