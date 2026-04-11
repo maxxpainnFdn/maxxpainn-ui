@@ -1,5 +1,5 @@
 import { ClanData } from "@/types/ClanData";
-import { Users, Gem } from "lucide-react";
+import { Users, Gem, Scroll } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ImageAvatar from "@/components/ImageAvatar";
 import utils from "@/lib/utils";
@@ -16,6 +16,8 @@ export interface ClanCardProps {
   showJoinBtn?: boolean;
   showSelectBtn?: boolean;
   index?: number; // stagger delay
+  width?: string;
+  imageHeight?: string;
 }
 
 /* ── Component ───────────────────────────────────────────────── */
@@ -26,6 +28,8 @@ const ClanCard = memo(
     showJoinBtn = true,
     showSelectBtn = false,
     index = 0,
+    width = "240px",
+    imageHeight="200px"
   }: ClanCardProps) => {
     const navigate = useNavigate();
     const cardRef = useRef<HTMLDivElement>(null);
@@ -88,7 +92,7 @@ const ClanCard = memo(
       <a
         href={clanUrl}
         onClick={handleClick}
-        className="block group w-[240px] relative no-underline"
+        className={`block group w-[${width}] relative no-underline`}
         style={{
           animation: "_cc-enter 0.5s ease both",
           animationDelay: `${Math.min(index * 50, 600)}ms`,
@@ -130,7 +134,7 @@ const ClanCard = memo(
           />
 
           {/* ── Image ── */}
-          <div className="relative h-[200px] overflow-hidden">
+          <div className={`relative h-[${imageHeight}] overflow-hidden`}>
             <div className="w-full h-full transition-transform duration-[600ms] ease-out group-hover:scale-[1.06]">
               <ImageAvatar
                 src={utils.getServerImage(clan.image, "clans", "normal")}
@@ -166,7 +170,7 @@ const ClanCard = memo(
             </p>
 
             {/* stats */}
-            <div className="_cc-stats flex items-center justify-evenly h-10 mb-4 bg-white/[0.025] border border-white/[0.06] rounded-lg">
+            <div className="_cc-stats flex items-center justify-evenly h-10 mb-0 bg-white/[0.025] border border-white/[0.06] rounded-lg">
               <div className="flex items-center gap-1.5">
                 <Users className="w-4 h-4 text-violet-400" />
                 <span className="text-sm font-bold text-white/75">
@@ -178,6 +182,13 @@ const ClanCard = memo(
                 <Gem className="w-4 h-4 text-pink-400" />
                 <span className="font-mono text-sm font-bold text-white/75">
                   {clan.totalMints.toLocaleString()}
+                </span>
+              </div>
+              <div className="w-px h-5 bg-white/[0.07]" />
+              <div className="flex items-center gap-1.5">
+                <Scroll className="w-4 h-4 text-violet-400" />
+                <span className="font-mono text-sm font-bold text-white/75">
+                  {clan.postCount.toLocaleString()}
                 </span>
               </div>
             </div>
@@ -192,7 +203,7 @@ const ClanCard = memo(
                   setIsMember(newClan.isMember);
                 }}
                 size="sm"
-                className="join-leave-btn w-full h-[40px] rounded-lg text-white font-semibold border-0 hover:shadow-xl transition-shadow"
+                className="join-leave-btn w-full h-[40px] rounded-lg text-white font-semibold border-0 hover:shadow-xl transition-shadow mt-3"
                 style={joinBtnStyle}
               >
                 Join Clan
@@ -200,7 +211,7 @@ const ClanCard = memo(
             )}
 
             {showSelectBtn && (
-              <Button variant="primary" fullWidth className="text-xs">
+              <Button variant="primary" fullWidth className="text-xs mt-3">
                 Select Clan
               </Button>
             )}

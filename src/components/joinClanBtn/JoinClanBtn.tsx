@@ -65,9 +65,9 @@ export default function JoinClanBtn({ clanId, clanName, isMember, onSuccess, ...
 
     return (
         <Button
-            {...props}
-            onClick={handleJoinClan}
-            loading={loading}
+          {...props}
+          onClick={handleJoinClan}
+          loading={loading}
         >
             {isMember ? "Leave Clan" : "Join Clan"}
         </Button>

@@ -11,9 +11,9 @@ import Button from "../button/Button";
 
 
 const navItems = [
-  { id: "Posts", uri: '/posts', label: "Posts", Icon: Flame      },
+  { id: "Posts", uri: '/stories/posts', label: "Posts", Icon: Flame      },
   //{ id: "trends", uri: '/posts/trends', label: "Trends", Icon: TrendingUp },
-  { id: "saved", uri: '/posts/saved', label: "Saved", Icon: Bookmark },
+  { id: "saved", uri: '/stories/saved', label: "Saved", Icon: Bookmark },
   { id: "profile", uri: '/account', label: "Profile", Icon: User   },
 ];
 
@@ -79,7 +79,7 @@ export default function LeftSidebar() {
               >
                 <>
                   {userClans.map(c => (
-                    <a key={c.id} href={`/clans/${c.id}`}
+                    <Link key={c.id} to={`/stories/clan/${c.slug}-${c.id}`}
                       className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl no-underline transition-all font-semibold text-[0.9rem] text-maxx-sub hover:text-maxx-mid hover:bg-white/[0.03]">
                         <ImageAvatar
                           src={utils.getServerImage(c.image, "clans", "tiny")}
@@ -89,7 +89,7 @@ export default function LeftSidebar() {
                         />
                       <span className="flex-1 truncate">{c.name}</span>
                       <span className="font-mono text-maxx-dim text-[0.72rem]">{utils.toShortNumber(c.postCount || 0)}</span>
-                    </a>
+                    </Link>
                   ))}
                 </>
               </ApiQuery>

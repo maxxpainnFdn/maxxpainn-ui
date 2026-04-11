@@ -56,7 +56,7 @@ const routesArr = [
     children: [
       { index: true, component: "stories/PostsHome" },
       { path: "saved", component: "stories/Bookmarks" },
-      { path: "/my-clans", component: "stories/UserClans" },
+      { path: "my-clans", component: "stories/UserClans" },
       ///{ path: "/clan/:clanSlug/posts", component: "stories/UserClans" },
       { path: "posts/:postId", component: "stories/PostItem" },
     ]
