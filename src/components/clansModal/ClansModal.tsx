@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { Castle } from "lucide-react";
 import ClansSearch from "../clans/ClansSearch";
 import ClansModalTriggerBtn from "./ClansModalTriggerBtn";
-import ApiQuery from "../apiQuery/ApiQuery";
+import ApiQuery from "../apiQuery/ApiQuery.tsx";
 import { ClanData } from "@/types/ClanData";
 import ClansSorter from "../clans/ClansSorter";
 import ClanCard from "../clans/ClanCard";

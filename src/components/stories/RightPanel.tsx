@@ -1,17 +1,16 @@
 import { BarChart2, ChevronRight, Shield, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
-import ApiQuery from "../apiQuery/ApiQuery";
 import { useState } from "react";
 import ImageAvatar from "../ImageAvatar";
 import { ClanData } from "@/types/ClanData";
 import utils from "@/lib/utils";
 import Button from "../button/Button";
 import { tokenConfig } from "@/config/token";
+import ApiQueryV2 from "../apiQuery/ApiQueryV2.tsx";
 
 
 export default function RightPanel() {
   
-  const [topClans, setTopClans] = useState<ClanData[]>([])
   const [topClansError, setTopClansError] = useState("")
   const [topClansKey, setTopClansKey] = useState(1)
   
@@ -35,36 +34,42 @@ export default function RightPanel() {
               </Button>
             </div>
           }
-          <ApiQuery
+          <ApiQueryV2
             uri="/clans"
             query={{  }}
-            onSuccess={(dataArr) => setTopClans(dataArr.slice(0, 10))}
             onError={err => setTopClansError(err)}
             showError={false}
             loaderProps={{ clasName: "flex justify-center", spinerSize: 16 }}
             key={topClansKey}
           >
-            <div className="flex flex-col gap-1 max-h-[380px] overflow-y-scroll">
-              {topClans.map((c,k) => (
-                <a key={k} href={`/clans/${c.id}`}
-                  className="flex items-center justify-between py-2 px-2 no-underline rounded-lg transition-colors hover:bg-maxx-violet/[0.06] group/clan">
-                  <div className="flex items-center gap-2.5">
-                    <ImageAvatar
-                      src={utils.getServerImage(c.image, "clans", "tiny")}
-                      fallbackText={c.name}
-                      className="w-[22px] h-[22px] object-cover text-sm font-bold rounded-full  shadow-xl"
-                      fallbackTextClass="bg-maxx-bg/50 text-maxx-white rounded-lg"
-                    />
-                    <div>
-                      <div className="font-semibold text-maxx-bright group-hover/clan:text-maxx-white transition-colors text-[0.85rem]">{c.name}</div>
-                      <div className="text-maxx-sub text-[0.72rem]">{c.totalMembers} members</div>
-                    </div>
-                  </div>
-                  <ChevronRight size={13} className="text-maxx-dim group-hover/clan:text-maxx-violet transition-colors" />
-                </a>
-              ))}
-            </div>
-          </ApiQuery>
+            {(data: ClanData[]) => {
+              
+              const clansData = data.slice(0, 5);
+              
+              return (
+                <div className="flex flex-col gap-1 max-h-[380px] overflow-y-scroll">
+                  {clansData.map((c, k) => (
+                    <a key={k} href={`/clans/${c.id}`}
+                      className="flex items-center justify-between py-2 px-2 no-underline rounded-lg transition-colors hover:bg-maxx-violet/[0.06] group/clan">
+                      <div className="flex items-center gap-2.5">
+                        <ImageAvatar
+                          src={utils.getServerImage(c.image, "clans", "tiny")}
+                          fallbackText={c.name}
+                          className="w-[22px] h-[22px] object-cover text-sm font-bold rounded-full  shadow-xl"
+                          fallbackTextClass="bg-maxx-bg/50 text-maxx-white rounded-lg"
+                        />
+                        <div>
+                          <div className="font-semibold text-maxx-bright group-hover/clan:text-maxx-white transition-colors text-[0.85rem]">{c.name}</div>
+                          <div className="text-maxx-sub text-[0.72rem]">{c.totalMembers} members</div>
+                        </div>
+                      </div>
+                      <ChevronRight size={13} className="text-maxx-dim group-hover/clan:text-maxx-violet transition-colors" />
+                    </a>
+                  ))}
+                </div>
+              )
+            }}
+          </ApiQueryV2>
         </div>
       </div>
 

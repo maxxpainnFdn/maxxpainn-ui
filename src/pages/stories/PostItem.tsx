@@ -1,4 +1,3 @@
-import ApiQuery from "@/components/apiQuery/ApiQuery";
 import Button from "@/components/button/Button";
 import PostCard from "@/components/stories/PostCard";
 import { useApi } from "@/hooks/useApi";
@@ -9,6 +8,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
 import { useAtomValue } from "jotai";
 import { userAccountInfoAtom } from "@/store";
+import ApiQueryV2 from "@/components/apiQuery/ApiQueryV2";
 
 
 export default function PostItem() {
@@ -18,23 +18,10 @@ export default function PostItem() {
 
   const { postId } = useParams();
   const navigate = useNavigate();
-  const api = useApi();
   
-  const [loading, setLoading] = useState<boolean>(false)
   const [pageError, setPageError] = useState<string>("")
   const [initialized, setInitialized] = useState<boolean>(false)
-  const [post, setPost] = useState<Post|null>(null)
   
-  useEffect(() => {
-   /* console.log("auth.isAuthenticated===>", auth.isAuthenticated)
-    if (auth.isAuthenticated) {
-      auth.getUserAccountInfo().then(result => {
-        console.log("result===>", result)
-      })
-      }*/
-    
-    //console.log("userAccountInfo===>", userAccountInfo)
-  }, [])
   
   useEffect(() => {
     
@@ -60,11 +47,13 @@ export default function PostItem() {
     }
   })
   
+  console.log("postId===>", postId)
+  
   return (
     <div>
       <Button
         variant="ghost"
-        onClick={() => navigate('/posts')}
+        onClick={() => navigate('/stories')}
         className="mb-6 hover:bg-accent transition-colors items-center"
       >
         <ChevronLeft className="mr-1 h-5 w-5" />
@@ -80,24 +69,30 @@ export default function PostItem() {
               </div>
             </div>
             : <>
-              <ApiQuery
+              <ApiQueryV2
                 uri={`/posts/${postId}`}
-                onSuccess={(data) => setPost(data)}
               >
-                { post == null ?
-                  <div className="flex justify-center">
-                    <div className="bg-white/5 p-5 w-[80%] text-center rounded-xl">
-                      Post not found
-                    </div>
-                  </div>
-                  :
-                  <PostCard
-                    data={post}
-                    onClick={(e) => e.preventDefault()}
-                    currentUser={userAccountInfo}
-                  />
-                }
-              </ApiQuery>
+                {(post: Post) => {
+                  console.log("post===>", post)
+                  return (
+                    <>
+                      {post == null ?
+                        <div className="flex justify-center">
+                          <div className="bg-white/5 p-5 w-[80%] text-center rounded-xl">
+                            Post not found
+                          </div>
+                        </div>
+                        :
+                        <PostCard
+                          data={post}
+                          onClick={(e) => e.preventDefault()}
+                          currentUser={userAccountInfo}
+                        />
+                      }
+                    </>
+                  )
+                }}
+              </ApiQueryV2>
             </>
           }
         </div>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import ApiQuery from "../apiQuery/ApiQuery";
+import ApiQuery from "../apiQuery/ApiQuery.tsx";
 import { Card, CardContent } from "../ui/card";
 import ActivityCard from "../activityCard/ActivityCard";
 

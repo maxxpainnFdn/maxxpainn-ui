@@ -2,7 +2,7 @@ import { ChevronLeft, ChevronRight, Star, Users, Zap } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import BlazeSlider, { BlazeConfig } from 'blaze-slider'
 import 'blaze-slider/dist/blaze.css'
-import ApiQuery from "../apiQuery/ApiQuery";
+import ApiQuery from "../apiQuery/ApiQuery.tsx";
 
 export default function FeaturedClansSlider() {
 

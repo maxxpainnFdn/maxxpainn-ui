@@ -1,5 +1,5 @@
 import { Castle, Diamond, DollarSign, Users } from "lucide-react";
-import ApiQuery from "../apiQuery/ApiQuery";
+import ApiQuery from "../apiQuery/ApiQuery.tsx";
 import { useEffect, useState } from "react";
 import { StatsCard } from "../StatsCard";
 

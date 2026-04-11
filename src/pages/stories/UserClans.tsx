@@ -19,6 +19,7 @@ import ApiQuery from "@/components/apiQuery/ApiQuery";
 import EnsureConnected from "@/components/ensureConnected/EnsureConnected";
 import { ClanData } from "@/types/ClanData";
 import ClanCard from "@/components/clans/ClanCard";
+import ApiQueryV2 from "@/components/apiQuery/ApiQueryV2";
 
 
 /* ─────────────────────────────────────────────────────────────────
@@ -40,27 +41,28 @@ export default function UserClans() {
         </div>
         <EnsureConnected>
           { userAccountInfo && (
-            <ApiQuery
+            <ApiQueryV2
               uri="/account/clan-memberships"
               query={{ memberAccountId: userAccountInfo.id }}
-              onSuccess={(dataArr) => setUserClans(dataArr.slice(0, 5))}
               loaderProps={{ clasName: "flex justify-center", spinerSize: 16 }}
             >
-              <div className="flex flex-wrap justify-center gap-3">
-                {userClans.map((clan: any, i: number) => (
-                  <div key={clan.id} className="flex-shrink-0 basis-[100px]">
-                    <ClanCard
-                      clan={clan}
-                      index={i}
-                      width="200px"
-                      imageHeight="120px"
-                      showJoinBtn={false}
-                      onItemClick={e=> navigate(`/stories/clan/${clan.slug}-${clan.id}`)}
-                    />
-                  </div>
-                ))}
-              </div>
-            </ApiQuery>
+              {(userClans: ClanData[]) => (
+                <div className="flex flex-wrap justify-center gap-3">
+                  {userClans.map((clan: any, i: number) => (
+                    <div key={clan.id} className="flex-shrink-0 basis-[100px]">
+                      <ClanCard
+                        clan={clan}
+                        index={i}
+                        width="200px"
+                        imageHeight="120px"
+                        showJoinBtn={false}
+                        onItemClick={e=> navigate(`/stories/clan/${clan.slug}-${clan.id}`)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </ApiQueryV2>
           )}
         </EnsureConnected>
       </main>

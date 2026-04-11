@@ -1,12 +1,21 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import {
+  useInfiniteQuery,
+  useQueryClient,
+  InfiniteData,
+} from '@tanstack/react-query';
 import Spinner from '../spinner/Spinner';
 import { PagingInfo } from '@/types/PagingInfo';
 import { useApi } from '@/hooks/useApi';
-import { Post } from '@/types/Post';
 import Button from '../button/Button';
-import { AlertCircle } from 'lucide-react';
 
 export type InfiniteScrollRef = {
   addData: (data: any) => void;
@@ -19,199 +28,216 @@ export interface InfiniteScrollProps {
   rendererArgs?: Record<string, any> | null;
   className?: string;
   estimatedItemHeight?: number;
-  onInitialized?: (dataArr: any, setDataArr: any) => void;
+  /** How long (ms) fetched data is considered fresh. Default: 2 min */
+  staleTime?: number;
+  /** How long (ms) unused cache is kept in memory. Default: 5 min */
+  gcTime?: number;
+}
+
+interface PageResult {
+  pagingInfo: PagingInfo;
+  data: any[];
 }
 
 const PULL_THRESHOLD = 80;
-const MAX_RETRIES = 3;
 
-const InfiniteScroll = forwardRef<InfiniteScrollRef, InfiniteScrollProps>(({
-  uri,
-  query = {},
-  renderer,
-  rendererArgs = {},
-  className = '',
-  estimatedItemHeight = 100,
-}, ref) => {
-    
-  const api = useApi();
+const InfiniteScroll = forwardRef<InfiniteScrollRef, InfiniteScrollProps>(
+  (
+    {
+      uri,
+      query = {},
+      renderer,
+      rendererArgs = {},
+      className = '',
+      estimatedItemHeight = 100,
+      staleTime = 2 * 60 * 1000,
+      gcTime = 5 * 60 * 1000,
+    },
+    ref
+  ) => {
+    const api = useApi();
+    const queryClient = useQueryClient();
 
-  const [dataArr, setDataArr] = useState<any[]>([]);
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+    // Stable cache key — changes whenever uri or query change
+    const queryKey = [uri, query] as const;
 
-  const [pullDistance, setPullDistance] = useState(0);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+    // ── TanStack infinite query ──────────────────────────────────────────────
+    const {
+      data,
+      fetchNextPage,
+      hasNextPage,
+      isFetchingNextPage,
+      isFetching,
+      isError,
+      error: queryError,
+      refetch,
+    } = useInfiniteQuery<PageResult, Error>({
+      queryKey,
+      queryFn: async ({ pageParam = 1 }) => {
+        const resultStatus = await api.get(uri, {
+          ...query,
+          pageNo: pageParam as number,
+        });
+        if (resultStatus.isError()) {
+          throw new Error(resultStatus.getMessage());
+        }
+        return resultStatus.getData<PageResult>();
+      },
+      initialPageParam: 1,
+      getNextPageParam: (lastPage) => lastPage.pagingInfo.nextPage ?? undefined,
+      staleTime,
+      gcTime,
+      retry: 3,
+    });
 
-  const pagingInfoRef = useRef<PagingInfo | null>(null);
-  const isMounted = useRef(true);
-  const retriesRef = useRef(0);
-  const touchStartY = useRef(0);
-  const isPulling = useRef(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+    // Flatten pages into a single array
+    const dataArr: any[] = data?.pages.flatMap((page) => page.data) ?? [];
+    const hasMore = !!hasNextPage;
+    const loading = isFetching;
+    const error = isError ? (queryError?.message ?? 'Something went wrong') : '';
 
-  const { ref: sentinelRef, inView } = useInView({
-    threshold: 0,
-    triggerOnce: false,
-  });
+    // ── Pull-to-refresh state ────────────────────────────────────────────────
+    const [pullDistance, setPullDistance] = useState(0);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // The virtualizer needs a scrollable parent — we use window scroll
-  const virtualizer = useVirtualizer({
-    count: hasMore ? dataArr.length + 1 : dataArr.length, // +1 for sentinel row
-    getScrollElement: () => document.documentElement,     // window scroll
-    estimateSize: () => estimatedItemHeight,
-    overscan: 5,                                          // render 5 extra items above/below
-  });
+    const touchStartY = useRef(0);
+    const isPulling = useRef(false);
+    const containerRef = useRef<HTMLDivElement>(null);
 
-  const virtualItems = virtualizer.getVirtualItems();
-  
-  
-  // Disable Chrome native pull-to-refresh
-  useEffect(() => {
-    document.body.style.overscrollBehaviorY = 'none';
-    return () => { document.body.style.overscrollBehaviorY = ''; };
-  }, []);
+    const { ref: sentinelRef, inView } = useInView({
+      threshold: 0,
+      triggerOnce: false,
+    });
 
-  // Non-passive touchmove to allow preventDefault
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
+    // ── Virtualizer ──────────────────────────────────────────────────────────
+    const virtualizer = useVirtualizer({
+      count: hasMore ? dataArr.length + 1 : dataArr.length,
+      getScrollElement: () => document.documentElement,
+      estimateSize: () => estimatedItemHeight,
+      overscan: 5,
+    });
 
-    const handleTouchMove = (e: TouchEvent) => {
-      if (!isPulling.current || isRefreshing) return;
-      const delta = e.touches[0].clientY - touchStartY.current;
-      if (delta < 0) {
-        setPullDistance(0);
-        return;
-      }
-      e.preventDefault();
-      setPullDistance(Math.min(delta * 0.4, PULL_THRESHOLD * 1.5));
+    const virtualItems = virtualizer.getVirtualItems();
+
+    // ── Disable Chrome native pull-to-refresh ────────────────────────────────
+    useEffect(() => {
+      document.body.style.overscrollBehaviorY = 'none';
+      return () => {
+        document.body.style.overscrollBehaviorY = '';
+      };
+    }, []);
+
+    // ── Non-passive touchmove ────────────────────────────────────────────────
+    useEffect(() => {
+      const el = containerRef.current;
+      if (!el) return;
+
+      const handleTouchMove = (e: TouchEvent) => {
+        if (!isPulling.current || isRefreshing) return;
+        const delta = e.touches[0].clientY - touchStartY.current;
+        if (delta < 0) {
+          setPullDistance(0);
+          return;
+        }
+        e.preventDefault();
+        setPullDistance(Math.min(delta * 0.4, PULL_THRESHOLD * 1.5));
+      };
+
+      el.addEventListener('touchmove', handleTouchMove, { passive: false });
+      return () => el.removeEventListener('touchmove', handleTouchMove);
+    }, [isRefreshing]);
+
+    // ── Infinite scroll trigger ──────────────────────────────────────────────
+    useEffect(() => {
+      if (!inView || !hasMore || isFetchingNextPage) return;
+      fetchNextPage();
+    }, [inView, hasMore, isFetchingNextPage, fetchNextPage]);
+
+    // ── Handlers ─────────────────────────────────────────────────────────────
+    const handleRefresh = async () => {
+      setIsRefreshing(true);
+      virtualizer.scrollToIndex(0);
+      await refetch();
+      setIsRefreshing(false);
     };
 
-    el.addEventListener('touchmove', handleTouchMove, { passive: false });
-    return () => el.removeEventListener('touchmove', handleTouchMove);
-  }, [isRefreshing]);
+    const handleLoadMore = () => {
+      fetchNextPage();
+    };
 
-  // Initial load / re-fetch on prop change
-  useEffect(() => {
-    isMounted.current = true;
-    retriesRef.current = 0;
-    fetchData(1, true);
-    return () => { isMounted.current = false; };
-  }, [uri, JSON.stringify(query)]);
+    const onTouchStart = (e: React.TouchEvent) => {
+      if (window.scrollY > 0) return;
+      touchStartY.current = e.touches[0].clientY;
+      isPulling.current = true;
+    };
 
-  // Infinite scroll trigger
-  useEffect(() => {
-    if (!inView || !hasMore || loading) return;
-    if (retriesRef.current >= MAX_RETRIES) return;
-    const nextPage = pagingInfoRef.current?.nextPage;
-    if (nextPage != null) fetchData(nextPage, false);
-  }, [inView, hasMore, loading]);
+    const onTouchEnd = () => {
+      isPulling.current = false;
+      if (pullDistance >= PULL_THRESHOLD) handleRefresh();
+      setPullDistance(0);
+    };
 
-  const fetchData = async (pageNo: number, isRefresh: boolean) => {
-    if (loading) return;
-    setLoading(true);
-    setError('');
+    // ── Imperative handle: optimistic prepend ─────────────────────────────────
+    const addData = (newItem: any) => {
+      queryClient.setQueryData<InfiniteData<PageResult>>(queryKey, (old) => {
+        if (!old) return old;
+        const [firstPage, ...rest] = old.pages;
+        return {
+          ...old,
+          pages: [
+            { ...firstPage, data: [newItem, ...firstPage.data] },
+            ...rest,
+          ],
+        };
+      });
+      virtualizer.scrollToIndex(0, { align: 'start', behavior: 'smooth' });
+    };
 
-    const resultStatus = await api.get(uri, { ...query, pageNo });
-    
-    console.log("resultStatus===>", resultStatus)
+    useImperativeHandle(ref, () => ({ addData }));
 
-    if (!isMounted.current) return;
+    // ── Render ────────────────────────────────────────────────────────────────
+    const pullTriggered = pullDistance >= PULL_THRESHOLD;
+    const Renderer = renderer;
 
-    if (resultStatus.isError()) {
-      retriesRef.current += 1;
-      setError(resultStatus.getMessage());
-      setLoading(false);
-      return;
-    }
-
-    retriesRef.current = 0;
-    
-    const dataObj = resultStatus.getData<{ pagingInfo: PagingInfo; data: any[] }>();
-    
-    
-    pagingInfoRef.current = dataObj.pagingInfo;
-    setHasMore(dataObj.pagingInfo.nextPage != null);
-    setDataArr(prev => (isRefresh ? dataObj.data : [...prev, ...dataObj.data]));
-    setLoading(false);
-  };
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    retriesRef.current = 0;
-    pagingInfoRef.current = null;
-    setHasMore(true);
-    virtualizer.scrollToIndex(0);
-    await fetchData(1, true);
-    setIsRefreshing(false);
-  };
-
-  const handleLoadMore = () => {
-    retriesRef.current = 0;
-    setError('');
-    const nextPage = pagingInfoRef.current?.nextPage ?? 1;
-    fetchData(nextPage, false);
-  };
-
-  const onTouchStart = (e: React.TouchEvent) => {
-    if (window.scrollY > 0) return;
-    touchStartY.current = e.touches[0].clientY;
-    isPulling.current = true;
-  };
-
-  const onTouchEnd = () => {
-    isPulling.current = false;
-    if (pullDistance >= PULL_THRESHOLD) handleRefresh();
-    setPullDistance(0);
-  };
-  
-  const addData = (data: any) => {
-    setDataArr(prev => ([data, ...prev]));
-    virtualizer.scrollToIndex(0, { align: 'start', behavior: 'smooth' });
-  }
-
-  const pullTriggered = pullDistance >= PULL_THRESHOLD;
-  const Renderer = renderer;
-  
-  useImperativeHandle(ref, () => ({
-    addData
-  }));
-
-  return (
-    <div
-      ref={containerRef}
-      className={className}
-      onTouchStart={onTouchStart}
-      onTouchEnd={onTouchEnd}
-    >
-      {/* Pull-to-refresh indicator */}
+    return (
       <div
-        style={{
-          height: isRefreshing ? PULL_THRESHOLD : pullDistance,
-          transition: isPulling.current ? 'none' : 'height 0.3s ease',
-          overflow: 'hidden',
-        }}
-        className="flex items-center justify-center"
+        ref={containerRef}
+        className={className}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
       >
-        {isRefreshing ? (
-          <Spinner size={20} />
-        ) : (
-          <span
-            className="text-sm text-gray-400 transition-opacity"
-            style={{ opacity: pullDistance > 10 ? 1 : 0 }}
-          >
-            {pullTriggered ? '↑ Release to refresh' : '↓ Pull to refresh'}
-          </span>
-        )}
-      </div>
-      
-      {(!loading && error == "" && !hasMore && dataArr.length === 0) ? (
-        <div className="flex justify-center">
-          <div className="bg-white/5 p-5 w-[80%] text-center rounded-xl">No data found</div>
+        {/* Pull-to-refresh indicator */}
+        <div
+          style={{
+            height: isRefreshing ? PULL_THRESHOLD : pullDistance,
+            transition: isPulling.current ? 'none' : 'height 0.3s ease',
+            overflow: 'hidden',
+          }}
+          className="flex items-center justify-center"
+        >
+          {isRefreshing ? (
+            <Spinner size={20} />
+          ) : (
+            <span
+              className="text-sm text-gray-400 transition-opacity"
+              style={{ opacity: pullDistance > 10 ? 1 : 0 }}
+            >
+              {pullTriggered ? '↑ Release to refresh' : '↓ Pull to refresh'}
+            </span>
+          )}
         </div>
-      ) : (
+
+        {loading && dataArr.length === 0 ? (
+          <div className="flex justify-center py-10">
+            <Spinner size={20} />
+          </div>
+        ) : !loading && !error && !hasMore && dataArr.length === 0 ? (
+          <div className="flex justify-center">
+            <div className="bg-white/5 p-5 w-[80%] text-center rounded-xl">
+              No data found
+            </div>
+          </div>
+        ) : (
           <div
             style={{
               height: virtualizer.getTotalSize(),
@@ -219,18 +245,14 @@ const InfiniteScroll = forwardRef<InfiniteScrollRef, InfiniteScrollProps>(({
               position: 'relative',
             }}
           >
-              
-            {virtualItems.map(virtualRow => {
-                
+            {virtualItems.map((virtualRow) => {
               const isLoaderRow = virtualRow.index >= dataArr.length;
-                
-              //console.log("isLoaderRow===>", isLoaderRow)
-                
+
               return (
                 <div
                   key={virtualRow.key}
                   data-index={virtualRow.index}
-                  ref={virtualizer.measureElement} // ← measures actual height for accuracy
+                  ref={virtualizer.measureElement}
                   style={{
                     position: 'absolute',
                     top: 0,
@@ -240,39 +262,43 @@ const InfiniteScroll = forwardRef<InfiniteScrollRef, InfiniteScrollProps>(({
                   }}
                 >
                   {isLoaderRow ? (
-                    // Sentinel / footer row
-                    <div ref={sentinelRef} className="py-6 flex flex-col items-center gap-2">
-                      {loading && !isRefreshing && <Spinner size={16} />}
-      
-                      {!loading && error && (
+                    <div
+                      ref={sentinelRef}
+                      className="py-6 flex flex-col items-center gap-2"
+                    >
+                      {isFetchingNextPage && <Spinner size={16} />}
+
+                      {!isFetchingNextPage && error && (
                         <div className="flex justify-center w-full">
                           <div className="bg-white/5 p-5 w-[80%] text-center text-pink-300 pt-8 mb-5 rounded-xl">
-                            <div className="">{error}</div>
-                            <Button
-                              variant="ghost"
-                              onClick={handleLoadMore}
-                            >
+                            <div>{error}</div>
+                            <Button variant="ghost" onClick={handleLoadMore}>
                               Retry
                             </Button>
                           </div>
                         </div>
                       )}
-      
-                      {!loading && !error && !hasMore && dataArr.length > 0 && (
-                        <span className="text-sm text-gray-400">No more data</span>
+
+                      {!isFetchingNextPage && !error && !hasMore && dataArr.length > 0 && (
+                        <span className="text-sm text-gray-400">
+                          No more data
+                        </span>
                       )}
-                      
                     </div>
                   ) : (
-                    <Renderer data={dataArr[virtualRow.index]} {...rendererArgs} />
+                    <Renderer
+                      data={dataArr[virtualRow.index]}
+                      {...rendererArgs}
+                    />
                   )}
                 </div>
               );
             })}
           </div>
-      )}
-    </div>
-  );
-});
+        )}
+      </div>
+    );
+  }
+);
 
 export default InfiniteScroll;

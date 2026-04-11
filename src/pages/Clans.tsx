@@ -10,6 +10,8 @@ import ClansSorter from "@/components/clans/ClansSorter";
 import ClansSearch from "@/components/clans/ClansSearch";
 import { Helmet } from "react-helmet-async";
 import ClanCategorySelect from "@/components/clans/ClanCategorySelect";
+import ApiQueryV2 from "@/components/apiQuery/ApiQueryV2";
+import { ClanData } from "@/types/ClanData";
 
 /* ── Inject once ── */
 let _pgInjected = false;
@@ -44,7 +46,7 @@ function injectPageStyles() {
 }
 
 const Clans = () => {
-  const [clans, setClans] = useState([]);
+  
   const [searchKeyword, setSearchKeyword] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [queryKey, setQueryKey] = useState(0);
@@ -55,7 +57,6 @@ const Clans = () => {
     setQueryKey(Date.now());
   }, [sortBy, searchKeyword]);
 
-  const onQuerySuccess = (data: any) => setClans(data);
 
   const title =
     "MaxxPainn Clans - Create your community & earn upto $1 per mint";
@@ -175,39 +176,42 @@ const Clans = () => {
             </div>
 
             {/* ═══ Grid ═══ */}
-            <ApiQuery
+            <ApiQueryV2
               uri="/clans"
-              onSuccess={onQuerySuccess}
               query={{ sortBy, search: searchKeyword }}
               key={queryKey}
             >
-              {clans.length === 0 ? (
-                /* ── Empty state ── */
-                <div className="text-center py-24">
-                  <div className="relative inline-block mb-8">
-                    <Castle
-                      className="w-20 h-20 text-purple-400/50 mx-auto"
-                      style={{ animation: "_cl-float 3s ease-in-out infinite" }}
-                    />
-                    <div className="absolute inset-0 bg-purple-500/15 blur-3xl rounded-full" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-white/80 mb-3">
-                    No clans found
-                  </h3>
-                  <p className="text-gray-500 text-lg max-w-sm mx-auto">
-                    Try adjusting your search or create a new clan
-                  </p>
-                </div>
-              ) : (
-                <div className="flex flex-wrap justify-center gap-3">
-                  {clans.map((clan: any, i: number) => (
-                    <div key={clan.id} className="flex-shrink-0 basis-[240px]">
-                      <ClanCard clan={clan} index={i} />
+              {(clans: ClanData[]) => (
+                <>
+                  {clans.length === 0 ? (
+                    /* ── Empty state ── */
+                    <div className="text-center py-24">
+                      <div className="relative inline-block mb-8">
+                        <Castle
+                          className="w-20 h-20 text-purple-400/50 mx-auto"
+                          style={{ animation: "_cl-float 3s ease-in-out infinite" }}
+                        />
+                        <div className="absolute inset-0 bg-purple-500/15 blur-3xl rounded-full" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-white/80 mb-3">
+                        No clans found
+                      </h3>
+                      <p className="text-gray-500 text-lg max-w-sm mx-auto">
+                        Try adjusting your search or create a new clan
+                      </p>
                     </div>
-                  ))}
-                </div>
+                  ) : (
+                    <div className="flex flex-wrap justify-center gap-3">
+                      {clans.map((clan: any, i: number) => (
+                        <div key={clan.id} className="flex-shrink-0 basis-[240px]">
+                          <ClanCard clan={clan} index={i} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
-            </ApiQuery>
+            </ApiQueryV2>
           </div>
         </main>
 
