@@ -2,7 +2,7 @@ import { Crown } from "lucide-react"
 import ImageAvatar from "../../ImageAvatar"
 import { Card, CardContent } from "../../ui/card"
 import utils from "@/lib/utils"
-import ApiQuery from "../../apiQuery/ApiQuery.tsx-old"
+import ApiQuery from "../../apiQuery/ApiQuery.tsx"
 import { useState } from "react"
 import {ClanData} from "@/types/ClanData"
 
