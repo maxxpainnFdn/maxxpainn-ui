@@ -13,30 +13,27 @@ const STORIES = [
 ];
 
 export default function Hero({ appStats }: { appStats: any }) {
-    
   const [storyIdx, setStoryIdx] = useState(0);
   const barRef = useRef<HTMLDivElement>(null);
   const valRef = useRef<HTMLSpanElement>(null);
   const levelRef = useRef(0);
   const lastRef = useRef(0);
   const rafRef = useRef<number>(0);
-  
+
   const statsMeta = {
     tokenSupply:    { v: "0", suffix: "+", l: "Tokens Allocated", text: "text-maxx-white" },
     totalAccounts:  { suffix: "+", l: "Degens United", text: "text-maxx-violetLt" },
     mintsAvailable: { v: "∞", suffix: "", l: "Free Mints Available", text: "text-maxx-white" },
     totalRevenge:   { v: "24/7", suffix: "", l: "Revenge Mode", text: "text-maxx-pinkLt" }
-  }
+  };
 
   useEffect(() => {
     const tick = (timestamp: number) => {
       if (!lastRef.current) lastRef.current = timestamp;
       const delta = timestamp - lastRef.current;
       levelRef.current = (levelRef.current + delta * 0.012) % 100;
-
       if (barRef.current) barRef.current.style.width = `${levelRef.current}%`;
       if (valRef.current) valRef.current.textContent = `${Math.round(levelRef.current)}%`;
-
       lastRef.current = timestamp;
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -59,24 +56,25 @@ export default function Hero({ appStats }: { appStats: any }) {
       <div className="absolute -top-[100px] -right-[100px] w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(255,45,120,0.08)_0%,transparent_65%)] pointer-events-none" />
       <div className="absolute top-[80px] -left-[80px] w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(139,92,246,0.07)_0%,transparent_70%)] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-6 pt-16 relative z-10">
-        
-        {/* Eyebrow & Meter */}
-        <div className="flex justify-between items-start flex-wrap gap-5 mb-10 animate-fade-up">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 sm:pt-16 relative z-10">
+
+        {/* Eyebrow & Meter — stack on mobile, row on md+ */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-8 sm:mb-10 animate-fade-up">
           <div>
             <div className="eyebrow">
-              <span className="eyebrow-dot" /> SOLANA-NATIVE 
+              <span className="eyebrow-dot" /> SOLANA-NATIVE
             </div>
             <div className="flex items-center gap-2 mt-0.5">
               <div className="w-[7px] h-[7px] bg-maxx-pink rounded-full animate-pulse-slow" />
               <span className="font-mono text-[0.72rem] text-maxx-sub tracking-widest uppercase">
-                ALLOCATION LIVE 
+                ALLOCATION LIVE
               </span>
             </div>
           </div>
 
-          <div className="min-w-[240px]">
-            <div className="flex justify-between font-mono text-[0.72rem] tracking-widest uppercase text-maxx-sub mb-2">
+          {/* Meter — full width on mobile, constrained on desktop */}
+          <div className="w-full sm:min-w-[240px] sm:max-w-[280px]">
+            <div className="flex justify-between font-mono text-[0.68rem] sm:text-[0.72rem] tracking-widest uppercase text-maxx-sub mb-2">
               <span className="flex items-center gap-1.5"><Skull size={11} className="text-maxx-sub" /> PAIN</span>
               <span ref={valRef} className="text-maxx-pinkLt font-bold">0%</span>
               <span className="flex items-center gap-1.5">GAIN <Zap size={11} className="text-yellow-400" /></span>
@@ -88,7 +86,7 @@ export default function Hero({ appStats }: { appStats: any }) {
         </div>
 
         {/* Headline */}
-        <div className="mb-7 animate-fade-up [animation-delay:120ms]">
+        <div className="mb-6 sm:mb-7 animate-fade-up [animation-delay:120ms]">
           <h1 className="font-sans font-black leading-[0.94] tracking-tight text-maxx-white uppercase text-[clamp(1.5rem,8vw,9rem)] sm:text-[clamp(2rem,11vw,9rem)]">
             FORGE YOUR<br />
             <span className="text-transparent" style={{ WebkitTextStroke: 'clamp(1px, 0.15vw, 1.5px) #ff2d78' }}>PAIN</span>
@@ -98,46 +96,58 @@ export default function Hero({ appStats }: { appStats: any }) {
         </div>
 
         {/* Ticker */}
-        <div className="mb-12 animate-fade-up [animation-delay:240ms] rounded">
-          <div className="rounded inline-flex items-center gap-2.5 bg-maxx-violet/5 border border-maxx-violet/15 px-4 py-2.5 max-w-[92vw]">
-            <TrendingDown size={14} className="text-maxx-violet shrink-0" />
-            <span className="font-mono text-[clamp(0.68rem,1.4vw,0.76rem)] text-maxx-mid tracking-widest uppercase truncate">
+        <div className="mb-8 sm:mb-12 animate-fade-up [animation-delay:240ms]">
+          <div className="inline-flex items-center gap-2 sm:gap-2.5 bg-maxx-violet/5 border border-maxx-violet/15 px-3 sm:px-4 py-2 sm:py-2.5 rounded max-w-full overflow-hidden">
+            <TrendingDown size={13} className="text-maxx-violet shrink-0" />
+            <span className="font-mono text-[clamp(0.62rem,1.8vw,0.76rem)] text-maxx-mid tracking-widest uppercase truncate">
               {STORIES[storyIdx]}
             </span>
           </div>
         </div>
 
         {/* CTA Area */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 animate-fade-up [animation-delay:360ms]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-12 sm:mb-16 animate-fade-up [animation-delay:360ms]">
           <div>
-            <p className="font-sans font-medium text-[clamp(1rem,2vw,1.15rem)] leading-relaxed text-maxx-bright mb-6">
+            <p className="font-sans font-medium text-[clamp(0.9rem,2vw,1.15rem)] leading-relaxed text-maxx-bright mb-5 sm:mb-6">
               Every degen carries the weight of rugs, liquidations, and betrayals.
               MAXXPAINN converts that collective trauma into liquid tokens.
               <strong className="text-maxx-white font-bold"> Share your experience to secure your allocation.</strong>
             </p>
-            <div className="flex flex-wrap gap-2.5">
+            <div className="flex flex-wrap gap-2">
               {["100% FREE MINT", "LIQUID TOKENS · NO NFTS", "ON SOLANA", "NO VCs"].map((tag) => (
                 <span key={tag} className="pill rounded">{tag}</span>
               ))}
             </div>
           </div>
 
-          <div className="flex flex-col gap-3">
-            <Link to="/mint">
-              <Button variant="primary" skewed fullWidth className="py-4 px-5">
-                <Flame size={18} />Tell Your Story & Earn <ArrowRight size={18} />
+          <div className="flex flex-col gap-2.5 sm:gap-3">
+            <Link to="/mint" className="w-full">
+              <Button variant="primary" skewed fullWidth className="py-3.5 sm:py-4 px-5 text-sm sm:text-base">
+                <Flame size={16} className="shrink-0" />
+                <span>Tell Your Story & Earn</span>
+                <ArrowRight size={16} className="shrink-0" />
               </Button>
             </Link>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              <Link to="/whitepaper">
-                <Button variant="secondary">
-                  <FileText size={14} className="hidden sm:block" /> Whitepaper
+
+            <div className="grid grid-cols-3 gap-2">
+              <Link to="/whitepaper" className="w-full">
+                <Button variant="secondary" fullWidth size="sm" className="sm:text-xs">
+                  <FileText size={13} className="shrink-0" /> Whitepaper
                 </Button>
               </Link>
-              <Link to="/roadmap" className="btn-s rounded-lg"><Map size={14} className="hidden sm:block" /> Roadmap</Link>
-              <Link to="/manifesto" className="btn-s rounded-lg"><Book size={14} className="hidden sm:block" /> Manifesto</Link>
+              <Link to="/roadmap" className="w-full">
+                <Button variant="secondary" fullWidth size="sm" className="sm:text-xs">
+                  <Map size={13} className="shrink-0" /> Roadmap
+                </Button>
+              </Link>
+              <Link to="/manifesto" className="w-full">
+                <Button variant="secondary" fullWidth size="sm" className="sm:text-xs">
+                  <Book size={13} className="shrink-0" /> Manifesto
+                </Button>
+              </Link>
             </div>
-            <p className="font-mono text-[0.72rem] text-maxx-sub tracking-widest text-center uppercase mt-1">
+
+            <p className="font-mono text-[0.65rem] sm:text-[0.72rem] text-maxx-sub tracking-widest text-center uppercase mt-0.5">
               No bluff · 100% OpenSource · Pure degen energy
             </p>
           </div>
@@ -147,22 +157,32 @@ export default function Hero({ appStats }: { appStats: any }) {
       {/* Stats Strip */}
       <div className="border-y border-maxx-violet/15">
         <div className="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-4">
-          {Object.keys(statsMeta).map((key, i)=> {
-            const m = statsMeta[key]
-            let v = (!appStats) ? "" : appStats[key] ?? m.v ?? ""
-            
-            //console.log(v,`===>`, typeof v === "number")
-            
-            if(v && ["tokenSupply", "totalAccounts"].includes(key)) {
-              v = utils.toShortNumber(v)
+          {Object.keys(statsMeta).map((key, i) => {
+            const m = statsMeta[key];
+            let v = (!appStats) ? "" : appStats[key] ?? m.v ?? "";
+            if (v && ["tokenSupply", "totalAccounts"].includes(key)) {
+              v = utils.toShortNumber(v);
             }
-            
             return (
-              <div key={i} className={`p-6 text-center border-maxx-violet/15 ${i % 2 === 0 ? 'bg-maxx-violet/5' : 'bg-transparent'} sm:border-r ${i === 1 || i === 3 ? 'border-r-0' : ''} ${i < 2 ? 'border-b sm:border-b-0' : ''}`}>
-                <div className={`font-sans font-black text-[clamp(2rem,4vw,3rem)] leading-none ${m.text}`}>{v}{m.suffix}</div>
-                <div className="font-mono text-[0.72rem] tracking-widest uppercase text-maxx-mid mt-1.5">{m.l}</div>
+              <div
+                key={i}
+                className={[
+                  'p-4 sm:p-6 text-center border-maxx-violet/15',
+                  i % 2 === 0 ? 'bg-maxx-violet/5' : 'bg-transparent',
+                  'sm:border-r',
+                  i === 1 || i === 3 ? 'sm:border-r-0' : '',
+                  i < 2 ? 'border-b sm:border-b-0' : '',
+                  i % 2 === 0 ? 'border-r' : '',
+                ].join(' ')}
+              >
+                <div className={`font-sans font-black text-[clamp(1.5rem,5vw,3rem)] leading-none ${m.text}`}>
+                  {v}{m.suffix}
+                </div>
+                <div className="font-mono text-[0.62rem] sm:text-[0.72rem] tracking-widest uppercase text-maxx-mid mt-1 sm:mt-1.5 leading-tight">
+                  {m.l}
+                </div>
               </div>
-            )
+            );
           })}
         </div>
       </div>
