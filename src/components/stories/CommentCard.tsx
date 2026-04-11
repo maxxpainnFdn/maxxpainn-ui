@@ -2,6 +2,7 @@ import utils, { cn } from "@/lib/utils";
 import { CommentData } from "@/types/CommentData";
 import ImageAvatar from "../ImageAvatar";
 import LikeBtn from "@/components/stories/LikeBtn";
+import SocialPostBody from "./SocialPostBody";
 
 export interface CommentRowProps {
   data: CommentData
@@ -39,7 +40,7 @@ export default function CommentCard({ data: comment }: CommentRowProps) {
           <span className="text-maxx-dim text-[0.75rem]">{utils.getRelativeDate(comment.createdAt)}</span>
         </div>
         <p className="text-maxx-mid  mb-2.5 text-[0.9rem]">
-          {comment.content}
+          <SocialPostBody text={comment.content} />
         </p>
         <div className="flex items-center gap-0 -ml-2 -mt-2">
           <LikeBtn

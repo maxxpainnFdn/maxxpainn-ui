@@ -270,7 +270,7 @@ export default function Mint() {
       const rankNo = evts.rankNo.toNumber();
 
       if (painStory != "") {
-        await api.post("/post/new", {
+        await api.post("/posts/new", {
           clanId: selectedClanId,
           content: painStory,
           txSig,
@@ -484,13 +484,13 @@ export default function Mint() {
                                     resize-none transition-colors duration-200
                                   "
                                   rows={4}
-                                  maxLength={500}
+                                  maxLength={2000}
                                   placeholder="Share your crypto pain story... How did you get here? What drove you to this moment?"
                                   disabled={loading}
                                   {...register("painStory", {
-                                    maxLength: { value: 500, message: "Story cannot exceed 500 characters" },
+                                    maxLength: { value: 2000, message: "Story cannot exceed 2000 characters" },
                                   })}
-                                  hint={`Share your journey and inspire others (${painStory.trim().length}/500)`}
+                                  hint={`Share your journey and inspire others (${painStory.trim().length}/2000)`}
                                   error={errors.painStory?.message}
                                 />
                               </div>

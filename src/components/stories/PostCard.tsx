@@ -10,6 +10,7 @@ import CommentBox from "./CommentBox";
 import { AccountData } from "@/types/AccountData";
 import { Link, useNavigate } from "react-router-dom";
 import CommentList from "./CommentList";
+import SocialPostBody from "./SocialPostBody";
 
 
 
@@ -125,7 +126,7 @@ export default function PostCard({
 
         {/* Content */}
         <p className={cn("text-maxx-mid my-5 text-[0.9375rem]", bodyClassName)}>
-          {post.content}
+          <SocialPostBody text={post.content} />
         </p>
 
         {/* Divider */}

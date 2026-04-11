@@ -26,10 +26,10 @@ export default function BottomNav() {
       {/* bar — C.bg0 equivalent */}
       <div className="w-full bg-[#0d080c]/[.97] backdrop-blur-xl">
         <div className="w-full px-3 py-3">
-          <div className="flex items-center gap-2 w-full">
+          <div className="flex items-center justify-stretch gap-2 w-full">
 
             {/* ── BUY ─────────────────────────────────────── */}
-            <Link to="/posts" className="flex-1">
+            <Link to="/posts" className="flex-0">
               <Button
                 variant="secondary"
                 className="w-full h-12 justify-center"
@@ -41,10 +41,11 @@ export default function BottomNav() {
             </Link>
 
             {/* ── MINT ────────────────────────────────────── */}
-            <Link to="/mint" className="flex-[2]">
+            <Link to="/mint" className="flex-1">
               <Button
                 variant="primary"
                 skewed
+                fullWidth
                 className="w-full h-12 justify-center text-[0.9rem]"
               >
                 <span className='hidden sm:inline'><Zap size={15} fill="currentColor" /></span>
@@ -53,7 +54,7 @@ export default function BottomNav() {
             </Link>
 
             {/* ── CONNECT / Account ───────────────────────── */}
-            <div className="flex-1">
+            <div className="flex-0">
               <Account btnProps={{ fullWidth: true, skewed: true }} />
             </div>
 

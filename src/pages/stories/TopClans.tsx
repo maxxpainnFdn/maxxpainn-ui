@@ -25,44 +25,40 @@ import ApiQueryV2 from "@/components/apiQuery/ApiQueryV2";
 /* ─────────────────────────────────────────────────────────────────
    PAGE
 ───────────────────────────────────────────────────────────────── */
-export default function UserClans() {
+export default function TopClans() {
   
   const navigate = useNavigate()
-  const userAccountInfo = useAtomValue(userAccountInfoAtom)
 
   return (
     <div>
       <main className="flex-1 min-w-0 mb-10 pb-10">
         <ComposeTrigger />
         <div className="flex  align-middle">        
-          <div className="font-bold text-md text-maxx-violetLt/60 my-5">My Clans</div>
+          <div className="font-bold text-md text-maxx-violetLt/60 my-5">Top Clans</div>
         </div>
-        <EnsureConnected>
-          { userAccountInfo && (
-            <ApiQueryV2
-              uri="/account/clan-memberships"
-              query={{ memberAccountId: userAccountInfo.id }}
-              loaderProps={{ clasName: "flex justify-center", spinerSize: 16 }}
-            >
-              {(userClans: ClanData[]) => (
-                <div className="flex flex-wrap justify-center gap-3">
-                  {userClans.map((clan: any, i: number) => (
-                    <div key={clan.id} className="flex-shrink-0 basis-[100px]">
-                      <ClanCard
-                        clan={clan}
-                        index={i}
-                        width="200px"
-                        imageHeight="120px"
-                        showJoinBtn={false}
-                        onItemClick={e=> navigate(`/stories/clan/${clan.slug}-${clan.id}`)}
-                      />
-                    </div>
-                  ))}
+     
+        <ApiQueryV2
+          uri="/clans"
+          loaderProps={{ clasName: "flex justify-center", spinerSize: 16 }}
+        >
+          {(userClans: ClanData[]) => (
+            <div className="flex flex-wrap justify-center gap-3">
+              {userClans.map((clan: any, i: number) => (
+                <div key={clan.id} className="flex-shrink-0 basis-[100px]">
+                  <ClanCard
+                    clan={clan}
+                    index={i}
+                    width="200px"
+                    imageHeight="120px"
+                    showJoinBtn={false}
+                    onItemClick={e=> navigate(`/stories/clan/${clan.slug}-${clan.id}`)}
+                  />
                 </div>
-              )}
-            </ApiQueryV2>
+              ))}
+            </div>
           )}
-        </EnsureConnected>
+        </ApiQueryV2>
+
       </main>
     </div>
   );

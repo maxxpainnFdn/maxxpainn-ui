@@ -16,7 +16,7 @@ const App = () => {
   const [pageKey, setPageKey] = useState(0)
   
   useEffect(()=>{
-    setPageKey(prev=> (prev+1))
+    //setPageKey(prev=> (prev+1))
   }, [isAuthenticated])
   
   return (

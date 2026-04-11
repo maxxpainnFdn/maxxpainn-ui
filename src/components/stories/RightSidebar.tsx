@@ -1,4 +1,4 @@
-import { BarChart2, ChevronRight, Shield, Zap } from "lucide-react";
+import { ArrowRight, BarChart2, ChevronRight, Shield, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import ImageAvatar from "../ImageAvatar.tsx";
@@ -47,26 +47,31 @@ export default function RightSidebar() {
               const clansData = data.slice(0, 5);
               
               return (
-                <div className="flex flex-col gap-1 max-h-[380px] overflow-y-scroll">
-                  {clansData.map((c, k) => (
-                    <a key={k} href={`/clans/${c.id}`}
-                      className="flex items-center justify-between py-2 px-2 no-underline rounded-lg transition-colors hover:bg-maxx-violet/[0.06] group/clan">
-                      <div className="flex items-center gap-2.5">
-                        <ImageAvatar
-                          src={utils.getServerImage(c.image, "clans", "tiny")}
-                          fallbackText={c.name}
-                          className="w-[22px] h-[22px] object-cover text-sm font-bold rounded-full  shadow-xl"
-                          fallbackTextClass="bg-maxx-bg/50 text-maxx-white rounded-lg"
-                        />
-                        <div>
-                          <div className="font-semibold text-maxx-bright group-hover/clan:text-maxx-white transition-colors text-[0.85rem]">{c.name}</div>
-                          <div className="text-maxx-sub text-[0.72rem]">{c.totalMembers} members</div>
+                <>
+                  <div className="flex flex-col gap-1 max-h-[380px] overflow-y-scroll">
+                    {clansData.map((c, k) => (
+                      <a key={k} href={`/clans/${c.id}`}
+                        className="flex items-center justify-between py-2 px-2 no-underline rounded-lg transition-colors hover:bg-maxx-violet/[0.06] group/clan">
+                        <div className="flex items-center gap-2.5">
+                          <ImageAvatar
+                            src={utils.getServerImage(c.image, "clans", "tiny")}
+                            fallbackText={c.name}
+                            className="w-[22px] h-[22px] object-cover text-sm font-bold rounded-full  shadow-xl"
+                            fallbackTextClass="bg-maxx-bg/50 text-maxx-white rounded-lg"
+                          />
+                          <div>
+                            <div className="font-semibold text-maxx-bright group-hover/clan:text-maxx-white transition-colors text-[0.85rem]">{c.name}</div>
+                            <div className="text-maxx-sub text-[0.72rem]">{c.totalMembers} members</div>
+                          </div>
                         </div>
-                      </div>
-                      <ChevronRight size={13} className="text-maxx-dim group-hover/clan:text-maxx-violet transition-colors" />
-                    </a>
-                  ))}
-                </div>
+                        <ChevronRight size={13} className="text-maxx-dim group-hover/clan:text-maxx-violet transition-colors" />
+                      </a>
+                    ))}
+                  </div>
+                  <Link to="/stories/top-clans" className="flex items-center gap-2 px-3 py-2 rounded-xl no-underline text-maxx-violet hover:text-maxx-violet-lt transition-colors font-semibold text-[0.85rem]">
+                    <ArrowRight size={12} /> All top clans
+                  </Link>
+                </>
               )
             }}
           </ApiQueryV2>

@@ -4,22 +4,28 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-// L1: module-level Map — sync, avoids re-running createAvatar for same seed
 const CACHE_MAX = 100;
 const dicebearCache = new Map<string, string>();
 
 function getCachedAvatar(avatarType: any, seed: string): string {
   const key = seed ?? '';
+
   if (dicebearCache.has(key)) return dicebearCache.get(key)!;
+
   if (dicebearCache.size >= CACHE_MAX) {
-    dicebearCache.delete(dicebearCache.keys().next().value);
+    const firstKey = dicebearCache.keys().next().value;
+    dicebearCache.delete(firstKey);
   }
-  const uri = createAvatar(avatarType, { seed: key, radius: 0 }).toDataUri();
+
+  const uri = createAvatar(avatarType, {
+    seed: key,
+    radius: 0,
+  }).toDataUri();
+
   dicebearCache.set(key, uri);
   return uri;
 }
 
-// L2: TanStack Query — survives unmounts, dedupes concurrent renders
 function useDicebearAvatar(avatarType: any, seed: string) {
   return useQuery({
     queryKey: ['dicebear', seed],
@@ -45,8 +51,7 @@ export default function ImageAvatar({
   src = '',
   alt = '',
   seed = '',
-  radius = 30,
-  avatarType = null,
+  avatarType,
   fallbackText = '',
   className = '',
   fallbackTextClass = '',
@@ -66,7 +71,10 @@ export default function ImageAvatar({
     }
   }, [src]);
 
-  const { data: dicebearSrc, isSuccess } = useDicebearAvatar(resolvedType, seed);
+  const { data: dicebearSrc, isSuccess } = useDicebearAvatar(
+    resolvedType,
+    seed
+  );
 
   const showSrc = src && !srcError;
 
@@ -88,7 +96,7 @@ export default function ImageAvatar({
       )}
 
       <AvatarFallback className={fallbackTextClass}>
-        {fallbackText !== '' ? (
+        {fallbackText ? (
           <span>{fallbackText[0]}</span>
         ) : (
           <img

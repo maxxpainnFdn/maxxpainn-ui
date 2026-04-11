@@ -57,6 +57,7 @@ const routesArr = [
       { index: true, component: "stories/PostsHome" },
       { path: "saved", component: "stories/Bookmarks" },
       { path: "my-clans", component: "stories/UserClans" },
+      { path: "top-clans", component: "stories/TopClans" },
       ///{ path: "/clan/:clanSlug/posts", component: "stories/UserClans" },
       { path: "posts/:postId", component: "stories/PostItem" },
     ]
