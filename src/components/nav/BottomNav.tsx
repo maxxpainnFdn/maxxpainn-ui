@@ -48,7 +48,7 @@ export default function BottomNav() {
                 className="w-full h-12 justify-center text-[0.9rem]"
               >
                 <span className='hidden sm:inline'><Zap size={15} fill="currentColor" /></span>
-                <span>Claim {" "}<span>${ tokenConfig.symbol }</span></span>
+                <span>Claim<span className="hidden sm:inline"> {" "}${ tokenConfig.symbol }</span></span>
               </Button>
             </Link>
 

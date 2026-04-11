@@ -129,7 +129,7 @@ export default function Hero({ appStats }: { appStats: any }) {
               </Button>
             </Link>
 
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               <Link to="/whitepaper" className="w-full">
                 <Button variant="secondary" fullWidth size="sm" className="sm:text-xs">
                   <FileText size={13} className="shrink-0" /> Whitepaper
