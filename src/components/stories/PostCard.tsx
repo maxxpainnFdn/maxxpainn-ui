@@ -185,23 +185,12 @@ export default function PostCard({
           />
         )}
         
-        {/*(commentsCount > 0 && 
-          <>
-            { !isPostPage ?
-              <CommentsSummary
-                postId={post.id}
-                commentsList={post.comments}
-              />
-            :
-              <>
-                <CommentList
-                  postId={post.id}
-                  totalComments={commentsCount}
-                />
-              </>  
-            }
-          </>
-        )*/}
+        {(commentsCount > 0 && isPostPage) && (
+          <CommentList
+            postId={post.id}
+            totalComments={commentsCount}
+          />
+        )}
         
         {isPostPage && commentsCount >= 3 && currentUser && (
           <>

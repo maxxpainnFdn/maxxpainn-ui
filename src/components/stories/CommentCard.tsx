@@ -1,7 +1,7 @@
 import utils, { cn } from "@/lib/utils";
 import { CommentData } from "@/types/CommentData";
 import ImageAvatar from "../ImageAvatar";
-import LikeBtn from "@/components/posts/LikeBtn";
+import LikeBtn from "@/components/stories/LikeBtn";
 
 export interface CommentRowProps {
   data: CommentData

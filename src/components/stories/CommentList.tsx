@@ -10,7 +10,7 @@ export default function CommentList({ postId, totalComments }) {
   const [sort, setSort] = useState("newest");
   
   const scrollRef = useRef<InfiniteScrollRef>(null);
-
+  
   
   useEffect(() => {
     
