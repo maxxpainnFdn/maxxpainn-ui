@@ -1,15 +1,15 @@
 import { BarChart2, ChevronRight, Shield, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import ImageAvatar from "../ImageAvatar";
+import ImageAvatar from "../ImageAvatar.tsx";
 import { ClanData } from "@/types/ClanData";
 import utils from "@/lib/utils";
-import Button from "../button/Button";
+import Button from "../button/Button.tsx";
 import { tokenConfig } from "@/config/token";
 import ApiQueryV2 from "../apiQuery/ApiQueryV2.tsx";
 
 
-export default function RightPanel() {
+export default function RightSidebar() {
   
   const [topClansError, setTopClansError] = useState("")
   const [topClansKey, setTopClansKey] = useState(1)

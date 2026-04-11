@@ -5,7 +5,6 @@ import ErrorView from "../errorView/ErrorView";
 import { useApi } from "@/hooks/useApi";
 import { Pagination, SimplePagination } from "../pagination/Pagination";
 import { keepPreviousData,  } from "@tanstack/react-query";
-import { useApiQueryFetch } from "@/hooks/useApiQueryFetch";
 import { useApiQuery } from "@/hooks/useApiQuery";
 
 export type PagingType = "simple" | "full";

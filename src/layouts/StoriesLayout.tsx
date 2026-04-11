@@ -6,7 +6,7 @@
  */
 
 import { Suspense, useState } from "react";
-import RightPanel from "@/components/stories/RightPanel";
+import RightSidebar from "@/components/stories/RightSidebar";
 import MobileSidebarDrawer from "@/components/stories/MobileSidebarDrawer";
 import LeftSidebar from "@/components/stories/LeftSidebar";
 import SearchModal from "@/components/stories/SearchModal";
@@ -59,7 +59,7 @@ export default function StoriesLayout() {
         <div className="hidden lg:block flex-shrink-0 w-[268px]">
           <div className="relative">
             <div className="fixed top-[100px] w-[268px]">
-              <RightPanel />
+              <RightSidebar />
             </div>
           </div>
         </div>

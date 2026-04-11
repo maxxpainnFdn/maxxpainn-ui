@@ -13,31 +13,31 @@ export function useApiQuery<T>(
   const clearedRef = useRef(false);
 
   const queryKey = ["api", uri, JSON.stringify(query), pageNo];
+  
+  const queryFn = async () => {
+    
+    const res = await api.get(uri, {
+      ...query,
+      pageNo,
+    });
+    
+    if (res.isError()) {
+      throw new Error(res.getMessage());
+    }
+    
+    const data = res.getData();
+        
+    if (data == null) {
+      clearCache()
+    }
+    
+    return data;
+  }
+    
 
   const queryResult = useQuery<T>({
     queryKey,
-
-    queryFn: async () => {
-      const res = await api.get(uri, {
-        ...query,
-        pageNo,
-      });
-
-      if (res.isError()) {
-        throw new Error(res.getMessage());
-      }
-
-      const data = res.getData();
-      
-      console.log("data===>", data)
-
-      if (data == null) {
-        clearCache()
-      }
-
-      return data;
-    },
-
+    queryFn,
     staleTime: cacheTTL,
     gcTime: 1000 * 60 * 30,
 

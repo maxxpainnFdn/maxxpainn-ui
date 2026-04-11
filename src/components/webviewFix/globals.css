@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /*
+   * Android WebView Fixes
+   * ─────────────────────────────────────────────────────────────────
+   * The .is-webview class is added to <html> by WebViewFixProvider
+   * (or useWebViewFix) when an Android WebView is detected.
+   *
+   * All fixes are scoped to .is-webview so they NEVER affect
+   * Chrome, Safari, or desktop browsers.
+   */
+
+  /* 1. Kill font boosting — WebView artificially enlarges text */
+  .is-webview * {
+    -webkit-text-size-adjust: 100% !important;
+    text-size-adjust: 100% !important;
+  }
+
+  /*
+   * 2. Disable the text autosizer algorithm.
+   *    WebView only activates it on elements with a constrained height.
+   *    Setting an extremely large max-height effectively disables it
+   *    without visually affecting your layout.
+   */
+  .is-webview p,
+  .is-webview span,
+  .is-webview div,
+  .is-webview li,
+  .is-webview td,
+  .is-webview th,
+  .is-webview a,
+  .is-webview label,
+  .is-webview button,
+  .is-webview h1,
+  .is-webview h2,
+  .is-webview h3,
+  .is-webview h4,
+  .is-webview h5,
+  .is-webview h6 {
+    max-height: 999999px;
+  }
+
+  /* 3. Prevent touch callout and tap highlight glitches common in WebView */
+  .is-webview a,
+  .is-webview button {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* 4. Prevent WebView from zooming on input focus (common layout breaker) */
+  .is-webview input,
+  .is-webview select,
+  .is-webview textarea {
+    font-size: 16px; /* 16px prevents auto-zoom on focus in WebView */
+  }
+}

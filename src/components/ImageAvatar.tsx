@@ -43,7 +43,7 @@ export default function ImageAvatar({
             <AvatarFallback className={fallbackTextClass}>
                 { fallbackText != "" ? 
                     <>{fallbackText.split("")[0]}</> : 
-                    <img src={getDicebearAvatar()} alt={alt} />
+                    <img src={getDicebearAvatar()} alt={alt} loading="lazy" />
                 }
             </AvatarFallback>
         </Avatar>
