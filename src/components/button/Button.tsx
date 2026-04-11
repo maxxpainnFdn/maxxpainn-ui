@@ -55,9 +55,9 @@ const Button: React.FC<ButtonProps> = ({
 }) => {
   // Map variants to your global index.css abstractions where applicable
   const variantStyles: Record<ButtonVariant, string> = {
-    primary: 'btn-p',
+    primary: 'btn-p text-sm md:text-md text-md',
     primary2: 'btn-p', // Redirect to main primary for new design consistency
-    secondary: 'btn-s text-white',
+    secondary: 'btn-s',
     outline: 'btn-s', // Outline is essentially the secondary design now
     ghost: 'bg-transparent text-maxx-mid hover:text-maxx-white hover:bg-maxx-violet/10 font-sans font-semibold tracking-wider uppercase border border-transparent transition-all',
     danger: 'btn-p !bg-red-600 !clip-none hover:!bg-red-700', // Override grad
@@ -69,13 +69,13 @@ const Button: React.FC<ButtonProps> = ({
   const isGlobalClass = variant === 'primary' || variant === 'primary2' || variant === 'secondary' || variant === 'outline';
   
   const sizes: Record<ButtonSize, string> = {
-    sm: isGlobalClass ? '' : 'px-4 py-2 text-[0.82rem]',
-    md: isGlobalClass ? '' : 'px-6 py-3 text-[0.88rem]',
-    lg: isGlobalClass ? '' : 'px-8 py-4 text-[0.95rem]',
-    xl: isGlobalClass ? '' : 'px-12 py-5 text-[1.1rem]'
+    sm: isGlobalClass ? '' : 'px-4 py-2 text-sm',
+    md: isGlobalClass ? '' : 'px-6 py-3 text-sm md:text-md text-md',
+    lg: isGlobalClass ? '' : 'px-8 py-4 text-sm md:text-md  lg:text-lg',
+    xl: isGlobalClass ? '' : 'px-12 py-5  text-sm md:text-md  lg:text-lg xl:text-xl'
   };
 
-  const baseStyles = 'inline-flex items-center rounded-lg justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:opacity-50';
+  const baseStyles = 'font-medium sm:font-semibold md:font-bold inline-flex items-center rounded-lg justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:opacity-50';
   const widthClass = fullWidth ? 'w-full' : '';
   
   const skewedStyle = skewed ? "btn-skewed" : ""

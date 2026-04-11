@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Skull, Zap, Flame, ArrowRight, FileText, Map, Book, TrendingDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import utils from '@/lib/utils';
+import Button from '@/components/button/Button';
 
 const STORIES = [
   "LOST 80 SOL IN LUNA COLLAPSE",
@@ -88,10 +89,10 @@ export default function Hero({ appStats }: { appStats: any }) {
 
         {/* Headline */}
         <div className="mb-7 animate-fade-up [animation-delay:120ms]">
-          <h1 className="font-sans font-black text-[clamp(2rem,11vw,9rem)] leading-[0.94] tracking-tight text-maxx-white uppercase">
+          <h1 className="font-sans font-black leading-[0.94] tracking-tight text-maxx-white uppercase text-[clamp(1.5rem,8vw,9rem)] sm:text-[clamp(2rem,11vw,9rem)]">
             FORGE YOUR<br />
-            <span className="text-transparent" style={{ WebkitTextStroke: '1.5px #ff2d78' }}>PAIN</span>
-            <span className="text-[0.5em] align-middle text-maxx-sub font-normal tracking-normal mx-2">INTO</span>
+            <span className="text-transparent" style={{ WebkitTextStroke: 'clamp(1px, 0.15vw, 1.5px) #ff2d78' }}>PAIN</span>
+            <span className="inline-block align-middle text-maxx-sub font-normal tracking-normal text-[clamp(0.65rem,2.5vw,4.5rem)] mx-[clamp(0.25rem,1vw,0.75rem)]">INTO</span>
             <span className="bg-grad-accent bg-clip-text text-transparent">POWER</span>
           </h1>
         </div>
@@ -122,11 +123,17 @@ export default function Hero({ appStats }: { appStats: any }) {
           </div>
 
           <div className="flex flex-col gap-3">
-            <Link to="/mint" className="btn-p btn-skewed text-[1.05rem] py-4">
-              <Flame size={18} />Tell Your Story & Earn <ArrowRight size={18} />
+            <Link to="/mint">
+              <Button variant="primary" skewed fullWidth className="py-4 px-5">
+                <Flame size={18} />Tell Your Story & Earn <ArrowRight size={18} />
+              </Button>
             </Link>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              <Link to="/whitepaper" className="btn-s rounded-lg"><FileText size={14} className="hidden sm:block" /> Whitepaper</Link>
+              <Link to="/whitepaper">
+                <Button variant="secondary">
+                  <FileText size={14} className="hidden sm:block" /> Whitepaper
+                </Button>
+              </Link>
               <Link to="/roadmap" className="btn-s rounded-lg"><Map size={14} className="hidden sm:block" /> Roadmap</Link>
               <Link to="/manifesto" className="btn-s rounded-lg"><Book size={14} className="hidden sm:block" /> Manifesto</Link>
             </div>
