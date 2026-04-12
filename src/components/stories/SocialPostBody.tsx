@@ -141,20 +141,6 @@ const shell =
 
 function sanitisePlayerUrl(url: string): string {
   try {
-    const u = new URL(url);
-    const host = u.hostname.replace(/^www\./, "");
-
-    if (host === "youtube.com") {
-      const shorts = u.pathname.match(/\/shorts\/([a-zA-Z0-9_-]+)/);
-      if (shorts) return `https://www.youtube.com/watch?v=${shorts[1]}`;
-      const v = u.searchParams.get("v");
-      if (v) return `https://www.youtube.com/watch?v=${v}`;
-    }
-
-    if (host === "youtu.be") {
-      const v = u.pathname.slice(1);
-      return `https://www.youtube.com/watch?v=${v}`;
-    }
 
     return convertUrlToEmbedUrl(url) ?? url;
   } catch {
@@ -164,10 +150,13 @@ function sanitisePlayerUrl(url: string): string {
 
 
 const MediaEmbed: FC<{ url: string }> = ({ url }) => {
+  
   const embedUrl = useMemo(() => sanitisePlayerUrl(url), [url]);
 
   const label = getPlayerLabel(url);
   const isAudio = /soundcloud|spotify|mixcloud/.test(url);
+  
+  console.log("embedUrl===>", embedUrl)
 
   return (
     <div className={shell}>
