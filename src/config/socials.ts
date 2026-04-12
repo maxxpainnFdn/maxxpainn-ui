@@ -5,6 +5,7 @@ export interface SocialConfig {
   medium:      string;
   reddit:      string;
   youtube:    string;
+  github:     string;
 }
 
 const socials: SocialConfig = {
@@ -13,7 +14,8 @@ const socials: SocialConfig = {
   youtube:   "https://www.youtube.com/@MaxxPainnFDN",
   medium:   "https://medium.com/@maxxpainn",
   reddit:   "https://www.reddit.com/r/MaxxPainn/",
-  email:    "hello@maxxpainn.com"
+  email:    "hello@maxxpainn.com",
+  github:   "https://github.com/MaxxPainFDN"
 }
 
 export default socials;
