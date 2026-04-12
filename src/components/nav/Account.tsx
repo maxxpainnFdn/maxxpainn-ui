@@ -34,7 +34,7 @@ export default function Account({ btnProps = {} }) {
           className="justify-center"
         >
           <Wallet
-            size={16}
+            size={14}
             className={isConnecting ? "text-purple-400/50 animate-pulse" : "text-purple-400"}
           />
           <span className="hidden sm:inline-block text-[0.82rem] tracking-[0.06em] uppercase">

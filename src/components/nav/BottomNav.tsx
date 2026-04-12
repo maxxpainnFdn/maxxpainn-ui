@@ -32,7 +32,7 @@ export default function BottomNav() {
             <Link to="/posts" className="flex-0">
               <Button
                 variant="secondary"
-                className="w-full h-12 justify-center"
+                className="w-full justify-center"
                 skewed
               >
                 <span className='hidden sm:inline'><Scroll size={14} /></span>
@@ -46,7 +46,7 @@ export default function BottomNav() {
                 variant="primary"
                 skewed
                 fullWidth
-                className="w-full h-12 justify-center text-[0.9rem]"
+                className="w-full h-12 justify-center"
               >
                 <span className='hidden sm:inline'><Zap size={15} fill="currentColor" /></span>
                 <span>Claim<span className="hidden sm:inline"> {" "}${ tokenConfig.symbol }</span></span>
