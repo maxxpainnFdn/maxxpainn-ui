@@ -31,7 +31,6 @@ export default function Account({ btnProps = {} }) {
           fullWidth
           onClick={() => openModal()}
           disabled={isConnecting}
-          className="justify-center"
         >
           <Wallet
             size={14}
@@ -50,7 +49,6 @@ export default function Account({ btnProps = {} }) {
           variant="secondary"
           fullWidth
           onClick={() => openModal()}
-          className="h-12 !px-2 sm:!px-4 justify-center"
         >
           {/* avatar badge */}
           <div className="w-[22px] h-[22px] flex-shrink-0 overflow-hidden shadow-lg">

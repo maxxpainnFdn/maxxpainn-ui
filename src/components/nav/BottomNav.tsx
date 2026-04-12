@@ -32,7 +32,7 @@ export default function BottomNav() {
             <Link to="/posts" className="flex-0">
               <Button
                 variant="secondary"
-                className="w-full justify-center"
+                className="w-full  h-12 justify-center"
                 skewed
               >
                 <span className='hidden sm:inline'><Scroll size={14} /></span>
@@ -55,7 +55,7 @@ export default function BottomNav() {
 
             {/* ── CONNECT / Account ───────────────────────── */}
             <div className="flex-0">
-              <Account btnProps={{ fullWidth: true, skewed: true }} />
+              <Account btnProps={{ fullWidth: true, skewed: true, className: "h-12 w-full" }} />
             </div>
 
           </div>
