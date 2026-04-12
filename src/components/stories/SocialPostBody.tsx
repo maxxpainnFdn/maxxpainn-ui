@@ -11,6 +11,7 @@ import {
   PinterestEmbed,
 } from "react-social-media-embed";
 import { Link } from "react-router-dom";
+import { getPlayerLabel } from "./PlayerLabels";
 
 // ─── markdown-it ──────────────────────────────────────────────────────────────
 
@@ -161,38 +162,23 @@ function sanitisePlayerUrl(url: string): string {
   }
 }
 
-// ─── Media Embed (YOUR ORIGINAL SYSTEM RESTORED) ─────────────────────────────
-
-const PLAYER_LABELS: Record<string, { name: string; color: string }> = {
-  "youtube.com": { name: "YouTube", color: "#FF0000" },
-  "youtu.be": { name: "YouTube", color: "#FF0000" },
-  "vimeo.com": { name: "Vimeo", color: "#1AB7EA" },
-  "twitch.tv": { name: "Twitch", color: "#9146FF" },
-  "soundcloud.com": { name: "SoundCloud", color: "#FF5500" },
-  "spotify.com": { name: "Spotify", color: "#1DB954" },
-  "dailymotion.com": { name: "Dailymotion", color: "#0066DC" },
-  "streamable.com": { name: "Streamable", color: "#3F3F3F" },
-  "wistia.com": { name: "Wistia", color: "#54BBFF" },
-  "mixcloud.com": { name: "Mixcloud", color: "#52AAD8" },
-  "facebook.com": { name: "Facebook", color: "#1877F2" },
-};
 
 const MediaEmbed: FC<{ url: string }> = ({ url }) => {
   const embedUrl = useMemo(() => sanitisePlayerUrl(url), [url]);
 
-  const host = new URL(url).hostname.replace(/^www\./, "");
-  const label = PLAYER_LABELS[host] ?? { name: "Media", color: "#8b5cf6" };
+  const label = getPlayerLabel(url);
   const isAudio = /soundcloud|spotify|mixcloud/.test(url);
 
   return (
     <div className={shell}>
       <EmbedLabel name={label.name} color={label.color} url={url} />
       <div className="bg-black w-full" style={{ height: isAudio ? 90 : 315 }}>
-        <ReactPlayer
+        <iframe
           src={embedUrl}
           width="100%"
-          height={isAudio ? 90 : 315}
-          controls
+          height="100%"
+          allow="autoplay; encrypted-media"
+          allowFullScreen
         />
       </div>
     </div>
