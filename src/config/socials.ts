@@ -15,7 +15,7 @@ const socials: SocialConfig = {
   medium:   "https://medium.com/@maxxpainn",
   reddit:   "https://www.reddit.com/r/MaxxPainn/",
   email:    "hello@maxxpainn.com",
-  github:   "https://github.com/MaxxPainFDN"
+  github:   "https://github.com/MaxxPainnFDN"
 }
 
 export default socials;

@@ -125,9 +125,9 @@ export default function PostCard({
         </div>
 
         {/* Content */}
-        <p className={cn("text-maxx-mid my-5 text-[0.9375rem]", bodyClassName)}>
-          <SocialPostBody text={post.content} />
-        </p>
+        <div className={cn("text-maxx-mid my-5 text-[0.9375rem]", bodyClassName)}>
+          <SocialPostBody text={post.content} canCollapse={!isPostPage} />
+        </div>
 
         {/* Divider */}
         <div className="mb-3 h-px bg-white/[0.06]" />

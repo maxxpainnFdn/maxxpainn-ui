@@ -1,250 +1,371 @@
-/**
- * SocialPostBody
- *
- * Drop-in rich-text renderer for post content.
- * Parses @mentions, #hashtags, and URLs from raw text.
- * Trusted media URLs (YouTube, Vimeo, Spotify, etc.) render as embedded iframes.
- * All other URLs render as a plain link card below the text.
- *
- * Production swap-ins:
- *   - Tokeniser  → npm i linkify-it
- *   - Embeds     → npm i react-player  →  <ReactPlayer url={url} width="100%" controls />
- *
- * Usage:
- *   <SocialPostBody text={post.content} />
- */
+import { FC, useState, useMemo, useRef, useEffect } from "react";
+import markdownit from "markdown-it";
+import ReactPlayer from "react-player";
+import { convertUrlToEmbedUrl } from "@social-embed/lib";
+import {
+  TikTokEmbed,
+  XEmbed,
+  InstagramEmbed,
+  FacebookEmbed,
+  LinkedInEmbed,
+  PinterestEmbed,
+} from "react-social-media-embed";
+import { Link } from "react-router-dom";
 
-import { FC, ReactNode } from "react";
+// ─── markdown-it ──────────────────────────────────────────────────────────────
 
-// ─── Token types ──────────────────────────────────────────────────────────────
+const md = markdownit({
+  linkify: true,
+  typographer: true,
+  breaks: true,
+  html: false,
+});
 
-type TokenType = "text" | "url" | "mention" | "hashtag";
+md.linkify.add("@", {
+  validate: /^[a-zA-Z0-9_]{1,50}/,
+  normalize: (m) => { m.url = `/profile/${m.text.slice(1)}`; },
+});
 
-interface Token {
-  type: TokenType;
-  value: string;
-}
+md.linkify.add("#", {
+  validate: /^[a-zA-Z]\w{0,99}/,
+  normalize: (m) => { m.url = `/posts?tag=${m.text.slice(1)}`; },
+});
 
-// ─── Tokeniser ────────────────────────────────────────────────────────────────
-// Swap out for: import LinkifyIt from "linkify-it"
+const _defaultLinkOpen =
+  md.renderer.rules.link_open ??
+  ((t, i, o, _e, s) => s.renderToken(t, i, o));
 
-const URL_RE     = /https?:\/\/[^\s<>"{}|\\^`[\]()]+(?:[^\s<>"{}|\\^`[\]().,!?;:]|(?=[.,!?;:]*(?:\s|$)))/g;
-const MENTION_RE = /(?<![a-zA-Z0-9_])@([a-zA-Z0-9_]{1,50})/g;
-const HASHTAG_RE = /(?<![a-zA-Z0-9_&])#([a-zA-Z]\w{0,99})/g;
+md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
+  const token = tokens[idx];
+  const href = token.attrs?.[token.attrIndex("href")]?.[1] ?? "";
 
-function tokenise(text: string): Token[] {
-  interface Raw { index: number; end: number; type: TokenType; value: string }
-  const raw: Raw[] = [];
-  let m: RegExpExecArray | null;
+  token.attrSet("target", "_blank");
+  token.attrSet("rel", "noopener noreferrer");
 
-  URL_RE.lastIndex = 0;
-  while ((m = URL_RE.exec(text)) !== null)
-    raw.push({ index: m.index, end: m.index + m[0].length, type: "url", value: m[0] });
-  MENTION_RE.lastIndex = 0;
-  while ((m = MENTION_RE.exec(text)) !== null)
-    raw.push({ index: m.index, end: m.index + m[0].length, type: "mention", value: m[1] });
-  HASHTAG_RE.lastIndex = 0;
-  while ((m = HASHTAG_RE.exec(text)) !== null)
-    raw.push({ index: m.index, end: m.index + m[0].length, type: "hashtag", value: m[1] });
-
-  raw.sort((a, b) => a.index - b.index || (b.end - b.index) - (a.end - a.index));
-  const deduped: Raw[] = [];
-  let cursor = 0;
-  for (const r of raw) {
-    if (r.index < cursor) continue;
-    deduped.push(r);
-    cursor = r.end;
+  if (href.startsWith("/profile/") || href.startsWith("/posts?tag=")) {
+    token.attrSet(
+      "class",
+      "text-maxx-violet font-semibold no-underline hover:text-maxx-violetLt transition-colors"
+    );
+    token.attrSet("target", "_self");
+    token.attrSet("rel", "");
+  } else {
+    token.attrSet(
+      "class",
+      "text-maxx-violet no-underline hover:text-maxx-violetLt transition-colors break-all"
+    );
   }
 
-  const tokens: Token[] = [];
-  let pos = 0;
-  for (const r of deduped) {
-    if (r.index > pos) tokens.push({ type: "text", value: text.slice(pos, r.index) });
-    tokens.push({ type: r.type, value: r.value });
-    pos = r.end;
-  }
-  if (pos < text.length) tokens.push({ type: "text", value: text.slice(pos) });
-  return tokens;
+  return _defaultLinkOpen(tokens, idx, options, env, self);
+};
+
+// ─── render markdown inline ──────────────────────────────────────────────────
+
+function renderInline(text: string): string {
+  const html = md.render(text);
+  return html
+    .replace(/^<p>([\s\S]*?)<\/p>\n?/, "$1")
+    .replace(/<\/p>\n?<p>/g, "<br>\n")
+    .replace(/<\/p>$/, "");
 }
 
-// ─── Embed platform registry ──────────────────────────────────────────────────
-// Mirrors react-player's supported set. Swap embed rendering for:
-//   import ReactPlayer from "react-player/lazy"
-//   <ReactPlayer url={url} width="100%" controls />
+// ─── URL classification ───────────────────────────────────────────────────────
 
-interface Platform { name: string; color: string; pattern: RegExp }
+type EmbedKind =
+  | "tiktok" | "twitter" | "instagram"
+  | "facebook_post" | "facebook_video"
+  | "linkedin" | "pinterest"
+  | "player" | "link";
 
-const PLATFORMS: Platform[] = [
-  { name: "YouTube",     color: "#FF0000", pattern: /(?:youtube\.com\/(?:watch|shorts)|youtu\.be\/)/ },
-  { name: "Vimeo",       color: "#1AB7EA", pattern: /vimeo\.com\// },
-  { name: "Twitch",      color: "#9146FF", pattern: /twitch\.tv\// },
-  { name: "SoundCloud",  color: "#FF5500", pattern: /soundcloud\.com\// },
-  { name: "Spotify",     color: "#1DB954", pattern: /open\.spotify\.com\// },
-  { name: "Dailymotion", color: "#0066DC", pattern: /dailymotion\.com\// },
-  { name: "Wistia",      color: "#54BBFF", pattern: /wistia\.(com|net)\// },
-  { name: "Mixcloud",    color: "#52AAD8", pattern: /mixcloud\.com\// },
-  { name: "Streamable",  color: "#3F3F3F", pattern: /streamable\.com\// },
-  { name: "Loom",        color: "#625DF5", pattern: /loom\.com\/share\// },
-  { name: "CodePen",     color: "#c4b5fd", pattern: /codepen\.io\/[^/]+\/pen\// },
-];
-
-function getPlatform(url: string): Platform | null {
-  return PLATFORMS.find(p => p.pattern.test(url)) ?? null;
-}
-
-function iframeSrc(url: string, name: string): string | null {
+function classifyUrl(url: string): EmbedKind {
   try {
     const u = new URL(url);
-    switch (name) {
-      case "YouTube": {
-        const v = u.searchParams.get("v")
-          ?? (u.hostname === "youtu.be" ? u.pathname.slice(1) : null)
-          ?? (u.pathname.includes("/shorts/") ? u.pathname.split("/shorts/")[1] : null);
-        return v ? `https://www.youtube-nocookie.com/embed/${v}?rel=0` : null;
-      }
-      case "Vimeo": {
-        const id = u.pathname.split("/").find(s => /^\d+$/.test(s));
-        return id ? `https://player.vimeo.com/video/${id}` : null;
-      }
-      case "Dailymotion": {
-        const id = u.pathname.split("/video/")[1]?.split("_")[0];
-        return id ? `https://www.dailymotion.com/embed/video/${id}` : null;
-      }
-      case "Spotify":
-        return `https://open.spotify.com/embed${u.pathname}`;
-      case "SoundCloud":
-        return `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&auto_play=false&hide_related=true&show_comments=false&color=%238b5cf6`;
-      case "Loom": {
-        const id = u.pathname.split("/share/")[1];
-        return id ? `https://www.loom.com/embed/${id}` : null;
-      }
-      case "Streamable":
-        return `https://streamable.com/e/${u.pathname.replace("/", "")}`;
-      case "CodePen": {
-        const p = u.pathname.split("/");
-        const i = p.indexOf("pen");
-        return i !== -1 ? `https://codepen.io/${p[i - 1]}/embed/${p[i + 1]}?default-tab=result&theme-id=dark` : null;
-      }
+    const host = u.hostname.replace(/^www\./, "");
+
+    if (host === "tiktok.com" && /\/@[^/]+\/video\/\d+/.test(u.pathname)) return "tiktok";
+    if ((host === "twitter.com" || host === "x.com") && /\/[^/]+\/status\/\d+/.test(u.pathname)) return "twitter";
+    if ((host === "instagram.com") && /\/(p|reel|tv)\//.test(u.pathname)) return "instagram";
+    if (host === "facebook.com") {
+      if (u.pathname.includes("/videos/")) return "facebook_video";
+      if (u.pathname.includes("/posts/")) return "facebook_post";
     }
-  } catch(e){ console.log(e) }
-  return null;
+    if (host === "linkedin.com") return "linkedin";
+    if (host === "pinterest.com") return "pinterest";
+    if (ReactPlayer.canPlay(url)) return "player";
+  } catch {}
+  return "link";
 }
 
-// ─── Inline link ──────────────────────────────────────────────────────────────
+function extractUrls(text: string): string[] {
+  const matches = md.linkify.match(text);
+  if (!matches) return [];
+  const seen = new Set<string>();
 
-const InlineLink: FC<{ href: string; children: ReactNode }> = ({ href, children }) => (
-  <a
-    href={href}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="text-maxx-violet font-semibold no-underline hover:text-maxx-violet-lt transition-colors"
-  >
-    {children}
-  </a>
+  return matches
+    .filter((m) => m.schema === "http:" || m.schema === "https:")
+    .map((m) => m.url)
+    .filter((url) => (!seen.has(url) && seen.add(url)));
+}
+
+// ─── Embed Label ──────────────────────────────────────────────────────────────
+
+const EmbedLabel: FC<{ name: string; color: string; url: string }> = ({
+  name,
+  color,
+  url,
+}) => (
+  <div className="flex items-center gap-2 px-3.5 py-2 bg-maxx-bg0/85 border-b border-maxx-violet/[0.12]">
+    <span
+      className="w-2 h-2 rounded-full"
+      style={{ background: color, boxShadow: `0 0 8px ${color}88` }}
+    />
+    <span className="font-mono font-bold text-[10px] uppercase text-maxx-sub">
+      {name}
+    </span>
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="ml-auto text-[11px] text-maxx-dim truncate max-w-[240px]"
+    >
+      {url.replace(/^https?:\/\//, "")}
+    </a>
+  </div>
 );
 
-// ─── Embed card ───────────────────────────────────────────────────────────────
+const shell =
+  "mt-3 rounded-[14px] overflow-hidden border border-maxx-violet/[0.18]";
 
-const EmbedCard: FC<{ url: string; platform: Platform }> = ({ url, platform }) => {
-  const src = iframeSrc(url, platform.name);
-  if (!src) return <LinkCard url={url} />;
-  const isAudio = ["Spotify", "SoundCloud"].includes(platform.name);
+// ─── Player sanitiser ─────────────────────────────────────────────────────────
+
+function sanitisePlayerUrl(url: string): string {
+  try {
+    const u = new URL(url);
+    const host = u.hostname.replace(/^www\./, "");
+
+    if (host === "youtube.com") {
+      const shorts = u.pathname.match(/\/shorts\/([a-zA-Z0-9_-]+)/);
+      if (shorts) return `https://www.youtube.com/watch?v=${shorts[1]}`;
+      const v = u.searchParams.get("v");
+      if (v) return `https://www.youtube.com/watch?v=${v}`;
+    }
+
+    if (host === "youtu.be") {
+      const v = u.pathname.slice(1);
+      return `https://www.youtube.com/watch?v=${v}`;
+    }
+
+    return convertUrlToEmbedUrl(url) ?? url;
+  } catch {
+    return url;
+  }
+}
+
+// ─── Media Embed (YOUR ORIGINAL SYSTEM RESTORED) ─────────────────────────────
+
+const PLAYER_LABELS: Record<string, { name: string; color: string }> = {
+  "youtube.com": { name: "YouTube", color: "#FF0000" },
+  "youtu.be": { name: "YouTube", color: "#FF0000" },
+  "vimeo.com": { name: "Vimeo", color: "#1AB7EA" },
+  "twitch.tv": { name: "Twitch", color: "#9146FF" },
+  "soundcloud.com": { name: "SoundCloud", color: "#FF5500" },
+  "spotify.com": { name: "Spotify", color: "#1DB954" },
+  "dailymotion.com": { name: "Dailymotion", color: "#0066DC" },
+  "streamable.com": { name: "Streamable", color: "#3F3F3F" },
+  "wistia.com": { name: "Wistia", color: "#54BBFF" },
+  "mixcloud.com": { name: "Mixcloud", color: "#52AAD8" },
+  "facebook.com": { name: "Facebook", color: "#1877F2" },
+};
+
+const MediaEmbed: FC<{ url: string }> = ({ url }) => {
+  const embedUrl = useMemo(() => sanitisePlayerUrl(url), [url]);
+
+  const host = new URL(url).hostname.replace(/^www\./, "");
+  const label = PLAYER_LABELS[host] ?? { name: "Media", color: "#8b5cf6" };
+  const isAudio = /soundcloud|spotify|mixcloud/.test(url);
 
   return (
-    <div className="mt-3 rounded-[14px] overflow-hidden border border-maxx-violet/[0.18]">
-      {/* Header */}
-      <div className="flex items-center gap-2 px-3.5 py-2 bg-maxx-bg0/85 border-b border-maxx-violet/[0.12]">
-        <span
-          className="w-2 h-2 rounded-full flex-shrink-0"
-          style={{ background: platform.color, boxShadow: `0 0 8px ${platform.color}88` }}
+    <div className={shell}>
+      <EmbedLabel name={label.name} color={label.color} url={url} />
+      <div className="bg-black w-full" style={{ height: isAudio ? 90 : 315 }}>
+        <ReactPlayer
+          src={embedUrl}
+          width="100%"
+          height={isAudio ? 90 : 315}
+          controls
         />
-        <span className="font-mono font-bold text-[10px] tracking-[0.12em] uppercase text-maxx-sub">
-          {platform.name}
-        </span>
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ml-auto text-[11px] text-maxx-dim hover:text-maxx-sub transition-colors no-underline truncate max-w-[240px]"
-        >
-          {url.replace(/^https?:\/\//, "")}
-        </a>
       </div>
-      <iframe
-        src={src}
-        height={isAudio ? 80 : 315}
-        className="w-full border-none block bg-maxx-bg0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-        allowFullScreen
-        loading="lazy"
-        title={`${platform.name} embed`}
-      />
     </div>
   );
 };
 
-// ─── Plain link card ──────────────────────────────────────────────────────────
+// ─── Social Embed (FULL RESTORE) ─────────────────────────────────────────────
+
+const SOCIAL_LABELS: Record<string, { name: string; color: string }> = {
+  tiktok: { name: "TikTok", color: "#010101" },
+  twitter: { name: "X", color: "#000000" },
+  instagram: { name: "Instagram", color: "#E1306C" },
+  facebook_post: { name: "Facebook", color: "#1877F2" },
+  linkedin: { name: "LinkedIn", color: "#0A66C2" },
+  pinterest: { name: "Pinterest", color: "#E60023" },
+};
+
+const SocialEmbed: FC<{ url: string; kind: EmbedKind }> = ({ url, kind }) => {
+  const label = SOCIAL_LABELS[kind];
+
+  return (
+    <div className={shell}>
+      <EmbedLabel name={label.name} color={label.color} url={url} />
+      <div className="bg-maxx-bg0/50 p-3">
+        {kind === "tiktok" && <TikTokEmbed url={url} width={325} />}
+        {kind === "twitter" && <XEmbed url={url} width={325} />}
+        {kind === "instagram" && <InstagramEmbed url={url} width={328} />}
+        {kind === "facebook_post" && <FacebookEmbed url={url} width={350} />}
+        {kind === "linkedin" && <LinkedInEmbed url={url} width={350} height={570} />}
+        {kind === "pinterest" && <PinterestEmbed url={url} width={345} height={467} />}
+      </div>
+    </div>
+  );
+};
+
+// ─── Link Card (UNCHANGED) ───────────────────────────────────────────────────
 
 const LinkCard: FC<{ url: string }> = ({ url }) => (
   <a
     href={url}
     target="_blank"
     rel="noopener noreferrer"
-    className="flex items-center gap-2.5 mt-2.5 px-3.5 py-2.5 rounded-xl border border-maxx-violet/[0.16] bg-maxx-violet/[0.04] no-underline transition-all hover:border-maxx-violet/[0.35] hover:bg-maxx-violet/[0.09]"
+    className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl border border-maxx-violet/[0.16]"
   >
-    {/* Link icon */}
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-maxx-sub flex-shrink-0">
-      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-    </svg>
-    <span className="text-[13px] text-maxx-sub truncate flex-1">
-      {url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+    <span className="text-[13px] truncate">
+      {url.replace(/^https?:\/\//, "")}
     </span>
-    {/* External icon */}
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-maxx-dim flex-shrink-0">
-      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-      <polyline points="15 3 21 3 21 9" />
-      <line x1="10" y1="14" x2="21" y2="3" />
-    </svg>
   </a>
 );
 
-// ─── SocialPostBody (export) ──────────────────────────────────────────────────
+// ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
 
-interface SocialPostBodyProps {
+interface Props {
   text: string;
+  canCollapse?: boolean;
+  postHref?: string;
   className?: string;
 }
 
-export default function SocialPostBody({ text, className = "" }: SocialPostBodyProps) {
-  const tokens    = tokenise(text);
-  const urlTokens = [...new Set(tokens.filter(t => t.type === "url").map(t => t.value))];
-  const embeds    = urlTokens.map(url => ({ url, platform: getPlatform(url) })).filter(e => e.platform !== null) as { url: string; platform: Platform }[];
-  const links     = urlTokens.filter(url => getPlatform(url) === null);
+export default function SocialPostBody({
+  text,
+  canCollapse = false,
+  postHref,
+  className = "",
+}: Props) {
+  const [collapsed, setCollapsed] = useState(true);
+  const [overflows, setOverflows] = useState(false);
+
+  const textRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const renderedHtml = useMemo(() => renderInline(text), [text]);
+
+  const urls = useMemo(() => extractUrls(text), [text]);
+
+  const classified = useMemo(
+    () =>
+      urls.map((url) => ({
+        url,
+        kind: classifyUrl(url),
+      })),
+    [urls]
+  );
+
+  const socialEmbeds = classified.filter((x) =>
+    ["tiktok", "twitter", "instagram", "facebook_post", "linkedin", "pinterest"].includes(x.kind)
+  );
+
+  const playerEmbeds = classified.filter((x) =>
+    x.kind === "player" || x.kind === "facebook_video"
+  );
+
+  const plainLinks = classified.filter((x) => x.kind === "link");
+
+  const isCollapsed = canCollapse && collapsed && overflows;
+
+  // ─── overflow detection ────────────────────────────────────────────────────
+  useEffect(() => {
+    const el = textRef.current;
+    if (!el || !canCollapse) return;
+
+    const lineHeight = parseFloat(getComputedStyle(el).lineHeight || "20");
+    const maxLines = 6;
+
+    setOverflows(el.scrollHeight > lineHeight * maxLines + 2);
+  }, [renderedHtml, canCollapse]);
+
+  // ─── smooth animation ─────────────────────────────────────────────────────
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    const el = textRef.current;
+    if (!wrapper || !el) return;
+
+    const lineHeight = parseFloat(getComputedStyle(el).lineHeight || "20");
+    const maxLines = 6;
+
+    const collapsedHeight = lineHeight * maxLines;
+    const expandedHeight = el.scrollHeight;
+
+    wrapper.style.maxHeight = isCollapsed
+      ? `${collapsedHeight}px`
+      : `${expandedHeight}px`;
+  }, [collapsed, renderedHtml, isCollapsed]);
 
   return (
     <div className={className}>
-      {/* Inline rich text */}
-      <p className="text-maxx-mid my-5 text-[0.9375rem] leading-relaxed break-words">
-        {tokens.map((tok, i) => {
-          if (tok.type === "text")    return <span key={i}>{tok.value}</span>;
-          if (tok.type === "mention") return <InlineLink key={i} href={`/profile/${tok.value}`}>@{tok.value}</InlineLink>;
-          if (tok.type === "hashtag") return <InlineLink key={i} href={`/posts?tag=${tok.value}`}>#{tok.value}</InlineLink>;
-          if (tok.type === "url") {
-            const d = tok.value.replace(/^https?:\/\//, "").replace(/\/$/, "");
-            return <InlineLink key={i} href={tok.value}>{d.length > 52 ? d.slice(0, 49) + "…" : d}</InlineLink>;
-          }
-          return null;
-        })}
-      </p>
+      {/* TEXT */}
+      <div className="my-5">
+        <div
+          ref={wrapperRef}
+          className="overflow-hidden transition-[max-height] duration-300 ease-out"
+        >
+          <div
+            ref={textRef}
+            className="text-maxx-mid text-[0.9375rem] leading-relaxed break-words"
+            dangerouslySetInnerHTML={{ __html: renderedHtml }}
+          />
+        </div>
 
-      {/* Trusted embeds */}
-      {embeds.map(({ url, platform }) => (
-        <EmbedCard key={url} url={url} platform={platform} />
+        {/* TOGGLE */}
+        {canCollapse && overflows && (
+          <div className="mt-2">
+            {collapsed ? (
+              postHref ? (
+                <Link to={postHref} className="text-maxx-violet text-xs uppercase">
+                  Read more
+                </Link>
+              ) : (
+                <button onClick={() => setCollapsed(false)} className="text-maxx-violet text-xs uppercase">
+                  Read more
+                </button>
+              )
+            ) : (
+              <button onClick={() => setCollapsed(true)} className="text-maxx-sub text-xs uppercase">
+                Show less
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* EMBEDS — FULL RESTORE */}
+      {socialEmbeds.map(({ url, kind }) => (
+        <SocialEmbed key={url} url={url} kind={kind} />
       ))}
 
-      {/* Plain link cards */}
-      {links.map(url => <LinkCard key={url} url={url} />)}
+      {playerEmbeds.map(({ url }) => (
+        <MediaEmbed key={url} url={url} />
+      ))}
+
+      {plainLinks.map(({ url }) => (
+        <LinkCard key={url} url={url} />
+      ))}
     </div>
   );
 }

@@ -105,7 +105,7 @@ export default function Tokenomics() {
               ))}
             </div>
             <Link to="/mint" className="mt-4 sm:mt-3 w-full">
-              <Button variant="primary" skewed fullWidth size="sm">
+              <Button variant="primary" skewed fullWidth>
                 <Flame size={14} /> Claim Your Allocation
               </Button>
             </Link>
@@ -145,7 +145,7 @@ export default function Tokenomics() {
               </p>
             </div>
             <Link to="/mint" className="mt-5 sm:mt-6 relative z-10 w-full">
-              <Button variant="primary" skewed fullWidth size="sm">
+              <Button variant="primary" skewed fullWidth>
                 <Zap size={14} /> Enter the Gauntlet
               </Button>
             </Link>
