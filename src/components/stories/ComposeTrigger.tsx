@@ -13,7 +13,7 @@ export default function ComposeTrigger() {
   return (
     <button
       onClick={() => navigate("/mint")}
-      className="w-full text-left group mb-4 relative overflow-hidden rounded-[18px] bg-maxx-bg2/90 border border-maxx-violet/[0.14] cursor-pointer transition-[border-color,background] duration-300 hover:border-maxx-violet/[0.36] hover:bg-maxx-bg1 px-[18px] py-[14px]"
+      className="w-full text-left group mb-4 relative overflow-hidden rounded-[18px] bg-maxx-bg2/95 border border-maxx-violet/[0.14] cursor-pointer transition-[border-color,background] duration-300 hover:border-maxx-violet/[0.36] hover:bg-maxx-bg1 px-[18px] py-[14px]"
     >
       <div className="absolute top-0 left-0 right-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-transparent via-maxx-violet to-transparent" />
       <div className="flex items-center gap-3">
