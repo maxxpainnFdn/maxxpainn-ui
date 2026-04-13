@@ -8,12 +8,18 @@ import {
   InstagramEmbed,
   FacebookEmbed,
   LinkedInEmbed,
-  PinterestEmbed
+  PinterestEmbed,
+  YouTubeEmbed
 } from "react-social-media-embed";
 import { Link } from "react-router-dom";
 import { getPlayerLabel } from "./PlayerLabels";
 import SpotifyEmbed from "./SpotifyEmbed";
 import SoundCloudEmbed from "./SoundcloudEmbed";
+import AppleMusicEmbed from "./AppleMusicEmbed";
+import YouTubeMusicEmbed from "./YoutubeMusicEmbed";
+import DeezerEmbed from "./DeezerEmbed";
+import AudiomackEmbed from "./AudiomackEmbed";
+import MixcloudEmbed from "./MixcloudEmbed";
 
 // ─── markdown-it ──────────────────────────────────────────────────────────────
 
@@ -79,7 +85,9 @@ type EmbedKind =
   | "facebook_post" | "facebook_video"
   | "linkedin" | "pinterest"
   | "player" | "link" | "spotify"
-  | "soundcloud";
+  | "soundcloud" | "apple_music"
+  | "youtube_music" | "deezer" | "audiomack"
+  | "mixcloud";
 
 function classifyUrl(url: string): EmbedKind {
   try {
@@ -97,6 +105,11 @@ function classifyUrl(url: string): EmbedKind {
     if (host === "pinterest.com") return "pinterest";
     if (host === "spotify.com" || host === "open.spotify.com") return "spotify";
     if (host === "soundcloud.com") return "soundcloud";
+    if (host === "music.apple.com") return "apple_music";
+    if (host === "music.youtube.com") return "youtube_music";
+    if (host === "deezer.com") return "deezer";
+    if (host === "audiomack.com") return "audiomack";
+    if (host === "mixcloud.com") return "mixcloud";
     if (ReactPlayer.canPlay(url)) return "player";
   } catch {}
   return "link";
@@ -191,12 +204,18 @@ const SOCIAL_LABELS: Record<string, { name: string; color: string }> = {
   pinterest: { name: "Pinterest", color: "#E60023" },
   spotify: { name: "Spotify", color: "#1DB954" },
   soundcloud: { name: "Soundcloud", color: "#ff5500" },
+
+  apple_music: { name: "Apple Music", color: "#FA243C" },
+  youtube_music: { name: "YouTube Music", color: "#FF0000" },
+  deezer: { name: "Deezer", color: "#FEAA2D" },
+  audiomack: { name: "Audiomack", color: "#CB8610" },
+  mixcloud: { name: "Mixcloud", color: "#5000FF" },
 };
 
 const SocialEmbed: FC<{ url: string; kind: EmbedKind }> = ({ url, kind }) => {
   const label = SOCIAL_LABELS[kind];
   
-  console.log("label===>", label, "===>", url, "===>", kind)
+  //console.log("label===>", label, "===>", url, "===>", kind)
   return (
     <div className={shell}>
       <EmbedLabel name={label.name} color={label.color} url={url} />
@@ -209,6 +228,11 @@ const SocialEmbed: FC<{ url: string; kind: EmbedKind }> = ({ url, kind }) => {
         {kind === "pinterest" && <PinterestEmbed url={url} width={345} height={467} />}
         {kind === "spotify" && <SpotifyEmbed url={url} />}
         {kind === "soundcloud" && <SoundCloudEmbed url={url} />}
+        {kind === "apple_music" && <AppleMusicEmbed url={url} />}
+        {kind === "youtube_music" && <YouTubeMusicEmbed url={url} />}
+        {kind === "deezer" && <DeezerEmbed url={url} />}
+        {kind === "audiomack" && <AudiomackEmbed url={url} />}
+        {kind === "mixcloud" && <MixcloudEmbed url={url} />}
       </div>
     </div>
   );
@@ -265,7 +289,8 @@ export default function SocialPostBody({
 
   const socialEmbeds = classified.filter((x) =>
     ["tiktok", "twitter", "instagram", "facebook_post",
-      "linkedin", "pinterest", "spotify", "soundcloud"
+      "linkedin", "pinterest", "spotify", "soundcloud", "apple_music",
+      "youtube_music", "deezer", "audiomack","mixcloud"
     ].includes(x.kind)
   );
 
