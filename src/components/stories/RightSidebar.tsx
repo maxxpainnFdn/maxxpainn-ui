@@ -61,7 +61,7 @@ export default function RightSidebar() {
                           />
                           <div>
                             <div className="font-semibold text-maxx-bright group-hover/clan:text-maxx-white transition-colors text-[0.85rem]">{c.name}</div>
-                            <div className="text-maxx-sub text-[0.72rem]">{c.totalMints} mints</div>
+                            <div className="text-maxx-sub text-[0.72rem]">{utils.toShortNumber(c.totalMints)} mints</div>
                           </div>
                         </div>
                         <ChevronRight size={13} className="text-maxx-dim group-hover/clan:text-maxx-violet transition-colors" />

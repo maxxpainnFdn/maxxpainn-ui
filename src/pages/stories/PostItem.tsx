@@ -10,6 +10,7 @@ import { useAtomValue } from "jotai";
 import { userAccountInfoAtom } from "@/store";
 import ApiQueryV2 from "@/components/apiQuery/ApiQueryV2";
 import ComposeTrigger from "@/components/stories/ComposeTrigger";
+import TitleAndBackBtn from "@/components/stories/TitleAndBackBtn";
 
 
 export default function PostItem() {
@@ -52,16 +53,7 @@ export default function PostItem() {
   return (
     <div>
       <ComposeTrigger  />
-      <div className="flex  align-middle">     
-        <Button
-          variant="ghost"
-          className="hover:bg-transparent hover:border-transparent pl-0 ps-0"
-          onClick={e=> navigate("/stories")}
-        >
-          <ArrowLeft />
-        </Button>   
-        <div className="font-light font-sans text-md md:text-2xl text-maxx-violetLt/90 my-5">Posts</div>
-      </div>
+      <TitleAndBackBtn title="Posts" />
       
       {initialized && (
         <div>

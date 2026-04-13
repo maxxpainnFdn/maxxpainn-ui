@@ -12,7 +12,7 @@ import ApiQueryV2 from "../apiQuery/ApiQueryV2.tsx";
 
 const navItems = [
   { id: "Posts", uri: '/stories', label: "Posts", Icon: Flame      },
-  { id: "top-clans", uri: '/stories/top-clan', label: "Top Clans", Icon: Castle },
+  { id: "top-clans", uri: '/stories/top-clans', label: "Top Clans", Icon: Castle },
   { id: "saved", uri: '/stories/saved', label: "Saved", Icon: Bookmark },
   { id: "profile", uri: '/account', label: "Profile", Icon: User   },
 ];

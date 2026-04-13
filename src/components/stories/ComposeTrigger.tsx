@@ -24,7 +24,7 @@ export default function ComposeTrigger() {
           seed={userAccount?.address ?? "0x"}
           size={36}
         />
-        <span className="flex-1 font-medium text-[0.9375rem] text-maxx-violet/40 font-sans">Share your story & earn...</span>
+        <span className="flex-1 font-medium text-[1rem] text-maxx-violetLt/70 font-sans">Share your story & earn...</span>
         <div className="hidden sm:flex items-center gap-2">
           <div className="flex items-center gap-1.5 font-mono font-bold rounded-lg px-3 py-1.5 bg-maxx-violet/10 text-maxx-violet-lt text-[0.68rem] tracking-[0.06em] uppercase">
             <Pencil size={11} /> Post

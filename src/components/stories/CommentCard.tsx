@@ -16,7 +16,7 @@ export default function CommentCard({ data: comment }: CommentRowProps) {
   const likesCount = comment.likesCount;
   
   return (
-    <div className="flex mx-3">
+    <div className="flex mx-0 sm:ml-3">
       {/* Thread gutter */}
       <div className="flex flex-col items-center flex-shrink-0 w-11">
         <a className="action-btn" href={`/profile/${author.username}`} target="_blank">

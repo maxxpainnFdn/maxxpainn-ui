@@ -19,6 +19,7 @@ import ApiQuery from "@/components/apiQuery/ApiQuery";
 import ApiQueryV2 from "@/components/apiQuery/ApiQueryV2";
 import Button from "@/components/button/Button";
 import { ArrowLeft } from "lucide-react";
+import TitleAndBackBtn from "@/components/stories/TitleAndBackBtn";
 
 
 /* ─────────────────────────────────────────────────────────────────
@@ -57,18 +58,7 @@ export default function StoriesPage() {
               showError={false}
             >
               {(clanInfo) => (
-                <>
-                  <Button
-                    variant="ghost"
-                    className="hover:bg-transparent hover:border-transparent"
-                    onClick={e=> navigate("/stories")}
-                  >
-                    <ArrowLeft />
-                  </Button>
-                  <div className="font-light font-sans text-md md:text-2xl text-maxx-violetLt/90 my-5">
-                    {clanInfo.name}
-                  </div>
-                </>
+                <TitleAndBackBtn title={clanInfo.name} />
               )}
             </ApiQueryV2>
           </div>

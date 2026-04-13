@@ -1,9 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 interface DeezerMeta {
   title: string;
   artist: string;
@@ -15,33 +12,24 @@ interface DeezerMeta {
 }
 
 export interface DeezerEmbedProps {
-  /** Full Deezer track, album, or playlist URL */
   url: string;
   className?: string;
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 function extractDeezerInfo(url: string): { type: DeezerMeta["type"]; id: string } | null {
   const m = url.match(/deezer\.com(?:\/[a-z]{2})?\/([a-z]+)\/(\d+)/i);
   if (!m) return null;
-  const rawType = m[1].toLowerCase();
   const typeMap: Record<string, DeezerMeta["type"]> = {
     track: "track", album: "album", playlist: "playlist",
     artist: "artist", podcast: "podcast", episode: "episode",
   };
-  return { type: typeMap[rawType] ?? "unknown", id: m[2] };
+  return { type: typeMap[m[1].toLowerCase()] ?? "unknown", id: m[2] };
 }
 
 function buildDeezerEmbedUrl(type: string, id: string): string {
   return `https://widget.deezer.com/widget/dark/${type}/${id}?autoplay=false&radius=false&tracklist=false`;
 }
 
-
-// ---------------------------------------------------------------------------
-// Icons
-// ---------------------------------------------------------------------------
 const DeezerIcon = ({ size = 10, className = "" }: { size?: number; className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" width={size} height={size} className={className}>
     <path d="M18.81 4.16v2.03H24V4.16h-5.19zM12 9.21v2.03h5.19V9.21H12zm6.81 0v2.03H24V9.21h-5.19zM12 14.26v2.02h5.19v-2.02H12zm6.81 0v2.02H24v-2.02h-5.19zM5.19 19.31v2.02h5.19v-2.02H5.19zm6.81 0v2.02h5.19v-2.02H12zm6.81 0v2.02H24v-2.02h-5.19z" />
@@ -55,44 +43,60 @@ const ExternalLinkIcon = () => (
   </svg>
 );
 
-// ---------------------------------------------------------------------------
-// DeezerEmbed
-// ---------------------------------------------------------------------------
 export default function DeezerEmbed({ url, className = "" }: DeezerEmbedProps) {
   const [meta, setMeta] = useState<DeezerMeta | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     if (!url) return;
     const parsed = extractDeezerInfo(url);
     if (!parsed) { setError("Not a valid Deezer URL."); return; }
 
-    setLoading(true); setError(null); setMeta(null); setExpanded(false);
+    setLoading(true); setError(null); setMeta(null);
 
     const run = async () => {
       try {
         let title = "Deezer";
         let artist = "";
         let thumbnail: string | null = null;
-        
-        //console.log("parsed===>",parsed)
 
-        
-        const embedUrl = buildDeezerEmbedUrl(parsed.type, parsed.id);
-        
-        ///console.log("embedUrl===>", embedUrl)
-        
+        // Deezer public API — no auth needed
+        try {
+          const endpoint =
+            parsed.type === "track" ? `https://api.deezer.com/track/${parsed.id}` :
+            parsed.type === "album" ? `https://api.deezer.com/album/${parsed.id}` :
+            parsed.type === "playlist" ? `https://api.deezer.com/playlist/${parsed.id}` :
+            parsed.type === "artist" ? `https://api.deezer.com/artist/${parsed.id}` :
+            null;
+
+          if (endpoint) {
+            const res = await fetch(endpoint);
+            if (res.ok) {
+              const d = await res.json();
+              title = d.title ?? d.name ?? title;
+              artist = d.artist?.name ?? d.creator?.name ?? "";
+              thumbnail =
+                d.album?.cover_medium ??
+                d.cover_medium ??
+                d.picture_medium ??
+                d.album?.cover ??
+                d.cover ??
+                d.picture ??
+                null;
+            }
+          }
+        } catch { /* fall through with defaults */ }
+
         setMeta({
           title, artist, thumbnail,
           trackUrl: url,
-          embedUrl,
+          embedUrl: buildDeezerEmbedUrl(parsed.type, parsed.id),
           type: parsed.type,
           id: parsed.id,
         });
       } catch (e) {
-        console.error(e,e.stack)
+        console.error(e);
         setError("Could not load — check that the Deezer URL is valid and public.");
       } finally {
         setLoading(false);
@@ -126,7 +130,7 @@ export default function DeezerEmbed({ url, className = "" }: DeezerEmbedProps) {
             <div className="h-3 w-2/5 rounded bg-[#a238ff]/[0.07] animate-pulse" />
             <div className="h-[18px] w-16 rounded bg-[#a238ff]/10 animate-pulse" />
           </div>
-          <div className="w-12 h-12 rounded-full bg-[#a238ff]/10 animate-pulse flex-shrink-0" />
+          <div className="w-9 h-9 rounded-full bg-[#a238ff]/10 animate-pulse flex-shrink-0" />
         </div>
       )}
 
@@ -134,13 +138,12 @@ export default function DeezerEmbed({ url, className = "" }: DeezerEmbedProps) {
 
       {meta && !loading && (
         <>
-          <div className="flex items-center gap-4 px-5 pt-4 pb-4">
+          {/* Info row */}
+          <div className="flex items-center gap-4 px-5 pt-4 pb-3">
             <div className="flex-shrink-0 w-[72px] h-[72px] rounded-xl overflow-hidden bg-[#a238ff]/10 flex items-center justify-center">
-              {meta.thumbnail ? (
-                <img src={meta.thumbnail} alt="" className="w-full h-full object-cover block" />
-              ) : (
-                <DeezerIcon size={32} className="text-[#a238ff] opacity-60" />
-              )}
+              {meta.thumbnail
+                ? <img src={meta.thumbnail} alt="" className="w-full h-full object-cover block" />
+                : <DeezerIcon size={32} className="text-[#a238ff] opacity-60" />}
             </div>
 
             <div className="flex-1 min-w-0">
@@ -152,52 +155,26 @@ export default function DeezerEmbed({ url, className = "" }: DeezerEmbedProps) {
               </span>
             </div>
 
-            <div className="flex items-center gap-2.5 flex-shrink-0">
-              {/* Toggle player button */}
-              <button
-                onClick={() => setExpanded((v) => !v)}
-                className={cn(
-                  "w-12 h-12 rounded-full flex items-center justify-center border-none cursor-pointer flex-shrink-0",
-                  "transition-all duration-200 hover:scale-105 active:scale-[0.96]",
-                  expanded
-                    ? "bg-maxx-violet shadow-[0_0_20px_rgba(139,92,246,0.4)]"
-                    : "bg-[#a238ff] hover:shadow-[0_0_20px_rgba(162,56,255,0.5)]"
-                )}
-              >
-                {expanded ? (
-                  <svg viewBox="0 0 24 24" fill="white" width={18} height={18}>
-                    <path d="M19 11H7.83l4.88-4.88c.39-.39.39-1.03 0-1.42-.39-.39-1.02-.39-1.41 0l-6.59 6.59c-.39.39-.39 1.02 0 1.41l6.59 6.59c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L7.83 13H19c.55 0 1-.45 1-1s-.45-1-1-1z" />
-                  </svg>
-                ) : (
-                  <svg viewBox="0 0 24 24" fill="white" width={20} height={20}><path d="M8 5v14l11-7z" /></svg>
-                )}
-              </button>
-
-              <a
-                href={meta.trackUrl} target="_blank" rel="noopener noreferrer"
-                className={cn(
-                  "w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0",
-                  "border border-[#a238ff]/20 bg-transparent no-underline",
-                  "transition-all duration-200 hover:bg-[#a238ff]/10 hover:border-[#a238ff]/50"
-                )}
-              >
-                <ExternalLinkIcon />
-              </a>
-            </div>
+            <a
+              href={meta.trackUrl} target="_blank" rel="noopener noreferrer"
+              className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 border border-[#a238ff]/20 bg-transparent no-underline transition-all duration-200 hover:bg-[#a238ff]/10 hover:border-[#a238ff]/50"
+            >
+              <ExternalLinkIcon />
+            </a>
           </div>
 
-          {/* Deezer's own iframe player — plays 30s previews without login */}
-          {expanded && (
-            <div className="mx-5 mb-4 rounded-xl overflow-hidden">
-              <iframe
-                src={meta.embedUrl}
-                height="92"
-                allow="encrypted-media *; clipboard-write *;"
-                className="w-full border-none block"
-                title="Deezer Player"
-              />
-            </div>
-          )}
+          <div className="h-px bg-white/[0.05] mx-5" />
+
+          {/* Inline Deezer player — always visible, plays 30s previews without login */}
+          <div className="px-5 pb-4 pt-3">
+            <iframe
+              src={meta.embedUrl}
+              height="92"
+              allow="encrypted-media *; clipboard-write *;"
+              className="w-full border-none block rounded-xl overflow-hidden"
+              title="Deezer Player"
+            />
+          </div>
         </>
       )}
     </div>

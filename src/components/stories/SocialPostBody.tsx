@@ -295,7 +295,7 @@ export default function SocialPostBody({
   const socialEmbeds = classified.filter((x) =>
     ["tiktok", "twitter", "instagram", "facebook_post",
       "linkedin", "pinterest", "spotify", "soundcloud", "apple_music",
-      "youtube_music", "deezer"
+      "youtube_music", "deezer", "audiomack"
     ].includes(x.kind)
   );
 

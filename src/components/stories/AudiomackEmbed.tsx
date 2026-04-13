@@ -27,25 +27,40 @@ function extractAudiomackInfo(url: string): {
   artist: string;
   slug: string;
 } | null {
-  // https://audiomack.com/song/artist/slug
-  // https://audiomack.com/artist/slug  (new URL style — song is inferred)
-  // https://audiomack.com/album/artist/slug
-  // https://audiomack.com/playlist/artist/slug
-  const typed = url.match(
+  if (!url.includes("audiomack.com")) return null;
+
+  const TYPES = ["song", "album", "playlist"];
+
+  // Old style: audiomack.com/song/artist/slug  OR  audiomack.com/album/artist/slug
+  const oldStyle = url.match(
     /audiomack\.com\/(song|album|playlist)\/([^/?#]+)\/([^/?#]+)/i
   );
-  if (typed) {
+  if (oldStyle) {
     return {
-      type: typed[1].toLowerCase() as AudiomackMeta["type"],
-      artist: typed[2],
-      slug: typed[3],
+      type: oldStyle[1].toLowerCase() as AudiomackMeta["type"],
+      artist: oldStyle[2],
+      slug: oldStyle[3],
     };
   }
-  // New-style short URL: audiomack.com/artist/song-slug
+
+  // New style: audiomack.com/artist/(song|album|playlist)/slug
+  const newStyle = url.match(
+    /audiomack\.com\/([^/?#]+)\/(song|album|playlist)\/([^/?#]+)/i
+  );
+  if (newStyle) {
+    return {
+      type: newStyle[2].toLowerCase() as AudiomackMeta["type"],
+      artist: newStyle[1],
+      slug: newStyle[3],
+    };
+  }
+
+  // Short style: audiomack.com/artist/slug  (2 segments, no type keyword)
   const short = url.match(/audiomack\.com\/([^/?#]+)\/([^/?#]+)/i);
-  if (short) {
+  if (short && !TYPES.includes(short[1].toLowerCase())) {
     return { type: "song", artist: short[1], slug: short[2] };
   }
+
   return null;
 }
 

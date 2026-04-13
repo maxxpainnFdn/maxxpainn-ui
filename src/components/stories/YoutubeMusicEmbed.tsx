@@ -382,8 +382,8 @@ export default function YouTubeMusicEmbed({ url, className = "" }: YouTubeMusicE
               </span>
             </div>
 
-            <div className="flex items-center gap-3 flex-shrink-0">
-              <div className="flex items-center gap-1.5">
+            <div className="flex flex-col sm:flex-row items-center gap-3 flex-shrink-0">
+              <div className="hidden sm:flex items-center gap-1.5">
                 <VolumeIcon />
                 <input
                   type="range" min={0} max={100} step={1} value={volume}
@@ -396,7 +396,7 @@ export default function YouTubeMusicEmbed({ url, className = "" }: YouTubeMusicE
                 onClick={handlePlay}
                 disabled={!widgetReady}
                 className={cn(
-                  "w-12 h-12 rounded-full flex items-center justify-center border-none flex-shrink-0",
+                  "w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-none flex-shrink-0",
                   "transition-all duration-200",
                   widgetReady
                     ? [

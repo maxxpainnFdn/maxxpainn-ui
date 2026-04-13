@@ -20,6 +20,7 @@ import EnsureConnected from "@/components/ensureConnected/EnsureConnected";
 import { ClanData } from "@/types/ClanData";
 import ClanCard from "@/components/clans/ClanCard";
 import ApiQueryV2 from "@/components/apiQuery/ApiQueryV2";
+import TitleAndBackBtn from "@/components/stories/TitleAndBackBtn";
 
 
 /* ─────────────────────────────────────────────────────────────────
@@ -33,10 +34,9 @@ export default function TopClans() {
     <div>
       <main className="flex-1 min-w-0 mb-10 pb-10">
         <ComposeTrigger />
-        <div className="flex  align-middle">        
-          <div className="font-light font-sans text-md md:text-2xl text-maxx-violetLt/90 my-5">Top Clans</div>
-        </div>
-     
+        
+        <TitleAndBackBtn title="Top Clans" />
+        
         <ApiQueryV2
           uri="/clans"
           query={{ sortBy: "most_mints" }}
