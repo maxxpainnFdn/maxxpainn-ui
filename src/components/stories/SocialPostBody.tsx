@@ -13,6 +13,7 @@ import {
 import { Link } from "react-router-dom";
 import { getPlayerLabel } from "./PlayerLabels";
 import SpotifyEmbed from "./SpotifyEmbed";
+import SoundCloudEmbed from "./SoundcloudEmbed";
 
 // ─── markdown-it ──────────────────────────────────────────────────────────────
 
@@ -77,7 +78,8 @@ type EmbedKind =
   | "tiktok" | "twitter" | "instagram"
   | "facebook_post" | "facebook_video"
   | "linkedin" | "pinterest"
-  | "player" | "link";
+  | "player" | "link" | "spotify"
+  | "soundcloud";
 
 function classifyUrl(url: string): EmbedKind {
   try {
@@ -94,6 +96,7 @@ function classifyUrl(url: string): EmbedKind {
     if (host === "linkedin.com") return "linkedin";
     if (host === "pinterest.com") return "pinterest";
     if (host === "spotify.com" || host === "open.spotify.com") return "spotify";
+    if (host === "soundcloud.com") return "soundcloud";
     if (ReactPlayer.canPlay(url)) return "player";
   } catch {}
   return "link";
@@ -155,7 +158,7 @@ const MediaEmbed: FC<{ url: string }> = ({ url }) => {
   let embedUrl = useMemo(() => sanitisePlayerUrl(url), [url]);
 
   const label = getPlayerLabel(url);
-  const isAudio = /soundcloud|mixcloud/.test(url);
+  const isAudio = /mixcloud/.test(url);
   
  // console.log("embedUrl===>", embedUrl)
 
@@ -187,11 +190,13 @@ const SOCIAL_LABELS: Record<string, { name: string; color: string }> = {
   linkedin: { name: "LinkedIn", color: "#0A66C2" },
   pinterest: { name: "Pinterest", color: "#E60023" },
   spotify: { name: "Spotify", color: "#1DB954" },
+  soundcloud: { name: "Soundcloud", color: "#ff5500" },
 };
 
 const SocialEmbed: FC<{ url: string; kind: EmbedKind }> = ({ url, kind }) => {
   const label = SOCIAL_LABELS[kind];
-
+  
+  console.log("label===>", label, "===>", url, "===>", kind)
   return (
     <div className={shell}>
       <EmbedLabel name={label.name} color={label.color} url={url} />
@@ -203,6 +208,7 @@ const SocialEmbed: FC<{ url: string; kind: EmbedKind }> = ({ url, kind }) => {
         {kind === "linkedin" && <LinkedInEmbed url={url} width={350} height={570} />}
         {kind === "pinterest" && <PinterestEmbed url={url} width={345} height={467} />}
         {kind === "spotify" && <SpotifyEmbed url={url} />}
+        {kind === "soundcloud" && <SoundCloudEmbed url={url} />}
       </div>
     </div>
   );
@@ -258,7 +264,9 @@ export default function SocialPostBody({
   );
 
   const socialEmbeds = classified.filter((x) =>
-    ["tiktok", "twitter", "instagram", "facebook_post", "linkedin", "pinterest", "spotify"].includes(x.kind)
+    ["tiktok", "twitter", "instagram", "facebook_post",
+      "linkedin", "pinterest", "spotify", "soundcloud"
+    ].includes(x.kind)
   );
 
   const playerEmbeds = classified.filter((x) =>
