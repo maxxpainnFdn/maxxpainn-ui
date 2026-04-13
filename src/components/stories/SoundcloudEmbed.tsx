@@ -44,7 +44,6 @@ interface SCMeta {
 }
 
 export interface SoundCloudEmbedProps {
-  /** Full SoundCloud track or set URL */
   url: string;
   className?: string;
 }
@@ -120,7 +119,6 @@ function Waveform({
   durationMs: number;
 }) {
   const [barHeights] = useState(() => genBarHeights(BAR_COUNT));
-  const played = Math.floor(progress * BAR_COUNT);
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -134,26 +132,57 @@ function Waveform({
         <span className="font-mono text-[10.5px] font-semibold text-maxx-dim min-w-[32px]">
           {formatMs(currentMs)}
         </span>
-        <div className="flex-1 h-9 flex items-center cursor-pointer" onClick={handleClick}>
+        {/* Waveform: all bars rendered in a relative container.
+            A single absolutely-positioned orange overlay is clipped to `progress`%
+            width, revealing played bars continuously — no per-bar threshold needed. */}
+        <div className="flex-1 h-9 flex items-center cursor-pointer relative" onClick={handleClick}>
+          {/* Unplayed bars (dim) — full width, always visible */}
           <div className="flex items-center gap-[1.5px] w-full h-full">
             {barHeights.map((h, i) => (
               <div
                 key={i}
-                className={cn(
-                  "flex-1 min-w-[2px] rounded-[2px] transition-colors duration-75",
-                  i < played
-                    ? i === played - 1 && playing
-                      ? "bg-maxx-violet"
-                      : "bg-[#ff5500]"
-                    : "bg-[#ff5500]/12"
-                )}
+                className="flex-1 min-w-[2px] rounded-[2px] bg-[#ff5500]/12"
                 style={{ height: `${h * 100}%` }}
               />
             ))}
           </div>
+          {/* Played overlay (orange) — clipped from the right by progress */}
+          <div
+            className="absolute inset-0 flex items-center gap-[1.5px]"
+            style={{
+              clipPath: `inset(0 ${(1 - progress) * 100}% 0 0)`,
+              transition: playing ? "clip-path 1000ms linear" : "none",
+            }}
+          >
+            {barHeights.map((h, i) => (
+              <div
+                key={i}
+                className="flex-1 min-w-[2px] rounded-[2px] bg-[#ff5500]"
+                style={{ height: `${h * 100}%` }}
+              />
+            ))}
+          </div>
+          {/* Leading-edge overlay (purple) — a ~1.8% wide sliver at the playhead */}
+          {playing && (
+            <div
+              className="absolute inset-0 flex items-center gap-[1.5px]"
+              style={{
+                clipPath: `inset(0 ${(1 - progress) * 100}% 0 ${Math.max(0, progress * 100 - 1.8)}%)`,
+                transition: "clip-path 1000ms linear",
+              }}
+            >
+              {barHeights.map((h, i) => (
+                <div
+                  key={i}
+                  className="flex-1 min-w-[2px] rounded-[2px] bg-maxx-violet"
+                  style={{ height: `${h * 100}%` }}
+                />
+              ))}
+            </div>
+          )}
         </div>
         <span className="font-mono text-[10.5px] font-semibold text-maxx-dim min-w-[32px] text-right">
-          {durationMs > 0 ? formatMs(durationMs) : "—"}
+          {durationMs > 0 ? formatMs(durationMs) : "-"}
         </span>
       </div>
     </div>
@@ -164,9 +193,6 @@ function Waveform({
 // SoundCloudEmbed
 // ---------------------------------------------------------------------------
 export default function SoundCloudEmbed({ url, className = "" }: SoundCloudEmbedProps) {
-  
-  ///console.log("hmmm===>", url)
-  
   const [meta, setMeta] = useState<SCMeta | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -182,21 +208,27 @@ export default function SoundCloudEmbed({ url, className = "" }: SoundCloudEmbed
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const widgetRef = useRef<SCWidget | null>(null);
-  const rafRef = useRef<number>(0);
+  // Holds the setInterval id for the 1-second position poll
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const playingRef = useRef(false);
 
-  const tickLoop = useCallback(() => {
+  // Keep durationMs in a ref so syncPosition always reads the latest value
+  // without needing to be a dependency (avoids stale closures).
+  const durationMsRef = useRef(0);
+  useEffect(() => {
+    durationMsRef.current = durationMs;
+  }, [durationMs]);
+
+  // Poll the widget position once — called on play start and then every second.
+  const syncPosition = useCallback(() => {
     const w = widgetRef.current;
     if (!w || !playingRef.current) return;
     w.getPosition((pos) => {
       setCurrentMs(pos);
-      setProgress((prev) => {
-        const next = durationMs > 0 ? pos / durationMs : prev;
-        return next;
-      });
+      const dur = durationMsRef.current;
+      setProgress(dur > 0 ? pos / dur : 0);
     });
-    rafRef.current = requestAnimationFrame(tickLoop);
-  }, [durationMs]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setPlaying = useCallback(
     (p: boolean) => {
@@ -204,12 +236,17 @@ export default function SoundCloudEmbed({ url, className = "" }: SoundCloudEmbed
       setPlayingState(p);
       if (p) {
         setShowWaveform(true);
-        rafRef.current = requestAnimationFrame(tickLoop);
+        // Sync immediately so bars don't lag on play, then update every second.
+        syncPosition();
+        intervalRef.current = setInterval(syncPosition, 1000);
       } else {
-        cancelAnimationFrame(rafRef.current);
+        if (intervalRef.current !== null) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
       }
     },
-    [tickLoop]
+    [syncPosition]
   );
 
   // Load & init widget whenever url changes
@@ -222,12 +259,16 @@ export default function SoundCloudEmbed({ url, className = "" }: SoundCloudEmbed
     setWidgetReady(false);
     setPlayingState(false);
     playingRef.current = false;
-    cancelAnimationFrame(rafRef.current);
+    if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
     setCurrentMs(0);
     setProgress(0);
     setDurationMs(0);
+    durationMsRef.current = 0;
     setShowWaveform(false);
-    setStateMsg("Connecting player…");
+    setStateMsg("Connecting player...");
 
     const embedUrl =
       `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}` +
@@ -244,6 +285,9 @@ export default function SoundCloudEmbed({ url, className = "" }: SoundCloudEmbed
       widget.bind(window.SC.Widget.Events.READY, () => {
         widget.setVolume(volume);
         widget.getDuration((d) => {
+          // Set both state AND ref immediately so syncPosition has the value
+          // before the next render cycle.
+          durationMsRef.current = d;
           setDurationMs(d);
         });
         setWidgetReady(true);
@@ -263,7 +307,10 @@ export default function SoundCloudEmbed({ url, className = "" }: SoundCloudEmbed
     });
 
     return () => {
-      cancelAnimationFrame(rafRef.current);
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
   }, [url, meta]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -288,7 +335,6 @@ export default function SoundCloudEmbed({ url, className = "" }: SoundCloudEmbed
         const artist: string = oe.author_name ?? "SoundCloud";
         const isPlaylist = /\/sets\//.test(url) || /\/playlists\//.test(url);
 
-        // Get larger thumbnail
         let thumbnail: string | null = oe.thumbnail_url ?? null;
         if (thumbnail) thumbnail = thumbnail.replace("-large", "-t300x300");
 
@@ -320,9 +366,11 @@ export default function SoundCloudEmbed({ url, className = "" }: SoundCloudEmbed
 
   const handleSeek = (ratio: number) => {
     const w = widgetRef.current;
-    if (!w || !widgetReady || durationMs === 0) return;
-    w.seekTo(ratio * durationMs);
+    if (!w || !widgetReady || durationMsRef.current === 0) return;
+    w.seekTo(ratio * durationMsRef.current);
+    // Update both immediately so the UI doesn't wait for the next poll tick.
     setProgress(ratio);
+    setCurrentMs(ratio * durationMsRef.current);
   };
 
   const handleVolume = (v: number) => {
@@ -333,7 +381,9 @@ export default function SoundCloudEmbed({ url, className = "" }: SoundCloudEmbed
   // Cleanup on unmount
   useEffect(
     () => () => {
-      cancelAnimationFrame(rafRef.current);
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+      }
     },
     []
   );
@@ -348,7 +398,7 @@ export default function SoundCloudEmbed({ url, className = "" }: SoundCloudEmbed
         className
       )}
     >
-      {/* Top shimmer — orange for SC */}
+      {/* Top shimmer */}
       <div className="absolute top-0 left-0 right-0 h-px pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-transparent via-[#ff5500] to-transparent" />
 
       {/* Hidden SC widget iframe — required for Widget API */}
@@ -359,7 +409,7 @@ export default function SoundCloudEmbed({ url, className = "" }: SoundCloudEmbed
         className="hidden w-0 h-0 border-none"
       />
 
-      {/* ── Skeleton ── */}
+      {/* Skeleton */}
       {loading && (
         <div className="flex items-center gap-4 px-5 py-4">
           <div className="w-[72px] h-[72px] rounded-xl bg-[#ff5500]/10 animate-pulse flex-shrink-0" />
@@ -372,12 +422,12 @@ export default function SoundCloudEmbed({ url, className = "" }: SoundCloudEmbed
         </div>
       )}
 
-      {/* ── Error ── */}
+      {/* Error */}
       {error && (
         <p className="px-5 py-4 text-[12.5px] text-red-400 text-center">{error}</p>
       )}
 
-      {/* ── Content ── */}
+      {/* Content */}
       {meta && !loading && (
         <>
           {/* Main row */}
@@ -425,12 +475,12 @@ export default function SoundCloudEmbed({ url, className = "" }: SoundCloudEmbed
                 disabled={!widgetReady}
                 className={cn(
                   "w-12 h-12 rounded-full flex items-center justify-center border-none flex-shrink-0",
-                  "transition-all duration-200 action-btn",
+                  "action-btn",
                   widgetReady
                     ? [
                         "cursor-pointer hover:scale-105 active:scale-[0.96]",
                         playing
-                          ? "bg-maxx-violet shadow-[0_0_20px_rgba(139,92,246,0.45)] hover:brightness-110"
+                          ? "bg-maxx-violet shadow-[0_0_20px_rgba(139,92,246,0.45)] hover:brightness-110 transition-all duration-10"
                           : "bg-[#ff5500] hover:shadow-[0_0_20px_rgba(255,85,0,0.5)] hover:bg-[#ff6a1f]",
                       ]
                     : "bg-maxx-dim cursor-not-allowed"

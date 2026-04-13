@@ -47,7 +47,6 @@ export default function PostItem() {
     }
   })
   
-  console.log("postId===>", postId)
   
   return (
     <div>
@@ -73,7 +72,6 @@ export default function PostItem() {
                 uri={`/posts/${postId}`}
               >
                 {(post: Post) => {
-                  console.log("post===>", post)
                   return (
                     <>
                       {post == null ?

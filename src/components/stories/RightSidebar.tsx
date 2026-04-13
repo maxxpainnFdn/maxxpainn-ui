@@ -88,8 +88,8 @@ export default function RightSidebar() {
         <p className="text-maxx-sub mb-3.5 leading-relaxed text-[0.82rem]">
           Share your story and get rewarded with ${tokenConfig.symbol} tokens.
         </p>
-        <Link to="/mint" className="no-underline">
-          <button className="btn-p w-full justify-center py-2.5"><Zap size={12} /> Post Your Story</button>
+        <Link to="/mint" className="flex justify-center">
+          <Button size="sm"><Zap size={12} /> Post Your Story</Button>
         </Link>
       </div>
     </div>

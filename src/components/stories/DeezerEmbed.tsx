@@ -35,8 +35,9 @@ function extractDeezerInfo(url: string): { type: DeezerMeta["type"]; id: string 
 }
 
 function buildDeezerEmbedUrl(type: string, id: string): string {
-  return `https://widget.deezer.com/widget/dark/${type}/${id}?app_id=457142&autoplay=false&radius=false&tracklist=false`;
+  return `https://widget.deezer.com/widget/dark/${type}/${id}?autoplay=false&radius=false&tracklist=false`;
 }
+
 
 // ---------------------------------------------------------------------------
 // Icons
@@ -75,49 +76,23 @@ export default function DeezerEmbed({ url, className = "" }: DeezerEmbedProps) {
         let title = "Deezer";
         let artist = "";
         let thumbnail: string | null = null;
+        
+        //console.log("parsed===>",parsed)
 
-        // Deezer public API — no auth needed for public catalog
-        if (parsed.type === "track") {
-          const res = await fetch(`https://api.deezer.com/track/${parsed.id}`);
-          if (res.ok) {
-            const d = await res.json();
-            title = d.title ?? title;
-            artist = d.artist?.name ?? "";
-            thumbnail = d.album?.cover_medium ?? d.album?.cover ?? null;
-          }
-        } else if (parsed.type === "album") {
-          const res = await fetch(`https://api.deezer.com/album/${parsed.id}`);
-          if (res.ok) {
-            const d = await res.json();
-            title = d.title ?? title;
-            artist = d.artist?.name ?? "";
-            thumbnail = d.cover_medium ?? d.cover ?? null;
-          }
-        } else if (parsed.type === "playlist") {
-          const res = await fetch(`https://api.deezer.com/playlist/${parsed.id}`);
-          if (res.ok) {
-            const d = await res.json();
-            title = d.title ?? title;
-            artist = d.creator?.name ?? "";
-            thumbnail = d.picture_medium ?? d.picture ?? null;
-          }
-        } else if (parsed.type === "artist") {
-          const res = await fetch(`https://api.deezer.com/artist/${parsed.id}`);
-          if (res.ok) {
-            const d = await res.json();
-            title = d.name ?? title;
-            thumbnail = d.picture_medium ?? d.picture ?? null;
-          }
-        }
-
+        
+        const embedUrl = buildDeezerEmbedUrl(parsed.type, parsed.id);
+        
+        ///console.log("embedUrl===>", embedUrl)
+        
         setMeta({
           title, artist, thumbnail,
           trackUrl: url,
-          embedUrl: buildDeezerEmbedUrl(parsed.type, parsed.id),
+          embedUrl,
           type: parsed.type,
           id: parsed.id,
         });
-      } catch {
+      } catch (e) {
+        console.error(e,e.stack)
         setError("Could not load — check that the Deezer URL is valid and public.");
       } finally {
         setLoading(false);

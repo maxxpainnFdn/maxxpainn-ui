@@ -159,8 +159,10 @@ const shell = "mt-3 rounded-[14px] overflow-hidden border border-maxx-violet/[0.
 function sanitisePlayerUrl(url: string): string {
   try {
 
-    return convertUrlToEmbedUrl(url) ?? url;
-  } catch {
+    const embedurl = convertUrlToEmbedUrl(url) ?? url;
+    return embedurl;
+  } catch (e) {
+    console.error(e,e.stack)
     return url;
   }
 }
@@ -217,8 +219,8 @@ const SocialEmbed: FC<{ url: string; kind: EmbedKind }> = ({ url, kind }) => {
   
   //console.log("label===>", label, "===>", url, "===>", kind)
   return (
-    <div className={shell}>
-      <EmbedLabel name={label.name} color={label.color} url={url} />
+    <div className>
+      {/*<EmbedLabel name={label.name} color={label.color} url={url} />*/}
       <div className="bg-maxx-bg0/50 p-3 w-full flex justify-center">
         {kind === "tiktok" && <TikTokEmbed url={url} width={325}  />}
         {kind === "twitter" && <XEmbed url={url} width={325} />}
@@ -240,18 +242,21 @@ const SocialEmbed: FC<{ url: string; kind: EmbedKind }> = ({ url, kind }) => {
 
 // ─── Link Card (UNCHANGED) ───────────────────────────────────────────────────
 
-const LinkCard: FC<{ url: string }> = ({ url }) => (
-  <a
-    href={url}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl border border-maxx-violet/[0.16]"
-  >
-    <span className="text-[13px] truncate">
-      {url.replace(/^https?:\/\//, "")}
-    </span>
+const LinkCard: FC<{ url: string }> = ({ url }) => {
+  sanitisePlayerUrl(url)
+  
+  return (
+    < a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl border border-maxx-violet/[0.16]"
+    >
+      <span className="text-[13px] truncate">
+        {url.replace(/^https?:\/\//, "")}
+      </span>
   </a>
-);
+)};
 
 // ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
 
@@ -290,7 +295,7 @@ export default function SocialPostBody({
   const socialEmbeds = classified.filter((x) =>
     ["tiktok", "twitter", "instagram", "facebook_post",
       "linkedin", "pinterest", "spotify", "soundcloud", "apple_music",
-      "youtube_music", "deezer", "audiomack","mixcloud"
+      "youtube_music", "deezer"
     ].includes(x.kind)
   );
 
