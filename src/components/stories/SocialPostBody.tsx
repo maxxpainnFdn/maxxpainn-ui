@@ -8,10 +8,11 @@ import {
   InstagramEmbed,
   FacebookEmbed,
   LinkedInEmbed,
-  PinterestEmbed,
+  PinterestEmbed
 } from "react-social-media-embed";
 import { Link } from "react-router-dom";
 import { getPlayerLabel } from "./PlayerLabels";
+import SpotifyEmbed from "./SpotifyEmbed";
 
 // ─── markdown-it ──────────────────────────────────────────────────────────────
 
@@ -92,6 +93,7 @@ function classifyUrl(url: string): EmbedKind {
     }
     if (host === "linkedin.com") return "linkedin";
     if (host === "pinterest.com") return "pinterest";
+    if (host === "spotify.com" || host === "open.spotify.com") return "spotify";
     if (ReactPlayer.canPlay(url)) return "player";
   } catch {}
   return "link";
@@ -134,8 +136,7 @@ const EmbedLabel: FC<{ name: string; color: string; url: string }> = ({
   </div>
 );
 
-const shell =
-  "mt-3 rounded-[14px] overflow-hidden border border-maxx-violet/[0.18]";
+const shell = "mt-3 rounded-[14px] overflow-hidden border border-maxx-violet/[0.18]";
 
 // ─── Player sanitiser ─────────────────────────────────────────────────────────
 
@@ -151,23 +152,25 @@ function sanitisePlayerUrl(url: string): string {
 
 const MediaEmbed: FC<{ url: string }> = ({ url }) => {
   
-  const embedUrl = useMemo(() => sanitisePlayerUrl(url), [url]);
+  let embedUrl = useMemo(() => sanitisePlayerUrl(url), [url]);
 
   const label = getPlayerLabel(url);
-  const isAudio = /soundcloud|spotify|mixcloud/.test(url);
+  const isAudio = /soundcloud|mixcloud/.test(url);
   
-  console.log("embedUrl===>", embedUrl)
+ // console.log("embedUrl===>", embedUrl)
 
   return (
     <div className={shell}>
       <EmbedLabel name={label.name} color={label.color} url={url} />
-      <div className="bg-black w-full" style={{ height: isAudio ? 90 : 315 }}>
+      <div className="bg-black w-auto flex justify-center" style={{ height: isAudio ? 80 : 315 }}>
         <iframe
           src={embedUrl}
           width="100%"
-          height="100%"
-          allow="autoplay; encrypted-media"
+          height={ isAudio ? 80 : 315 }
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
           allowFullScreen
+          loading="lazy"
+          className="bg-transparent overflow-hidden border-none"
         />
       </div>
     </div>
@@ -183,6 +186,7 @@ const SOCIAL_LABELS: Record<string, { name: string; color: string }> = {
   facebook_post: { name: "Facebook", color: "#1877F2" },
   linkedin: { name: "LinkedIn", color: "#0A66C2" },
   pinterest: { name: "Pinterest", color: "#E60023" },
+  spotify: { name: "Spotify", color: "#1DB954" },
 };
 
 const SocialEmbed: FC<{ url: string; kind: EmbedKind }> = ({ url, kind }) => {
@@ -191,13 +195,14 @@ const SocialEmbed: FC<{ url: string; kind: EmbedKind }> = ({ url, kind }) => {
   return (
     <div className={shell}>
       <EmbedLabel name={label.name} color={label.color} url={url} />
-      <div className="bg-maxx-bg0/50 p-3">
-        {kind === "tiktok" && <TikTokEmbed url={url} width={325} />}
+      <div className="bg-maxx-bg0/50 p-3 w-full flex justify-center">
+        {kind === "tiktok" && <TikTokEmbed url={url} width={325}  />}
         {kind === "twitter" && <XEmbed url={url} width={325} />}
         {kind === "instagram" && <InstagramEmbed url={url} width={328} />}
         {kind === "facebook_post" && <FacebookEmbed url={url} width={350} />}
         {kind === "linkedin" && <LinkedInEmbed url={url} width={350} height={570} />}
         {kind === "pinterest" && <PinterestEmbed url={url} width={345} height={467} />}
+        {kind === "spotify" && <SpotifyEmbed url={url} />}
       </div>
     </div>
   );
@@ -253,7 +258,7 @@ export default function SocialPostBody({
   );
 
   const socialEmbeds = classified.filter((x) =>
-    ["tiktok", "twitter", "instagram", "facebook_post", "linkedin", "pinterest"].includes(x.kind)
+    ["tiktok", "twitter", "instagram", "facebook_post", "linkedin", "pinterest", "spotify"].includes(x.kind)
   );
 
   const playerEmbeds = classified.filter((x) =>
