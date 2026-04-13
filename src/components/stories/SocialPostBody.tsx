@@ -219,9 +219,9 @@ const SocialEmbed: FC<{ url: string; kind: EmbedKind }> = ({ url, kind }) => {
   
   //console.log("label===>", label, "===>", url, "===>", kind)
   return (
-    <div className>
+    <div>
       {/*<EmbedLabel name={label.name} color={label.color} url={url} />*/}
-      <div className="bg-maxx-bg0/50 p-3 w-full flex justify-center">
+      <div className="bg-maxx-bg0/50 py-3 w-full flex justify-center">
         {kind === "tiktok" && <TikTokEmbed url={url} width={325}  />}
         {kind === "twitter" && <XEmbed url={url} width={325} />}
         {kind === "instagram" && <InstagramEmbed url={url} width={328} />}
