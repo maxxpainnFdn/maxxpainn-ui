@@ -60,7 +60,7 @@ const routesArr = [
       { path: "top-clans", component: "stories/TopClans" },
       { path: "clan/:slugId", component: "stories/ClanPosts" },
       ///{ path: "/clan/:clanSlug/posts", component: "stories/UserClans" },
-      { path: "posts/:postId", component: "stories/PostItem" },
+      { path: "post/:postId", component: "stories/PostItem" },
     ]
   },
 

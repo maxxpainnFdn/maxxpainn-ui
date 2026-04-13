@@ -39,6 +39,7 @@ export default function TopClans() {
      
         <ApiQueryV2
           uri="/clans"
+          query={{ sortBy: "most_mints" }}
           loaderProps={{ clasName: "flex justify-center", spinerSize: 16 }}
         >
           {(userClans: ClanData[]) => (

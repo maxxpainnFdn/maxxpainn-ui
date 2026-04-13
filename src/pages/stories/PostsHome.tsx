@@ -37,7 +37,7 @@ export default function StoriesPage() {
             renderer={PostCard}
             rendererArgs={{
               currentUser: userAccount,
-              onClick: (_, post: Post) => { navigate(`/stories/posts/${post.id}`) }
+              onClick: (_, post: Post) => { navigate(`/stories/post/${post.id}`) }
             }}
           />
         </div>

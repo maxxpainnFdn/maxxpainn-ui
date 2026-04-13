@@ -1,5 +1,5 @@
 import utils, { cn } from "@/lib/utils";
-import { Flame, Bookmark, ArrowRight, User } from "lucide-react";
+import { Flame, Bookmark, ArrowRight, User, Castle } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useAtomValue } from "jotai";
@@ -12,7 +12,7 @@ import ApiQueryV2 from "../apiQuery/ApiQueryV2.tsx";
 
 const navItems = [
   { id: "Posts", uri: '/stories', label: "Posts", Icon: Flame      },
-  //{ id: "trends", uri: '/posts/trends', label: "Trends", Icon: TrendingUp },
+  { id: "top-clans", uri: '/stories/top-clan', label: "Top Clans", Icon: Castle },
   { id: "saved", uri: '/stories/saved', label: "Saved", Icon: Bookmark },
   { id: "profile", uri: '/account', label: "Profile", Icon: User   },
 ];

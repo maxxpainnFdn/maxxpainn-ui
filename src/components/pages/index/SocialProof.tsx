@@ -60,7 +60,7 @@ export default function SocialProof({ appStats }) {
         {/* See All */}
         <div className="text-center mb-10 sm:mb-14 mt-6 sm:mt-8">
           <Link
-            to="/posts"
+            to="/stories"
             className="inline-flex items-center gap-2 font-sans font-semibold text-[0.88rem] sm:text-[0.94rem] text-maxx-mid no-underline px-5 sm:px-7 py-3 sm:py-3.5 border border-maxx-violet/15 rounded-lg bg-maxx-violet/5 transition-all hover:border-maxx-violet hover:text-maxx-white hover:bg-maxx-violet/10"
           >
             <Users size={15} /> See all stories <ArrowRight size={15} />

@@ -52,7 +52,7 @@ export default function PostCard({
 
   const clan = post.clan;
   
-  const isPostPage = /\/+(posts)\/+[0-9]+/.test(location.pathname);
+  const isPostPage = /\/+(stories)\/+(post)\/+[0-9]+/.test(location.pathname);
 
   const handleOnClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!e.target || !(e.target as HTMLElement).closest('.action-btn')) {
@@ -63,7 +63,7 @@ export default function PostCard({
   const toggleComment = (e: React.MouseEvent) => {
     e.stopPropagation(); //openPostOnCommentBtnClick && 
     if (!isPostPage) {
-      navigate(`/posts/${post.id}`)
+      navigate(`/stories/post/${post.id}`)
     } else {
       setCommentOpen((v) => !v);
     }
@@ -110,7 +110,7 @@ export default function PostCard({
             <div className="flex items-center gap-2">
               {clan && (
                 <Link className="text-maxx-sub font-semibold tracking-wide text-[0.75rem] truncate"
-                  to={`/posts/clan/${clan.slug}-${clan.id}`}>
+                  to={`/stories/clan/${clan.slug}-${clan.id}`}>
                   c/{clan.slug}
                 </Link>
               )}

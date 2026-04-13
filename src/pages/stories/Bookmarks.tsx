@@ -70,7 +70,7 @@ export default function Bookmarks() {
               renderer={PostCard}
               rendererArgs={{
                 currentUser: userAccount,
-                onClick: (_, post: Post) => { navigate(`/posts/${post.id}`) },
+                onClick: (_, post: Post) => { navigate(`/stories/post/${post.id}`) },
                 onBookmarkStateChange: () => {  setPageKey(Math.random()) }
               }}
             />
