@@ -251,7 +251,7 @@ export default function Mint() {
                       {/* PAGE HEADER */}
                       <div className="flex justify-center flex-col items-center text-center mb-7 sm:mb-10 animate-fade-up">
                       
-                        <h1 className="font-sans font-bold text-xl sm:text-3xl md:font-black md:text-4xl lg:text-6xl leading-[0.94] tracking-tight text-maxx-white uppercase">
+                        <h1 className="font-sans font-bold text-2xl sm:text-3xl md:font-black md:text-4xl lg:text-6xl leading-[0.94] tracking-tight text-maxx-white uppercase">
                           <span className="bg-grad-accent bg-clip-text text-transparent">
                             ${tokenConfig.symbol}{" "}
                           </span>
