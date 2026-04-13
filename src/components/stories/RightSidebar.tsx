@@ -50,7 +50,7 @@ export default function RightSidebar() {
                 <>
                   <div className="flex flex-col gap-1 max-h-[380px] overflow-y-scroll">
                     {clansData.map((c, k) => (
-                      <Link key={k} to={`/stories/clan/${c.id}`}
+                      <Link key={k} to={`/stories/clan/${c.slug}-${c.id}`}
                         className="flex items-center justify-between py-2 px-2 no-underline rounded-lg transition-colors hover:bg-maxx-violet/[0.06] group/clan">
                         <div className="flex items-center gap-2.5">
                           <ImageAvatar

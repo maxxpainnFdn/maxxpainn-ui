@@ -25,18 +25,6 @@ export default function StoriesPage() {
   const navigate = useNavigate()
   const userAccount = useAtomValue(userAccountInfoAtom)
   
-    //console.log("userAccount===>", userAccount)
-  /* 
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "/" && !["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).tagName)) { e.preventDefault(); setShowSearch(true); }
-      if (e.key === "Escape") { setShowSearch(false); setShowTP(false); setCompType(null); }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, []);
-  */
-
 
   return (
     <div>

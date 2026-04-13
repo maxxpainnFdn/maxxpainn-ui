@@ -52,8 +52,15 @@ export default function Bookmarks() {
     <div>
       <main className="flex-1 min-w-0 mb-10 pb-10">
         <ComposeTrigger  />
-        <div className="flex  align-middle">        
-          <div className="font-bold text-md text-maxx-violetLt/60 my-5">Saved Posts</div>
+        <div className="flex  align-middle">     
+          <Button
+            variant="ghost"
+            className="hover:bg-transparent hover:border-transparent"
+            onClick={e=> navigate("/stories")}
+          >
+            <ArrowLeft />
+          </Button>   
+          <div className="font-light font-sans text-md md:text-2xl text-maxx-violetLt/90 my-5">Saved Posts</div>
         </div>
         <EnsureConnected>
           <div key={pageKey}>

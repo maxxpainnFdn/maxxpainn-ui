@@ -35,7 +35,7 @@ export default function UserClans() {
       <main className="flex-1 min-w-0 mb-10 pb-10">
         <ComposeTrigger />
         <div className="flex  align-middle">        
-          <div className="font-bold text-md text-maxx-violetLt/60 my-5">My Clans</div>
+          <div className="font-light font-sans text-md md:text-2xl text-maxx-violetLt/90 my-5">My Clans</div>
         </div>
         <EnsureConnected>
           { userAccountInfo && (
