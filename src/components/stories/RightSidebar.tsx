@@ -50,7 +50,7 @@ export default function RightSidebar() {
                 <>
                   <div className="flex flex-col gap-1 max-h-[380px] overflow-y-scroll">
                     {clansData.map((c, k) => (
-                      <a key={k} href={`/clans/${c.id}`}
+                      <Link key={k} to={`/stories/clan/${c.id}`}
                         className="flex items-center justify-between py-2 px-2 no-underline rounded-lg transition-colors hover:bg-maxx-violet/[0.06] group/clan">
                         <div className="flex items-center gap-2.5">
                           <ImageAvatar
@@ -65,7 +65,7 @@ export default function RightSidebar() {
                           </div>
                         </div>
                         <ChevronRight size={13} className="text-maxx-dim group-hover/clan:text-maxx-violet transition-colors" />
-                      </a>
+                      </Link>
                     ))}
                   </div>
                   <Link to="/stories/top-clans" className="flex items-center gap-2 px-3 py-2 rounded-xl no-underline text-maxx-violet hover:text-maxx-violet-lt transition-colors font-semibold text-[0.85rem]">
