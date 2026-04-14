@@ -286,9 +286,9 @@ export default function Mint() {
 
                             <div className="mb-5 sm:mb-8">
                               <div className="eyebrow mb-1.5 sm:mb-2"><span className="eyebrow-dot" />Initialization</div>
-                              <h2 className="font-sans font-black text-[clamp(1.3rem,3vw,2.2rem)] uppercase tracking-tight text-maxx-white leading-none">
+                              <h2 className="font-sans font-bold text-lg uppercase tracking-tight text-maxx-white">
                                 Claim Your{" "}
-                                <span className="bg-grad-accent bg-clip-text text-transparent">Rank</span>
+                                <span className="">Rank</span>
                               </h2>
                             </div>
 

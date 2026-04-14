@@ -38,7 +38,7 @@ const PainMeter = ({ lockPeriod, maxLockPeriod }: PainMeterProps) => {
       <div className="flex items-center justify-between mb-5 relative z-10">
         <div>
           <div className="eyebrow mb-1"><span className="eyebrow-dot" />COMMITMENT METER</div>
-          <h3 className="font-sans font-black text-[1.1rem] uppercase tracking-tight text-maxx-white">
+          <h3 className="font-sans font-bold text-lg uppercase tracking-tight text-maxx-white">
             Pain Intensity
           </h3>
         </div>

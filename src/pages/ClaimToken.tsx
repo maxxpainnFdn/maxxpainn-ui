@@ -334,10 +334,10 @@ export default function TokenClaim() {
                         <span className="eyebrow-dot" />
                         PROOF OF PATIENCE · SOLANA
                       </div>
-                      <h1 className="font-sans font-black text-[clamp(2.8rem,8vw,6rem)] leading-[0.94] tracking-tight text-maxx-white uppercase">
+                      <h1 className="font-sans font-bold text-2xl sm:text-3xl md:font-black md:text-4xl lg:text-6xl leading-[0.94] tracking-tight text-maxx-white uppercase">
                         CLAIM{" "}
                         <span className="bg-grad-accent bg-clip-text text-transparent">
-                          TOKENS
+                          ${tokenConfig.symbol}
                         </span>
                       </h1>
                       <p className="font-sans text-md md:text-lg text-maxx-bright leading-relaxed mt-3 max-w-xl mx-auto">

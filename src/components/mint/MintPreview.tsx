@@ -112,7 +112,7 @@ export default function MintPreview({
       {/* header */}
       <div className="mb-5">
         <div className="eyebrow mb-1"><span className="eyebrow-dot" />BREAKDOWN</div>
-        <h3 className="font-sans font-black text-[1.1rem] uppercase tracking-tight text-maxx-white">
+        <h3 className="font-sans font-bold text-lg uppercase tracking-tight text-maxx-white">
           Allocation Preview
         </h3>
       </div>

@@ -78,12 +78,12 @@ const PainBadges = ({ lockPeriod }: PainBadgesProps) => {
       <div className="flex items-center justify-between mb-5">
         <div>
           <div className="eyebrow mb-1"><span className="eyebrow-dot" />RANK BADGES</div>
-          <h3 className="font-sans font-black text-[1.1rem] uppercase tracking-tight text-maxx-white">
+          <h3 className="font-sans font-bold text-lg uppercase tracking-tight text-maxx-white">
             Pain Badges
           </h3>
         </div>
         <div className="text-right">
-          <div className="font-sans font-black text-[1.6rem] leading-none bg-grad-accent bg-clip-text text-transparent">
+          <div className="font-sans font-bold text-sm xs:text-md leading-none bg-grad-accent bg-clip-text text-transparent">
             {unlockedCount}/{badges.length}
           </div>
           <div className="font-mono text-[0.65rem] text-maxx-sub tracking-widest uppercase">Unlocked</div>
