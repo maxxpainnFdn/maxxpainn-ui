@@ -74,11 +74,12 @@ export default function Navigation() {
                 className="text-purple-500 w-6 h-6 sm:w-7 sm:h-7 group-hover:scale-110 transition-transform duration-300"
                 fill="currentColor"
               />
-              <span className="hidden sm:inline-block font-sans font-black text-xl sm:text-2xl tracking-tighter text-maxx-white">
-                <span className="text-maxx-white">MAXX</span>
-                <span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+              <span className="hidden sm:inline-block font-sans font-black text-xl sm:text-2xl tracking-tighter text-purple-200">
+                <span className="">MAXX</span>
+                {/*<span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
                   PAINN
-                </span>
+                </span>*/}
+                <span className="bg-grad-accent bg-clip-text text-transparent">PAINN</span>
               </span>
             </Link>
 

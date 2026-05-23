@@ -3,7 +3,7 @@ import LoadingView from "@/components/loadingView/LoadingView";
 import Navigation from "@/components/nav/Navigation";
 import { useEffect, useState, useRef } from "react";
 import { useWalletCore } from "@/hooks/useWalletCore";
-import { useWeb3 } from "@/hooks/useWeb3";
+import { DecodedAccountInfo, useWeb3 } from "@/hooks/useWeb3";
 import { PublicKey, SystemProgram } from "@solana/web3.js";
 import Footer from "@/components/Footer";
 import utils from "@/lib/utils";
@@ -137,7 +137,13 @@ export default function TokenClaim() {
 
       if (resultStatus.isError()) { setPageError(resultStatus.getMessage()); return; }
 
-      const data          = resultStatus.getData();
+      const data = resultStatus.getData() as {
+        protocolState:  DecodedAccountInfo,
+        tokenInfo:      DecodedAccountInfo,
+        userRankInfo:   DecodedAccountInfo | null,
+        rankDifficulty: DecodedAccountInfo
+      }
+      
       const protocolState = data.protocolState?.decodedData;
       const _tokenInfo    = data.tokenInfo.decodedData;
       const _globalRank   = Number(protocolState?.globalRank?.toString() || "0");
@@ -337,7 +343,7 @@ export default function TokenClaim() {
                       <h1 className="font-sans font-bold text-2xl sm:text-3xl md:font-black md:text-4xl lg:text-6xl leading-[0.94] tracking-tight text-maxx-white uppercase">
                         CLAIM{" "}
                         <span className="bg-grad-accent bg-clip-text text-transparent">
-                          ${tokenConfig.symbol}
+                          Tokens
                         </span>
                       </h1>
                       <p className="font-sans text-md md:text-lg text-maxx-bright leading-relaxed mt-3 max-w-xl mx-auto">
@@ -393,11 +399,11 @@ export default function TokenClaim() {
 
                           {/* amount */}
                           <div className="flex flex-col items-center gap-2">
-                            <span className={`font-sans font-black font-mono tracking-tighter text-[clamp(2.2rem,8vw,4.5rem)] leading-none ${rewardInfo.daysLate > 0 ? "text-maxx-pink line-through opacity-35" : "text-maxx-white"}`}>
+                            <span className={`font-bold sm:font-black font-mono tracking-tighter text-[clamp(1.8rem,8vw,4.5rem)] leading-none ${rewardInfo.daysLate > 0 ? "text-maxx-pink line-through opacity-35" : "text-maxx-white"}`}>
                               {utils.toLocaleString(rewardInfo.rewardAmount)}
                             </span>
                             {rewardInfo.daysLate > 0 && (
-                              <span className="font-sans font-black font-mono tracking-tighter text-[clamp(2.2rem,8vw,4.5rem)] leading-none text-maxx-white animate-pain-pulse">
+                              <span className="font-bold sm:font-black font-mono tracking-tighter text-[clamp(1.8rem,8vw,4.5rem)] leading-none text-maxx-white animate-pain-pulse">
                                 {utils.toLocaleString(rewardInfo.finalReward)}
                               </span>
                             )}
@@ -406,7 +412,7 @@ export default function TokenClaim() {
                           {/* token label */}
                           <div className="flex items-center gap-2 mt-4">
                             <div className="w-1.5 h-1.5 rounded-sm bg-maxx-violet" />
-                            <span className="font-mono text-sm font-bold text-maxx-violetLt tracking-widest uppercase">
+                            <span className="font-sans text-[.7rem] sm:text-sm font-bold text-maxx-violetLt tracking-widest uppercase">
                               ${tokenConfig.symbol} Tokens
                             </span>
                           </div>

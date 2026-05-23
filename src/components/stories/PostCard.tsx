@@ -94,22 +94,21 @@ export default function PostCard({
         <div className="flex items-center gap-3 mb-3">
           <a className="action-btn" href={`/profile/${author.username}`} target="_blank">
             <ImageAvatar
-              className="h-[40px] w-[40px] mx-auto border-4 shadow-2xl"
+              className="h-[28px] w-[28px] xs:h-[32px] xs:w-[32px] sm:h-[40px] sm:w-[40px] mx-auto border-4 shadow-2xl"
               src={utils.getServerImage(author.photo, "profile/photo", "tiny")}
               alt=""
               seed={author.address}
-              size={40}
             />
           </a>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-0.5">
-              <a className="action-btn" href={`/profile/${author.username}`} target="_blank">
-                <span className="font-semibold text-maxx-white text-[0.85rem] truncate">{author.username}</span>
+              <a className="action-btn truncate" href={`/profile/${author.username}`} target="_blank">
+                <span className="font-semibold text-maxx-white text-sm truncate">{author.username}</span>
               </a>
             </div>
             <div className="flex items-center gap-2">
               {clan && (
-                <Link className="text-maxx-sub font-semibold tracking-wide text-[0.75rem] truncate"
+                <Link className="text-maxx-sub action-btn tracking-wide text-sm truncate"
                   to={`/stories/clan/${clan.slug}-${clan.id}`}>
                   c/{clan.slug}
                 </Link>
@@ -120,12 +119,12 @@ export default function PostCard({
           {/*<button className="text-maxx-dim hover:text-maxx-sub transition-colors p-1 flex-shrink-0 -mt-0.5 bg-transparent border-none cursor-pointer">
             <MoreHorizontal size={15} />
           </button>*/}
-          <span className="text-maxx-dim text-[0.78rem]">{utils.getRelativeDate(post.createdAt)}</span>
+          <span className="text-maxx-dim text-sm">{utils.getRelativeDate(post.createdAt)}</span>
 
         </div>
 
         {/* Content */}
-        <div className={cn("text-maxx-mid my-5 text-[0.9375rem]", bodyClassName)}>
+        <div className={cn("text-maxx-mid my-5 text-sm sm:text-base]", bodyClassName)}>
           <SocialPostBody text={post.content} canCollapse={!isPostPage} />
         </div>
 

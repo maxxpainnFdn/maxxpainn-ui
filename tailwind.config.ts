@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
 import taildind_safelist from "./tailwind_safelist";
+import tailwindAnimate from "tailwindcss-animate"
 
 export default {
 	darkMode: ["class"],
@@ -113,7 +114,8 @@ export default {
 			},
 			// ADDED: New background gradients & noise
 			backgroundImage: {
-				'grad-accent': 'linear-gradient(135deg, #8b5cf6 0%, #ff2d78 100%)',
+        'grad-accent': 'linear-gradient(135deg, #8b5cf6 0%, #ff2d78 100%)',
+				'grad-accent2': 'linear-gradient(to bottom right, #ec4899, #e879f9, #a855f7)',
 				'grad-btn': 'linear-gradient(135deg, #5b21b6 0%, #9333ea 45%, #ff2d78 100%)',
 				'noise-pattern': 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'200\' height=\'200\' filter=\'url(%23n)\' opacity=\'0.035\'/%3E%3C/svg%3E")',
 			},
@@ -157,6 +159,7 @@ export default {
 				'scroll-left': 'scroll-left 30s linear infinite',
 			}
 		}
-	},
-	plugins: [require("tailwindcss-animate")],
+  },
+	
+	plugins: [tailwindAnimate],
 } satisfies Config;

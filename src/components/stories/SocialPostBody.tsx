@@ -345,7 +345,7 @@ export default function SocialPostBody({
         >
           <div
             ref={textRef}
-            className="text-maxx-mid text-[0.9375rem] leading-relaxed break-words"
+            className="text-maxx-mid text-[clamp(15px,1.1vw,17px)] leading-relaxed break-words"
             dangerouslySetInnerHTML={{ __html: renderedHtml }}
           />
         </div>

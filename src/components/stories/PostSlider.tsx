@@ -94,8 +94,8 @@ export default function PostSlider({ posts }) {
                 key={i}
                 data={post}
                 currentUser={userAccountInfo}
-                onClick={(_, post: Post) => { navigate(`/posts/${post.id}`) }}
-                bodyClassName="h-[68px] overflow-hidden ellipsis line-clamp-3"
+                onClick={(_, post: Post) => { navigate(`/stories/post/${post.id}`) }}
+                bodyClassName="h-[90px] sm:h-[80px] overflow-hidden ellipsis line-clamp-3"
               />
             </div>
           ))}

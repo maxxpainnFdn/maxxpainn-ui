@@ -27,7 +27,9 @@ export default tseslint.config(
       "prefer-const": "off",
       "react-hooks/rules-of-hooks": 'error',
       "react-hooks/exhaustive-deps": 'off',
-      "@typescript-eslint/no-explicit-any": "off"
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-expressions": "off",
+      "no-empty": "off"
     },
   }
 );

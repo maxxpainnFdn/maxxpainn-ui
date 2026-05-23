@@ -63,13 +63,17 @@ export default function Footer() {
           <div className="md:col-span-1 flex flex-col gap-5">
 
             {/* logo */}
-            <Link to="/" className="flex items-center gap-2.5 no-underline shrink-0 group w-fit">
+            <Link to="/" className="flex items-center gap-2.5 no-underline shrink-0 group">
               <Zap
-                className="text-maxx-violet w-6 h-6 group-hover:scale-110 transition-transform duration-300"
+                className="text-purple-500 w-6 h-6 sm:w-7 sm:h-7 group-hover:scale-110 transition-transform duration-300"
                 fill="currentColor"
               />
-              <span className="font-sans font-black text-xl tracking-tighter text-maxx-white">
-                MAXX<span className="bg-grad-accent bg-clip-text text-transparent">PAINN</span>
+              <span className="hidden sm:inline-block font-sans font-black text-xl sm:text-2xl tracking-tighter text-purple-200">
+                <span className="">MAXX</span>
+                {/*<span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+                  PAINN
+                </span>*/}
+                <span className="bg-grad-accent bg-clip-text text-transparent">PAINN</span>
               </span>
             </Link>
 

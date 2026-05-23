@@ -136,7 +136,7 @@ export default function MintPreview({
           </div>
         </div>
         <div className="text-right shrink-0">
-          <div className="font-sans font-black text-[clamp(1.3rem,3.5vw,1.8rem)] leading-none bg-grad-accent bg-clip-text text-transparent">
+          <div className="font-sans font-black text-[clamp(1.3rem,3.5vw,1.8rem)] leading-none text-purple-100">
             {Number(minRewardAmount).toLocaleString()}
           </div>
           <div className="text-[0.65rem] font-semibold  text-maxx-sub tracking-widest uppercase mt-0.5">
